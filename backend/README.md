@@ -1,25 +1,4 @@
-# GrocerEase Web App
-
-## Description:
-The "GrocerEase" project involves the development of a user-friendly grocery store application. The aim is to provide a seamless shopping experience for users, allowing them to browse and purchase groceries conveniently from their devices. Shop with Ease, Groceries at Your Fingertips.
-
-## Architecture and Features:
-The application follows the standard MVC architecture. The View of the application is created using HTML, CSS, and
-Bootstrap. The Controller is created using Python and Flask. The Model is created using SQLite.
-
-The features of the application are as follows:
-* Signup and Login for users
-* Ability to view user’s posts, followers, and follows
-* Navigate and view other’s posts, followers, and follows
-* Generate API tokens to use user specific requests
-* See chart showing the clicks on a post
-* Download the user’s posts and their data as a CSV file
-* Ability to search, follow, and unfollow other users
-* User specific feed according to the follows of the user
-* Create, View, Edit, and Delete posts
-* Create, View, Edit, and Delete user accounts
-* Comment to express user’s opinions on posts
-* RESTful API for the posts, users, comments, and follows available
+# BACKEND
 
 ## Setup and Run Guide
 
