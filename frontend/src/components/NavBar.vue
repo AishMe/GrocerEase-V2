@@ -26,13 +26,10 @@
         >
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active" href="/prot">Protected</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link active" href="/dashboard">Dashboard</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="#">Register</a>
+              <a class="nav-link active" href="/register">Register</a>
             </li>
           </ul>
           <form class="d-flex" role="search">

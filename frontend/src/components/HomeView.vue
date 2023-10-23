@@ -1,6 +1,9 @@
 <template>
   <div>
-    <h1 style="margin-top: 5rem">Welcome to the Home Page!</h1>
+    <img src="" />
+    <div class="pt-2 mb-4">
+      <button class="btn btn-dark btn-lg btn-block" type="submit">Shop Now</button>
+    </div>
   </div>
 </template>
 
