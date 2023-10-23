@@ -8,13 +8,14 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
 SQLITE_DB_DIR = os.path.join(basedir, "./instance")
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(SQLITE_DB_DIR, "store.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + \
+    os.path.join(SQLITE_DB_DIR, "store.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'harekrishna'
 jwt = JWTManager(app)
 
 
-#-------------------- MODEL INITIALIZATION -------------------
+# -------------------- MODEL INITIALIZATION -------------------
 
 db.init_app(app)
 app.app_context().push()
@@ -24,11 +25,12 @@ ma.init_app(app)
 CORS(app)
 
 
-#-------------------- ROUTES -------------------
+# -------------------- ROUTES -------------------
 
 @app.route('/', methods=['GET'])
 def get_details():
     return jsonify({'msg': 'hello world'})
+
 
 @app.route('/add', methods=['POST'])
 def add_details():
@@ -41,7 +43,7 @@ def add_details():
     db.session.add(user_add)
     db.session.commit()
 
-    return jsonify({ 'msg':'Added Successfully!' })
+    return jsonify({'msg': 'Added Successfully!'})
 
 
 @app.route('/login', methods=['POST'])
@@ -55,20 +57,72 @@ def login():
         return jsonify({'message': 'Wrong Username or Password'}), 401
 
     access_token = create_access_token(identity={
-                                       'userId': user.user_id, 
-                                       'useremail': user.email, 
+                                       'userId': user.user_id,
+                                       'useremail': user.email,
                                        'role': user.role
                                        })
 
-    return jsonify({ 'access_token': access_token, 'role': user.role, 'msg': f"Successfully Logged In as {user.role.capitalize()}" }), 200
+    return jsonify({'access_token': access_token, 'role': user.role, 'msg': f"Successfully Logged In as {user.role.capitalize()}"}), 200
 
 
-@app.route('/protected', methods=['GET'])
+@app.route('/profile', methods=['GET'])
 @jwt_required()
-def protected():
+def profile():
     this_user = get_jwt_identity()
     user = User.query.get(this_user['userId'])
-    return jsonify({ 'name':user.name, 'msg':'You are Authorised!' })
+    return jsonify({'name': user.name, 'email': user.email, 'avatar': user.avatar, 'msg': 'You are Authorised!'})
+
+
+@app.route('/delete_acc', methods=['DELETE'])
+@jwt_required()
+def delete_user():
+    this_user = get_jwt_identity()
+    # user = User.query.get(this_user['userId'])
+
+    # if user.role != 'admin' and user.user_id != user_id:
+    #     return jsonify({'message': 'Unauthorized to delete this user'}), 403
+
+    user_to_delete = User.query.get(this_user['userId'])
+    if not user_to_delete:
+        return jsonify({'message': 'User not found'}), 404
+
+    db.session.delete(user_to_delete)
+    db.session.commit()
+
+    return jsonify({'message': 'User deleted successfully'}), 200
+
+
+@app.route('/edit_profile', methods=['PUT'])
+@jwt_required()
+def edit_user():
+    this_user = get_jwt_identity()
+    # user = User.query.get(this_user['userId'])
+
+    # if user.role != 'admin' and user.user_id != user_id:
+    #     return jsonify({'message': 'Unauthorized to edit this user'}), 403
+
+    user_to_edit = User.query.get(this_user['userId'])
+    if not user_to_edit:
+        return jsonify({'message': 'User not found'}), 404
+
+    data = request.json
+
+    if 'name' in data:
+        user_to_edit.name = data['name']
+
+    if 'email' in data:
+        user_to_edit.email = data['email']
+
+    if 'password' in data:
+        user_to_edit.password = bcrypt.generate_password_hash(
+            data['password']).decode('utf-8')
+
+    if 'role' in data:
+        user_to_edit.role = data['role']
+
+    db.session.commit()
+
+    return jsonify({'message': 'User information updated successfully'}), 200
 
 
 if __name__ == "__main__":

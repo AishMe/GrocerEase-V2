@@ -60,7 +60,7 @@
                   />
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                  <li><a class="dropdown-item" href="/prot">Profile</a></li>
+                  <li><a class="dropdown-item" href="/profile">Profile</a></li>
                   <li><a class="dropdown-item" href="#">Cart</a></li>
                   <li><a class="dropdown-item" href="#">Orders</a></li>
                   <li><a class="dropdown-item" href="/login">Login</a></li>
@@ -83,7 +83,7 @@ export default {
     logout: function () {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('role')
-      this.$router.push({ path: '/login' })
+      this.$router.push({ path: '/home' })
       alert('Successfully Logged Out!')
     }
   }

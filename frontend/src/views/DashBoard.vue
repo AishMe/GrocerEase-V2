@@ -16,13 +16,11 @@ import AdminDashboard from '../components/AdminDashboard.vue'
 export default {
   data() {
     return {
-      name: '',
-      user: '',
       role: localStorage.getItem('role')
     }
   },
   async mounted() {
-    const res = await fetch('http://127.0.0.1:5000/protected', {
+    const res = await fetch('http://127.0.0.1:5000/profile', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +31,6 @@ export default {
     const d = await res.json()
     if (res.ok) {
       console.log(d)
-      this.name = d.name
     } else {
       //alert(d.message)
       this.$router.push({ path: '/login' })

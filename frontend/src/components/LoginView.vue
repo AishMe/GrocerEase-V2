@@ -108,7 +108,7 @@ export default {
           localStorage.setItem('accessToken', res.access_token)
           localStorage.setItem('role', res.role)
           alert(res.msg)
-          this.$router.push({ path: '/prot' })
+          this.$router.push({ path: '/dashboard' })
         } else {
           alert(res.msg)
         }
