@@ -8,10 +8,10 @@
               <div class="card-body p-md-5">
                 <div class="row justify-content-center">
                   <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-                    <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-2">Sign up</p>
+                    <p class="text-center h1 fw-bold mb-4 mx-1 mx-md-4">Sign up</p>
 
                     <form class="mx-1 mx-md-4" @submit.prevent="register">
-                      <div class="d-flex flex-row align-items-center mb-4">
+                      <div class="d-flex flex-row align-items-center mb-2">
                         <div class="form-outline flex-fill mb-0">
                           <input type="text" id="userName" class="form-control" v-model="name" />
                           <label class="form-label" for="userName">Name</label>
@@ -65,7 +65,7 @@
                         </label>
                       </div>
 
-                      <div class="d-flex justify-content-center pt-1 mb-2">
+                      <div class="d-flex justify-content-center pt-1">
                         <button class="btn btn-dark btn-lg btn-block" type="submit">
                           Register
                         </button>

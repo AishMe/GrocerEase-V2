@@ -25,7 +25,7 @@ export default {
   color: #2c3e50;
 }
 body {
-  background-color: #147b33;
+  background-color: #3a915d;
   background-image: url('https://muffingroup.com/blog/wp-content/uploads/2021/03/gr.jpg');
 }
 </style>
