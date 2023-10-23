@@ -1,9 +1,15 @@
+<script setup>
+import UserDashboard from '../components/UserDashboard.vue'
+import ManagerDashboard from '../components/ManagerDashboard.vue'
+import AdminDashboard from '../components/AdminDashboard.vue'
+</script>
+
 <template>
-  <div>
-    <h1 style="margin-top: 5rem">Protected</h1>
-    <h2>Name: {{ this.name }}</h2>
-    <h2>Role: {{ this.role }}</h2>
-  </div>
+  <main>
+    <UserDashboard v-if="role === 'user'"/>
+    <ManagerDashboard v-else-if="role === 'manager'"/>
+    <AdminDashboard v-else-if="role === 'admin'"/>
+  </main>
 </template>
 
 <script>
@@ -29,7 +35,7 @@ export default {
       console.log(d)
       this.name = d.name
     } else {
-      alert(d.message)
+      //alert(d.message)
       this.$router.push({ path: '/login' })
       console.log(d.msg)
     }

@@ -6,6 +6,7 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 ma = Marshmallow()
 
+
 class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Text, unique=True, nullable=False)
@@ -19,8 +20,10 @@ class User(db.Model):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.role = role
 
+
 class UserSchema(ma.Schema):
     class Meta:
         fields = ('user_id', 'email', 'name', 'role')
+
 
 user_schema = UserSchema()

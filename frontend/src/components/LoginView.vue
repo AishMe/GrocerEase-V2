@@ -1,18 +1,23 @@
 <template>
   <div>
-    <section class="vh-100" style="background-image: url('https://muffingroup.com/blog/wp-content/uploads/2021/03/gr.jpg'); padding-top: 3rem;">
+    <section
+      class="vh-100"
+      style="
+        background-image: url('https://muffingroup.com/blog/wp-content/uploads/2021/03/gr.jpg');
+        padding-top: 3rem;
+      "
+    >
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col col-xl-10">
             <div class="card" style="border-radius: 1rem">
-              <div class="row g-0" style="background-color: #F4F7F3;">
+              <div class="row g-0" style="background-color: #f4f7f3">
                 <div class="col-md-6 col-lg-7 d-none d-md-block">
                   <img
                     src="https://www.grocersapp.com/blog/wp-content/uploads/2021/01/people-shopping-groceries-online_23-2148530105.jpg"
-                    
                     alt="login form"
                     class="img-fluid"
-                    style="padding-top: 8rem;"
+                    style="padding-top: 8rem"
                   />
                   <!-- https://cdni.iconscout.com/illustration/premium/thumb/girl-doing-online-grocery-shopping-5713142-4771662.png -->
                 </div>
@@ -20,7 +25,12 @@
                   <div class="card-body p-4 p-lg-5 text-black">
                     <form @submit.prevent="login">
                       <div class="d-flex align-items-center mb-3 pb-1">
-                        <img src="../assets/logo_2.png" alt="Logo" class="me-3" style="height: 3rem; width: 1.82rem;">
+                        <img
+                          src="../assets/logo_2.png"
+                          alt="Logo"
+                          class="me-3"
+                          style="height: 3rem; width: 1.82rem"
+                        />
                         <span class="h1 fw-bold mb-0">SIGN IN</span>
                       </div>
 

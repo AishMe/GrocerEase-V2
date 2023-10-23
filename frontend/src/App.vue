@@ -6,13 +6,11 @@
 <script setup>
 import { RouterView } from 'vue-router'
 import NavBar from './components/NavBar.vue'
-
 </script>
 
 <script>
-
 export default {
-  name: 'App', 
+  name: 'App',
   components: {
     NavBar
   }
@@ -25,5 +23,9 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+body {
+  background-color: #147b33;
+  background-image: url('https://muffingroup.com/blog/wp-content/uploads/2021/03/gr.jpg');
 }
 </style>
