@@ -113,7 +113,8 @@ export default {
           email: this.email,
           name: this.name,
           password: this.password,
-          role: this.role
+          role: this.role,
+          avatar: ''
         })
       })
 

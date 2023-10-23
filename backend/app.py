@@ -39,7 +39,12 @@ def add_details():
     password = request.json['password']
     role = request.json['role']
 
-    user_add = User(email=email, name=name, password=password, role=role)
+    if request.json['avatar'] == '':
+        avatar = 'https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg'
+    else:
+        avatar = request.json['avatar']
+
+    user_add = User(email=email, name=name, password=password, role=role, avatar=avatar)
     db.session.add(user_add)
     db.session.commit()
 
