@@ -44,3 +44,27 @@ a,
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
   }
+
+  .min-h-content{
+    min-height: calc(100vh - 82px - 148px);
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+body {
+  background-color: #3a915d;
+  background-image: url('https://muffingroup.com/blog/wp-content/uploads/2021/03/gr.jpg');
+  position: relative;
+  min-height: 100%;
+  min-height: 100vh;
+}
+
+footer {
+  position: absolute;
+  right: 0;bottom:0;left:0;
+}

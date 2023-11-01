@@ -1,32 +1,39 @@
 <template>
-  <NavBar />
+  <div>
   <RouterView />
+</div>
 </template>
 
 <script setup>
 import { RouterView } from 'vue-router'
-import NavBar from './components/NavBar.vue'
+import {computed, reactive } from 'vue'
+  import { useHead } from '@vueuse/head'
 
 </script>
 
 <script>
-export default {
-  name: 'App',
-  components: {
-    NavBar
+  
+  export default {
+    name: 'App',
+    setup() {
+      const siteData = reactive({
+        title: `My website`,
+        description: `My beautiful website`,
+      })
+      useHead({
+        // Can be static or computed
+        title: computed(() => siteData.title),
+        meta: [
+          {
+            name: `description`,
+            content: computed(() => siteData.description),
+          },
+          ],
+       
+      })
+    },
+    async mounted() {
+      await this.$store.commit('initialiseStore')
+    },
   }
-}
-</script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-body {
-  background-color: #3a915d;
-  background-image: url('https://muffingroup.com/blog/wp-content/uploads/2021/03/gr.jpg');
-}
-</style>
+  </script>
