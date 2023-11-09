@@ -44,7 +44,8 @@ def add_details():
     else:
         avatar = request.json['avatar']
 
-    user_add = User(email=email, name=name, password=password, role=role, avatar=avatar)
+    user_add = User(email=email, name=name, password=password,
+                    role=role, avatar=avatar)
     db.session.add(user_add)
     db.session.commit()
 
