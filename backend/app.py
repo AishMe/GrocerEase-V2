@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from models import User, Order, OrderItem, Product, Category, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from functools import wraps
 from flask_cors import CORS
 import os
 
@@ -23,6 +24,36 @@ db.create_all()
 bcrypt.init_app(app)
 ma.init_app(app)
 CORS(app)
+
+
+# -------------------- RBAC DECORATOR -----------------------
+
+
+def role_required(roles):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            current_user = get_jwt_identity()
+            # Assuming 'role' is included in JWT
+            user_role = current_user.get('role')
+
+            if user_role not in roles:
+                return jsonify({'message': 'Access Denied. Insufficient permissions.'}), 403
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+# Example of using the decorator to protect an endpoint
+@app.route('/api/manager', methods=['GET'])
+@jwt_required()
+@role_required(roles=['manager'])
+def admin_endpoint():
+    # This endpoint can only be accessed by users with the 'admin' role
+    return jsonify({'message': 'You have access to the admin endpoint.'})
 
 
 # -------------------- ROUTES -------------------
@@ -134,6 +165,7 @@ def edit_user():
 # New Flask route for checkout
 @app.route('/api/checkout', methods=['POST'])
 @jwt_required()
+@role_required(roles=['user'])
 def checkout():
     try:
         user_id = get_jwt_identity()['userId']
@@ -169,6 +201,7 @@ def checkout():
 
 @app.route('/api/orders', methods=['GET'])
 @jwt_required()
+@role_required(roles=['user'])
 def get_orders():
     try:
         user_id = get_jwt_identity()['userId']
