@@ -58,10 +58,15 @@ export default {
 
 <template>
   <div class="d-flex justify-content-center align-items-center" style="height: 100vh">
-    <div class="card" style="min-width: 40%; height: 32%;">
+    <div class="card" style="min-width: 40%; height: 32%">
       <div class="row g-0">
         <div class="col-md-4">
-          <img :src="avatar" class="img-fluid rounded-start" alt="Profile Photo" style="width: 250px; height: 250px; object-fit: cover; overflow: hidden;"/>
+          <img
+            :src="avatar"
+            class="img-fluid rounded-start"
+            alt="Profile Photo"
+            style="width: 250px; height: 250px; object-fit: cover; overflow: hidden"
+          />
         </div>
         <div class="col-md-8">
           <div class="card-body">

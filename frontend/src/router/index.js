@@ -7,6 +7,7 @@ import DashBoard from '../views/DashBoard.vue'
 import RegisterView from '../components/RegisterView.vue'
 import ShoppingCart from '../views/ShoppingCart.vue'
 import OrdersView from '../views/OrdersView.vue'
+import AccessDenied from '../views/AccessDenied.vue'
 
 const routes = [
   {
@@ -20,8 +21,13 @@ const routes = [
   { path: '/profile', name: 'profile', component: ProfilePage },
   { path: '/dashboard', name: 'dashboard', component: DashBoard },
   { path: '/register', name: 'register', component: RegisterView },
-  { path: '/cart', name: 'cart', component: ShoppingCart },
-  { path: '/orders', name: 'orders', component: OrdersView }
+  { path: '/cart', name: 'cart', component: ShoppingCart, meta: {
+    allowedRoles: ['user'],
+  }, },
+  { path: '/orders', name: 'orders', component: OrdersView, meta: {
+    allowedRoles: ['user'],
+  }, },
+  { path: '/access_denied', name: 'access_denied', component: AccessDenied },
 
 ]
   }]
@@ -30,5 +36,23 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+// Define a navigation guard
+router.beforeEach((to, from, next) => {
+  const userRole = localStorage.getItem('role');
+
+  // Define the route meta fields indicating which roles are allowed
+  const allowedRoles = to.meta.allowedRoles;
+
+  // Check if the user's role is allowed for the current route
+  if (!allowedRoles || allowedRoles.includes(userRole)) {
+    next();
+
+  } else {
+    next({ name: 'access_denied' });
+  }
+
+});
+
 
 export default router
