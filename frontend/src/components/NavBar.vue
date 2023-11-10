@@ -62,7 +62,7 @@
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                   <li><a class="dropdown-item" href="/profile">Profile</a></li>
                   <li><a class="dropdown-item" href="/cart">Cart</a></li>
-                  <li><a class="dropdown-item" href="#">Orders</a></li>
+                  <li><a class="dropdown-item" href="/orders">Orders</a></li>
                   <li><a class="dropdown-item" href="/login">Login</a></li>
                   <li>
                     <a class="dropdown-item" style="cursor: pointer" @click="logout">Logout</a>

@@ -6,6 +6,7 @@ import ProfilePage from '../components/ProfilePage.vue'
 import DashBoard from '../views/DashBoard.vue'
 import RegisterView from '../components/RegisterView.vue'
 import ShoppingCart from '../views/ShoppingCart.vue'
+import OrdersView from '../views/OrdersView.vue'
 
 const routes = [
   {
@@ -19,7 +20,8 @@ const routes = [
   { path: '/profile', name: 'profile', component: ProfilePage },
   { path: '/dashboard', name: 'dashboard', component: DashBoard },
   { path: '/register', name: 'register', component: RegisterView },
-  { path: '/cart', name: 'cart', component: ShoppingCart }
+  { path: '/cart', name: 'cart', component: ShoppingCart },
+  { path: '/orders', name: 'orders', component: OrdersView }
 
 ]
   }]

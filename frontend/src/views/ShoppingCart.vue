@@ -5,7 +5,7 @@
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col">
           <div class="card border-0">
-            <div class="card-body p-4 rounded-5" style="background-color: #f4f7f3;">
+            <div class="card-body p-4 rounded-5" style="background-color: #f4f7f3">
               <div class="row">
                 <div class="col-lg-7">
                   <h5 class="mb-3">
@@ -71,7 +71,7 @@
                   </div>
                 </div>
                 <div class="col-lg-5">
-                  <div class="card text-white rounded-0 border-0" style="background-color: #3a915d;">
+                  <div class="card text-white rounded-0 border-0" style="background-color: #3a915d">
                     <div class="card-body">
                       <div class="d-flex justify-content-between align-items-center mb-4">
                         <h5 class="mb-0">Cart details</h5>
@@ -91,7 +91,14 @@
                         </p>
                       </div>
 
-                      <button type="button" class="btn btn-block btn-lg" style="background-color: #C1E1C1;">Checkout</button>
+                      <button
+                        @click="checkout"
+                        type="button"
+                        class="btn btn-block btn-lg"
+                        style="background-color: #c1e1c1"
+                      >
+                        Checkout
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -100,8 +107,8 @@
           </div>
         </div>
       </div>
-      <br/><br/><br/><br/>
-      <br/><br/><br/>
+      <br /><br /><br /><br />
+      <br /><br /><br />
     </div>
   </section>
 </template>
@@ -112,6 +119,33 @@ export default {
   methods: {
     removeItem(item) {
       this.$store.commit('addRemoveCart', { product: item, toAdd: false })
+    },
+
+    async checkout() {
+      try {
+        // Send a request to your Flask backend to save the items in the database
+        //await this.$axios.post('/api/checkout', { cart: this.$store.state.cart });
+
+        const res = await fetch('http://127.0.0.1:5000/api/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          },
+          body: JSON.stringify({ cart: this.$store.state.cart })
+        })
+
+        console.log(this.$store.state.cart)
+        if (res.ok) {
+          // Redirect to the orders page after successful checkout
+          this.$router.push({ name: 'orders' })
+        } else {
+          alert('OOPS! Something Went Wrong. Please Try Again.')
+        }
+      } catch (error) {
+        console.error('Error during checkout:', error)
+        // Handle error, show a message, etc.
+      }
     }
   },
   mounted() {}
