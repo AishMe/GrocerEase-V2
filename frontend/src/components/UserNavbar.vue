@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-xl fixed-top" data-bs-theme="dark" style="min-height: 7rem">
+    <nav class="navbar navbar-expand-xl bg-dark" data-bs-theme="dark" style="min-height: 7rem">
       <div class="container-fluid">
         <a
           class="navbar-brand"

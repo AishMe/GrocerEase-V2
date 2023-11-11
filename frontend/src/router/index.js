@@ -8,6 +8,10 @@ import RegisterView from '../components/RegisterView.vue'
 import ShoppingCart from '../views/ShoppingCart.vue'
 import OrdersView from '../views/OrdersView.vue'
 import AccessDenied from '../views/AccessDenied.vue'
+import AdminDashboard from '../components/AdminDashboard.vue'
+import ManagerPending from '../components/ManagerPending.vue'
+import ManagerAccepted from '../components/ManagerAccepted.vue'
+import ManagerRejected from '../components/ManagerRejected.vue'
 
 const routes = [
   {
@@ -28,6 +32,18 @@ const routes = [
     allowedRoles: ['user'],
   }, },
   { path: '/access_denied', name: 'access_denied', component: AccessDenied },
+  { path: '/admin_dashboard', name: 'admin_dashboard', component: AdminDashboard, meta: {
+    allowedRoles: ['admin'],
+  }, },
+  { path: '/manager_pending', name: 'manager_pending', component: ManagerPending, meta: {
+    allowedRoles: ['admin'],
+  }, },
+  { path: '/manager_accepted', name: 'manager_accepted', component: ManagerAccepted, meta: {
+    allowedRoles: ['admin'],
+  }, },
+  { path: '/manager_rejected', name: 'manager_rejected', component: ManagerRejected, meta: {
+    allowedRoles: ['admin'],
+  }, },
 
 ]
   }]

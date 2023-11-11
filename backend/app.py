@@ -41,9 +41,7 @@ def role_required(roles):
                 return jsonify({'message': 'Access Denied. Insufficient permissions.'}), 403
 
             return func(*args, **kwargs)
-
         return wrapper
-
     return decorator
 
 
@@ -286,6 +284,113 @@ def get_products():
         return jsonify({'products': product_list}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching products', 'error': str(e)}), 500
+    
+
+# Fetch pending managers
+@app.route('/admin/pending/managers', methods=['GET'])
+@jwt_required()
+def get_pending_managers():
+    try:
+        # Fetch a list of pending manager requests from the database
+        pending_managers = User.query.filter_by(request_approval=0).all()
+        pending_managers_data = [{'user_id': manager.user_id, 
+                                  'name': manager.name, 
+                                  'role': manager.role, 
+                                  'avatar': manager.avatar, 
+                                  'email': manager.email
+                                  } for manager in pending_managers]
+
+        return jsonify({'pendingManagers': pending_managers_data}), 200
+    except Exception as e:
+        return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
+    
+
+# Fetch approved managers
+@app.route('/admin/approved/managers', methods=['GET'])
+@jwt_required()
+def get_approved_managers():
+    try:
+        # Fetch a list of pending manager requests from the database
+        pending_managers = User.query.filter_by(request_approval=1).all()
+        pending_managers_data = [{'user_id': manager.user_id, 
+                                  'name': manager.name, 
+                                  'role': manager.role, 
+                                  'avatar': manager.avatar, 
+                                  'email': manager.email
+                                  } for manager in pending_managers]
+
+        return jsonify({'approvedManagers': pending_managers_data}), 200
+    except Exception as e:
+        return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
+    
+
+# Fetch rejected managers
+@app.route('/admin/rejected/managers', methods=['GET'])
+@jwt_required()
+def get_rejected_managers():
+    try:
+        # Fetch a list of pending manager requests from the database
+        pending_managers = User.query.filter_by(request_approval=-1).all()
+        pending_managers_data = [{'user_id': manager.user_id, 
+                                  'name': manager.name, 
+                                  'role': manager.role, 
+                                  'avatar': manager.avatar, 
+                                  'email': manager.email
+                                  } for manager in pending_managers]
+
+        return jsonify({'rejectedManagers': pending_managers_data}), 200
+    except Exception as e:
+        return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
+    
+
+# Approve request
+@app.route('/admin/approve/<int:user_id>', methods=['PUT'])
+@jwt_required()
+def approve_request(user_id):
+    try:
+        # Update the request_approval status to 1 for the specified user
+        user = User.query.get(user_id)
+        if user:
+            user.request_approval = 1
+            db.session.commit()
+            return jsonify({'message': 'Request approved'}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Error approving request', 'error': str(e)}), 500
+
+# Decline request
+@app.route('/admin/decline/<int:user_id>', methods=['PUT'])
+@jwt_required()
+def decline_request(user_id):
+    try:
+        # Update the request_approval status to -1 for the specified user
+        user = User.query.get(user_id)
+        if user:
+            user.request_approval = -1
+            db.session.commit()
+            return jsonify({'message': 'Request declined'}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
+    
+
+# Decline request
+@app.route('/admin/revert/<int:user_id>', methods=['PUT'])
+@jwt_required()
+def revert_request(user_id):
+    try:
+        # Update the request_approval status to -1 for the specified user
+        user = User.query.get(user_id)
+        if user:
+            user.request_approval = 0
+            db.session.commit()
+            return jsonify({'message': 'Action Performed Successfully'}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Error processing request', 'error': str(e)}), 500
 
 
 if __name__ == "__main__":

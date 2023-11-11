@@ -15,6 +15,7 @@ class User(db.Model):
     password = db.Column(db.Text, nullable=False)
     role = db.Column(db.Text, nullable=False)
     avatar = db.Column(db.Text, nullable=True)
+    request_approval = db.Column(db.Integer, nullable=False, default=0)
 
     def __init__(self, email, name, password, role, avatar):
         self.email = email
@@ -22,6 +23,8 @@ class User(db.Model):
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.role = role
         self.avatar = avatar
+        self.request_approval = 0
+
 
 
 class Category(db.Model):
