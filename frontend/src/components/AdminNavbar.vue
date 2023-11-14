@@ -34,7 +34,11 @@
             <li class="nav-item">
               <a class="nav-link active" href="/login">Login</a>
             </li>
+            <a class="mx-5" href="http://127.0.0.1:5000/download_csv" target="_blank">
+              <button class="btn btn-primary" type="button">Download CSV</button>
+            </a>
           </ul>
+
           <form class="d-flex" role="search">
             <input
               class="form-control me-2"
@@ -46,7 +50,19 @@
               <fa-icon class="fas fa-search" color="#ffffff" size="1.2rem"></fa-icon>
             </button>
           </form>
-          <ul class="navbar-nav" style="margin-left: 5rem; margin-right: 3rem">
+          <a href="/manager_pending" class="text-white mx-5 position-relative">
+            <i class="bi bi-bell-fill" style="font-size: 22px">
+              <span
+                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                style="font-size: 12px; transform: scale(0.8)"
+              >
+                1
+                <span class="visually-hidden">pending requests</span>
+              </span>
+            </i>
+          </a>
+
+          <ul class="navbar-nav" style="margin-right: 3rem">
             <li class="nav-item">
               <div class="dropdown">
                 <button

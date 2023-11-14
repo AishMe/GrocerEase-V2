@@ -26,7 +26,6 @@ class User(db.Model):
         self.request_approval = 0
 
 
-
 class Category(db.Model):
     category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     category_name = db.Column(db.Text, nullable=False)
@@ -52,7 +51,7 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey(
         User.user_id), nullable=False)
     order_date = db.Column(
-        db.DateTime, default=datetime.utcnow, nullable=False)
+        db.Text, default=datetime.now().date(), nullable=False)
 
 
 class OrderItem(db.Model):

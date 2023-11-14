@@ -1,11 +1,16 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from models import User, Order, OrderItem, Product, Category, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from tasks import export_product_data_to_csv
+from datetime import datetime, date
+from sqlalchemy import func
 from functools import wraps
 from flask_cors import CORS
+import tasks
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+# print("BASE DIR PATH: ", basedir)
 
 app = Flask(__name__)
 SQLITE_DB_DIR = os.path.join(basedir, "./instance")
@@ -284,7 +289,7 @@ def get_products():
         return jsonify({'products': product_list}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching products', 'error': str(e)}), 500
-    
+
 
 # Fetch pending managers
 @app.route('/admin/pending/managers', methods=['GET'])
@@ -293,17 +298,17 @@ def get_pending_managers():
     try:
         # Fetch a list of pending manager requests from the database
         pending_managers = User.query.filter_by(request_approval=0).all()
-        pending_managers_data = [{'user_id': manager.user_id, 
-                                  'name': manager.name, 
-                                  'role': manager.role, 
-                                  'avatar': manager.avatar, 
+        pending_managers_data = [{'user_id': manager.user_id,
+                                  'name': manager.name,
+                                  'role': manager.role,
+                                  'avatar': manager.avatar,
                                   'email': manager.email
                                   } for manager in pending_managers]
 
         return jsonify({'pendingManagers': pending_managers_data}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
-    
+
 
 # Fetch approved managers
 @app.route('/admin/approved/managers', methods=['GET'])
@@ -312,17 +317,17 @@ def get_approved_managers():
     try:
         # Fetch a list of pending manager requests from the database
         pending_managers = User.query.filter_by(request_approval=1).all()
-        pending_managers_data = [{'user_id': manager.user_id, 
-                                  'name': manager.name, 
-                                  'role': manager.role, 
-                                  'avatar': manager.avatar, 
+        pending_managers_data = [{'user_id': manager.user_id,
+                                  'name': manager.name,
+                                  'role': manager.role,
+                                  'avatar': manager.avatar,
                                   'email': manager.email
                                   } for manager in pending_managers]
 
         return jsonify({'approvedManagers': pending_managers_data}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
-    
+
 
 # Fetch rejected managers
 @app.route('/admin/rejected/managers', methods=['GET'])
@@ -331,17 +336,17 @@ def get_rejected_managers():
     try:
         # Fetch a list of pending manager requests from the database
         pending_managers = User.query.filter_by(request_approval=-1).all()
-        pending_managers_data = [{'user_id': manager.user_id, 
-                                  'name': manager.name, 
-                                  'role': manager.role, 
-                                  'avatar': manager.avatar, 
+        pending_managers_data = [{'user_id': manager.user_id,
+                                  'name': manager.name,
+                                  'role': manager.role,
+                                  'avatar': manager.avatar,
                                   'email': manager.email
                                   } for manager in pending_managers]
 
         return jsonify({'rejectedManagers': pending_managers_data}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
-    
+
 
 # Approve request
 @app.route('/admin/approve/<int:user_id>', methods=['PUT'])
@@ -360,6 +365,8 @@ def approve_request(user_id):
         return jsonify({'message': 'Error approving request', 'error': str(e)}), 500
 
 # Decline request
+
+
 @app.route('/admin/decline/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def decline_request(user_id):
@@ -374,7 +381,7 @@ def decline_request(user_id):
             return jsonify({'message': 'User not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
-    
+
 
 # Decline request
 @app.route('/admin/revert/<int:user_id>', methods=['PUT'])
@@ -391,6 +398,71 @@ def revert_request(user_id):
             return jsonify({'message': 'User not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error processing request', 'error': str(e)}), 500
+
+
+# @app.route('/category/add', methods=['POST'])
+# def add_details():
+#     email = request.json['email']
+#     name = request.json['name']
+#     password = request.json['password']
+#     role = request.json['role']
+
+#     add_category = Category(category_name=category_name,
+#                     category_image=category_image)
+
+#     db.session.add(add_category)
+#     db.session.commit()
+
+#     return jsonify({'msg': 'Category Added Successfully!'})
+
+
+@app.route('/api/visited_status', methods=['GET'])
+def user_visited_status():
+    try:
+
+        # Get today's date
+        today_date = date.today()
+        print(date.today())
+        print(Order.order_date.cast(db.Date))
+
+        # Query orders with order_date on today's date
+        orders_today = Order.query.filter(Order.order_date == today_date).all()
+        print(orders_today)
+        user_ids_today = set(order.user_id for order in orders_today)
+
+        # Query users who are not in the list of user_ids with orders today
+        users = User.query.filter(User.user_id.notin_(
+            user_ids_today), User.role == 'user').all()
+
+        # Extract user names from user objects
+        user_names = [user.name for user in users]
+
+        return jsonify(user_names), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Error fetching visted status', 'error': str(e)}), 500
+
+
+@app.route('/download_csv')
+def download_csv():
+    try:
+
+        export_product_data_to_csv.delay(file_path=basedir+'/product_data.csv')
+        file_path = basedir+'/product_data.csv'
+        print("FILE PATH: ", file_path)
+
+        if os.path.exists(file_path):
+            return send_file(
+                file_path,
+                mimetype='text/csv',
+                download_name="product_data.csv",
+                as_attachment=True
+            )
+        else:
+            return "File not found", 404
+
+    except Exception as e:
+        return f"Error: {str(e)}", 500
 
 
 if __name__ == "__main__":

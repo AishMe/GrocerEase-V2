@@ -4,3 +4,7 @@ Flask-Bcrypt
 flask-cors
 Flask-SQLAlchemy
 Flask-JWT-Extended
+celery
+redis
+eventlet
+requests
