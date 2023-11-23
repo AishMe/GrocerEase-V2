@@ -37,42 +37,39 @@ export default {
   props: ['product'],
   data() {
     return {
-      qty: 1,
-      loading: false
+      loading: false,
+      qty: this.product.qty || 1, // Set the initial quantity to the product's quantity or 1
     }
   },
   methods: {
-    async addOrRemove(number) {
-      this.loading = true
-      if (number == 1) {
-        //add
-        if (this.qty < 10) {
-          this.qty++
-          this.product.qty = this.qty
-          await this.$store.commit('updateCart', { product: this.product })
-          toast.success('cart updated')
-        } else {
-          toast.warning('You reached the limit')
-        }
-      }
-      if (number == -1) {
-        //remove
-        if (this.qty > 1) {
-          this.qty--
-          this.product.qty = this.qty
-          //this.product.qty = this.qty
-          await this.$store.commit('updateCart', { product: this.product })
-          toast.success('cart updated')
-        } else {
-          toast.warning('You reached the limit')
-        }
-      }
+    async addOrRemove(number){
+            this.loading = true
+            if(number == 1){ //add
+                if(this.qty < this.product.stock){
+                    this.qty++
+                    this.product.qty = this.qty
+                    await this.$store.commit('updateCart',{product:this.product})
+                    toast.success('cart updated')
+                }else{
+                    toast.warning('You reached the limit')
+                }
+            }
+            if( number == -1){ //remove
+                if(this.qty > 1){
+                    this.qty--
+                    this.product.qty = this.qty
+                    await this.$store.commit('updateCart',{product:this.product})
+                    toast.success('cart updated');
+                }else{
+                    toast.warning('You reached the limit');  
+                }
+            }
 
-      this.loading = false
-    }
+            this.loading = false
+        }
   },
   mounted() {
-    this.qty = this.product.qty
+    this.qty = this.product.qty || 1;
   }
 }
 </script>

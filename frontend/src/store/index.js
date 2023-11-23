@@ -3,13 +3,13 @@ import { createStore } from 'vuex'
 export default createStore({
   state: {
     cart: [],
-    cartTotal: 0
-
+    cartTotal: 0,
   },
   mutations: {
     async initialiseStore(state) {
       if(localStorage.getItem('cart')){
        state.cart = JSON.parse(localStorage.getItem('cart'))
+       console.log(localStorage.getItem('cart'))
       }
       if(localStorage.getItem('cartTotal')){
       state.cartTotal = parseFloat(localStorage.getItem('cartTotal')) 
@@ -23,6 +23,7 @@ export default createStore({
         return obj.id !== payload.product.id
       });
       state.cartTotal = state.cart.reduce((accumulator, object)=>{
+        console.log("OBJECT PRICE: ", object.price)
         return parseFloat(accumulator) + parseFloat(object.price * object.qty);
       },0);
       localStorage.setItem('cartTotal',JSON.stringify(state.cartTotal));
@@ -40,9 +41,6 @@ export default createStore({
       localStorage.setItem('cart',JSON.stringify(state.cart));
 
     }
-
-
-
   },
   actions: {},
   modules: {},

@@ -39,7 +39,7 @@
             </a>
           </ul>
 
-          <form class="d-flex" role="search">
+          <!-- <form class="d-flex" role="search">
             <input
               class="form-control me-2"
               type="search"
@@ -49,7 +49,7 @@
             <button class="btn btn-dark btn-outline-success" type="submit">
               <fa-icon class="fas fa-search" color="#ffffff" size="1.2rem"></fa-icon>
             </button>
-          </form>
+          </form> -->
           <a href="/manager_pending" class="text-white mx-5 position-relative">
             <i class="bi bi-bell-fill" style="font-size: 22px">
               <span

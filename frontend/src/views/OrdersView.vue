@@ -1,96 +1,94 @@
 <template>
-  <section class="h-100 h-custom min-h-content">
-    <div class="container py-5 h-100">
-      <br /><br /><br />
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col">
-          <div class="card border-0">
-            <div class="card-body p-4 rounded-5" style="background-color: #f4f7f3">
-              <h3 class="mb-4">My Orders</h3>
-              <hr />
+  <div class="container">
+    <br />
+    <center>
+      <h1 class="mb-5" style="font-size: 5rem; color: #C1E1C1;"><strong>Orders</strong></h1>
+    </center>
+    <hr />
 
-              <!-- Display orders here -->
-              <div v-for="order in orders" :key="order.order_id" class="mb-4">
-                <h5>Order #{{ order.order_id }}</h5>
-                <p>Order Date: {{ formatDate(order.order_date) }}</p>
-                <div v-for="category in order.categories" :key="category.category_name">
-                  <h6>{{ category.category_name }}</h6>
-                  <ul class="list-group">
-                    <li
-                      v-for="item in category.items"
-                      :key="item.order_item_id"
-                      class="list-group-item d-flex justify-content-between align-items-center"
-                    >
-                      {{ item.product_name }} - {{ item.quantity }} items
-                      <span class="badge bg-primary rounded-pill">{{
-                        formatCurrency(item.total_price)
-                      }}</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <!-- Show a message if no orders are available -->
-              <div v-if="orders.length === 0">
-                <p>No orders available.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div v-for="order in orders" :key="order.order_id" class="card mb-4 shadow-lg rounded">
+      <div class="card-header">
+        <h4>Order Number: {{ order.order_id }}</h4>
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Quantity</th>
+              <th>Total Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="category in order.categories" :key="category.category_name">
+              <tr v-for="item in category.items" :key="item.order_item_id">
+                <template v-if="category.items.length > 1">
+                  <td>{{ item.product_name }}</td>
+                  <td>{{ category.category_name }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>{{ item.total_price }}</td>
+                </template>
+                <template v-else>
+                  <td>{{ item.product_name }}</td>
+                  <td>{{ category.category_name }}</td>
+                  <td>{{ category.items[0].quantity }}</td>
+                  <td>{{ category.items[0].total_price }}</td>
+                </template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <strong>Total Cost: {{ Math.round(order.categories.reduce((acc, category) => acc + category.items.reduce((acc, item) => acc + item.total_price, 0), 0)) }}</strong>
       </div>
     </div>
-  </section>
+
+    <div v-if="orders.length === 0">
+      <p>No orders available.</p>
+    </div>
+  </div>
 </template>
-  
-  <script>
+
+<script>
 export default {
   data() {
     return {
-      orders: [] // Fetch orders from the API
-    }
+      orders: [], // Fetch orders from the API
+    };
   },
   methods: {
     // Fetch orders from the API
     async fetchOrders() {
       try {
-        // Send a request to your Flask backend to get the user's orders
-        // const response = await this.$axios.get('/api/orders')
         const response = await fetch('http://127.0.0.1:5000/api/orders', {
           method: 'GET',
           headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-          }
-        })
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
+          },
+        });
 
         if (response.ok) {
-          const responseData = await response.json()
-          this.orders = responseData.orders
-          console.log(this.orders)
+          const responseData = await response.json();
+          this.orders = responseData.orders;
+          console.log(this.orders);
         } else {
-          alert('Oops! Something went wrong. Cannot fetch the orders.')
+          alert('Oops! Something went wrong. Cannot fetch the orders.');
         }
       } catch (error) {
-        console.error('Error fetching orders:', error)
+        console.error('Error fetching orders:', error);
         // Handle error, show a message, etc.
       }
     },
-    // Format date to a readable format
-    formatDate(dateString) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' }
-      return new Date(dateString).toLocaleDateString(undefined, options)
-    },
-    // Format currency to a readable format
-    formatCurrency(value) {
-      return `$${value.toFixed(2)}`
-    }
   },
   mounted() {
     // Fetch orders when the component is mounted
-    this.fetchOrders()
-  }
-}
+    this.fetchOrders().then(() => {
+      // Sort orders by order_id in ascending order
+      this.orders.sort((a, b) => a.order_id - b.order_id);
+    });
+  },
+};
 </script>
-  <style>
-/* Add custom styles if needed */
-</style>
-  
+

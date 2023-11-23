@@ -59,9 +59,14 @@ a,
 body {
   background-color: #3a915d;
   background-image: url('https://muffingroup.com/blog/wp-content/uploads/2021/03/gr.jpg');
+  background-attachment: fixed;
   position: relative;
   min-height: 100%;
   min-height: 100vh;
+}
+
+.background {
+  filter: blur(10px);
 }
 
 footer {

@@ -49,11 +49,11 @@
                         </div>
                         <div class="d-flex flex-row align-items-center">
                           <div>
-                            <h5 class="mb-0">
-                              <i class="bi bi-currency-dollar"></i>{{ item.price * item.qty }}
+                            <h5 class="mb-0" v-if="item.price">
+                              <i class="bi bi-currency-dollar"></i>{{ item.price * (item.qty || 0) }}
                             </h5>
                             <small
-                              v-if="item.hasDiscount"
+                              v-if="item.hasDiscount && item.price"
                               class="text-muted text-decoration-line-through"
                               ><i class="bi bi-currency-dollar"></i>{{ item.price }}</small
                             >
@@ -146,7 +146,7 @@ export default {
         console.error('Error during checkout:', error)
         // Handle error, show a message, etc.
       }
-    }
+    },
   },
   mounted() {}
 }
