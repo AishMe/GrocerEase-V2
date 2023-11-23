@@ -40,10 +40,21 @@ class Product(db.Model):
         Category.category_id), nullable=False)
     product_name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    manufacturing_date = db.Column(db.Text, default=datetime.now().date(), nullable=False)
+    stock = db.Column(db.Integer, nullable=False)
+    unit = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
     product_image = db.Column(
         db.String(255), nullable=True, default='/default_img.png')
     orders = db.relationship('OrderItem', backref='product', lazy=True)
+
+
+class Cart(db.Model):
+    cart_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey(Product.product_id), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
 
 
 class Order(db.Model):
@@ -78,7 +89,7 @@ class OrderSchema(ma.Schema):
 
 class ProductSchema(ma.Schema):
     class Meta:
-        fields = ('product_id', 'name', 'description', 'price', 'image')
+        fields = ('product_id', 'name', 'description', 'price', 'image', 'manufacturing_date')
 
 
 class OrderItemSchema(ma.Schema):

@@ -1,12 +1,10 @@
-from flask import Flask, jsonify, request, send_file
-from models import User, Order, OrderItem, Product, Category, db, bcrypt, ma
+from models import User, Cart, Order, OrderItem, Product, Category, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import Flask, jsonify, request, send_file
 from tasks import export_product_data_to_csv
-from datetime import datetime, date
-from sqlalchemy import func
 from functools import wraps
 from flask_cors import CORS
-import tasks
+from datetime import date
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -164,6 +162,43 @@ def edit_user():
 
     return jsonify({'message': 'User information updated successfully'}), 200
 
+@app.route('/api/add_to_cart', methods=['POST'])
+@jwt_required()
+def add_to_cart():
+    try:
+        data = request.json
+        product_id = data.get('product_id')
+        quantity = data.get('quantity')
+        user_id = get_jwt_identity().get('userId')
+
+        # Check if the product exists
+        product = Product.query.filter_by(product_id=product_id).all
+        if not product:
+            return jsonify({'message': 'Product not found'}), 404
+
+        # Check if the user has an active cart or create a new one
+        cart = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+        if not cart:
+            cart = Cart(
+                user_id=user_id,
+                product_id=product_id,
+                quantity=quantity,
+                total_price=product.price * quantity
+            )
+            db.session.add(cart)
+        else:
+            # If the product is already in the cart, update the quantity
+            cart.quantity += quantity
+            cart.total_price += product.price * quantity
+
+        db.session.commit()
+
+        return jsonify({'message': 'Product added to cart'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Failed to add to cart'}), 500
+
 
 # New Flask route for checkout
 @app.route('/api/checkout', methods=['POST'])
@@ -269,10 +304,40 @@ def get_categories():
         return jsonify({'message': 'Error fetching categories', 'error': str(e)}), 500
 
 
+# @app.route('/api/products', methods=['GET'])
+# def get_products():
+#     try:
+#         products = Product.query.all()
+#         product_list = []
+
+#         for product in products:
+#             product_data = {
+#                 'id': product.product_id,
+#                 'category_id': product.category_id,
+#                 'name': product.product_name,
+#                 'description': product.description,
+#                 'price': product.price,
+#                 'image': product.product_image
+#             }
+#             product_list.append(product_data)
+
+#         return jsonify({'products': product_list}), 200
+#     except Exception as e:
+#         return jsonify({'message': 'Error fetching products', 'error': str(e)}), 500
+
+
+
 @app.route('/api/products', methods=['GET'])
 def get_products():
     try:
-        products = Product.query.all()
+        category_id = request.args.get('category_id')
+        if category_id:
+            # Filter products by category_id
+            products = Product.query.filter_by(category_id=category_id).all()
+        else:
+            # Fetch all products
+            products = Product.query.all()
+
         product_list = []
 
         for product in products:
@@ -281,6 +346,9 @@ def get_products():
                 'category_id': product.category_id,
                 'name': product.product_name,
                 'description': product.description,
+                'manufacturing_date': product.manufacturing_date,
+                'stock': product.stock,
+                'unit': product.unit,
                 'price': product.price,
                 'image': product.product_image
             }
@@ -289,6 +357,7 @@ def get_products():
         return jsonify({'products': product_list}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching products', 'error': str(e)}), 500
+
 
 
 # Fetch pending managers
@@ -443,6 +512,7 @@ def user_visited_status():
         return jsonify({'message': 'Error fetching visted status', 'error': str(e)}), 500
 
 
+
 @app.route('/download_csv')
 def download_csv():
     try:
@@ -463,6 +533,7 @@ def download_csv():
 
     except Exception as e:
         return f"Error: {str(e)}", 500
+
 
 
 if __name__ == "__main__":
