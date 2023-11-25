@@ -15,13 +15,13 @@ import ManagerRejected from '../components/ManagerRejected.vue'
 
 const routes = [
   {
-    path:'/home',
+    path:'/',
         name:'Public',
         component:DefaultLayout,
-        redirect: '/home',
+        redirect: '/',
         children:[
   { path: '/login', name: 'login', component: LoginView },
-  { path: '/home', name: 'home', component: HomeView },
+  { path: '/', name: 'home', component: HomeView },
   { path: '/profile', name: 'profile', component: ProfilePage },
   { path: '/dashboard', name: 'dashboard', component: DashBoard },
   { path: '/register', name: 'register', component: RegisterView },
@@ -43,8 +43,7 @@ const routes = [
   }, },
   { path: '/manager_rejected', name: 'manager_rejected', component: ManagerRejected, meta: {
     allowedRoles: ['admin'],
-  }, },
-
+  }, }
 ]
   }]
 
