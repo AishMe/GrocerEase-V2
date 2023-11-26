@@ -3,7 +3,7 @@
   <div>
     <div class="fab">
       <a
-        @click="showCategoryForm"
+        @click="showAddCategoryForm"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
         title="Add Category"
@@ -31,7 +31,7 @@
           />
           <div class="card-body">
             <center>
-              <h3 style="color: black">{{ category.category_name }}</h3>
+              <h3 class="fw-bold text-uppercase text-black">{{ category.category_name }}</h3>
             </center>
 
             <div class="overflow-auto" style="height: 400px">
@@ -49,7 +49,7 @@
                 />
                 <div class="card-body">
                   <center>
-                    <h5 class="card-title" style="color: black">{{ product.name }}</h5>
+                    <h5 class="card-title text-black">{{ product.name }}</h5>
                   </center>
                   <hr style="margin-top: 1rem; border: 1px solid black" />
                   <p class="card-text">
@@ -58,13 +58,13 @@
                     Stock: {{ product.stock }}
                   </p>
                   <div class="d-flex justify-content-center align-items-center">
-                    <a @click="openProductForm('Update Product', 'Update')"
+                    <a @click="showEditProductForm(product)"
                       ><button class="btn btn-outline-warning">
                         <i class="bi bi-pencil-square"></i>Edit
                       </button></a
                     >
                     <span style="flex-grow: 0.5"></span>
-                    <a href="#" @click="deleteProduct(product.product_id)"
+                    <a @click="deleteProduct(product.product_id)"
                       ><button class="btn btn-outline-danger">
                         <i class="bi bi-trash"></i>Delete
                       </button></a
@@ -77,18 +77,18 @@
             <div>
               <br />
               <div class="d-flex justify-content-between">
-                <a @click="showProductForm"
+                <a @click="showAddProductForm(category.category_id)"
                   ><button class="btn btn-outline-primary">
                     <i class="fa fa-plus-circle"></i>Add Items
                   </button></a
                 >
                 <span style="flex-grow: 1"></span>
-                <a @click="openCategoryForm('Update Category', 'Update')"
+                <a @click="showEditCategoryForm(category)"
                   ><button class="btn btn-outline-warning">
                     <i class="bi bi-pencil-square"></i></button
                 ></a>
                 <span style="flex-grow: 0.3"></span>
-                <a href="#" @click="deleteCategory(category.category_id)"
+                <a @click="deleteCategory(category.category_id)"
                   ><button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button
                 ></a>
               </div>
@@ -96,70 +96,50 @@
           </div>
         </div>
       </div>
-      <!-- Blurred Background -->
-    <div v-if="showAddCategoryForm || showAddProductForm" class="blur-background">
-      <div class="center-form">
-      <!-- Add Category Form -->
-      <div v-if="showAddCategoryForm">
-        <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem;">
-          <div class="card-body">
-            <h5 class="card-title">Add Category</h5>
-            <!-- Category Form Fields -->
-            <form @submit.prevent="addCategory">
-              <div class="mb-3">
-                <label for="categoryName" class="form-label">Category Name</label>
-                <input type="text" class="form-control" id="categoryName" v-model="newCategory.name" required>
-              </div>
-              <div class="mb-3">
-                <label for="categoryImage" class="form-label">Category Image URL</label>
-                <input type="text" class="form-control" id="categoryImage" v-model="newCategory.image" required>
-              </div>
-              <!-- Add Category and Cancel Buttons -->
-              <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary">Add Category</button>
-                <button type="button" class="btn btn-secondary" @click="cancelCategoryForm">Cancel</button>
-              </div>
-            </form>
+      <!-- Add/Edit Category Form -->
+      <div v-if="showAddEditForm" class="blur-background">
+        <div class="center-form">
+          <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
+            <div class="card-body">
+              <h5 class="card-title text-center">{{ editMode ? 'Edit' : 'Add' }} {{ formType }}</h5>
+              <!-- Category/ Product Form Fields -->
+              <form @submit.prevent="submitForm">
+                <div class="mb-3">
+                  <label class="form-label">Category ID</label>
+                  <input v-model="form.category_id" type="number" class="form-control" disabled />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Name</label>
+                  <input v-model="form.name" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Image URL</label>
+                  <input v-model="form.image" type="url" class="form-control" />
+                </div>
+                <div class="mb-3" v-if="formType === 'Product'">
+                  <label class="form-label">Price</label>
+                  <input v-model="form.price" type="number" class="form-control" required />
+                </div>
+                <div class="mb-3" v-if="formType === 'Product'">
+                  <label class="form-label">Unit</label>
+                  <input v-model="form.unit" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3" v-if="formType === 'Product'">
+                  <label class="form-label">Stock</label>
+                  <input v-model="form.stock" type="number" class="form-control" required />
+                </div>
+                <!-- Add/Edit and Cancel Buttons -->
+                <div class="d-flex justify-content-end">
+                  <button type="submit" class="btn btn-primary">
+                    {{ editMode ? 'Edit' : 'Add' }} {{ formType }}
+                  </button>
+                  <button type="button" class="btn btn-secondary" @click="cancelForm">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Add Product Form -->
-      <div v-if="showAddProductForm" class="col-md-4 d-flex justify-content-center">
-        <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem;">
-          <div class="card-body">
-            <h5 class="card-title">Add Product</h5>
-            <!-- Product Form Fields -->
-            <form @submit.prevent="addProduct">
-              <div class="mb-3">
-                <label for="productName" class="form-label">Product Name</label>
-                <input type="text" class="form-control" id="productName" v-model="newProduct.name" required>
-              </div>
-              <div class="mb-3">
-                <label for="productImage" class="form-label">Product Image URL</label>
-                <input type="text" class="form-control" id="productImage" v-model="newProduct.image" required>
-              </div>
-              <div class="mb-3">
-                <label for="productPrice" class="form-label">Product Price</label>
-                <input type="number" class="form-control" id="productPrice" v-model="newProduct.price" required>
-              </div>
-              <div class="mb-3">
-                <label for="productUnit" class="form-label">Product Unit</label>
-                <input type="text" class="form-control" id="productUnit" v-model="newProduct.unit" required>
-              </div>
-              <div class="mb-3">
-                <label for="productStock" class="form-label">Product Stock</label>
-                <input type="number" class="form-control" id="productStock" v-model="newProduct.stock" required>
-              </div>
-              <!-- Add Product and Cancel Buttons -->
-              <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary">Add Product</button>
-                <button type="button" class="btn btn-secondary" @click="cancelProductForm">Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-        </div>
         </div>
       </div>
     </div>
@@ -173,15 +153,22 @@ export default {
       categories: [],
       productsByCategory: {},
 
-      showAddCategoryForm: false,
-      showAddProductForm: false,
-      newCategory: { name: '', image: '' },
-      newProduct: { name: '', image: '', price: 0, unit: '', stock: 0 },
+      showAddEditForm: false,
+      editMode: false,
+      formType: '', // 'Category' or 'Product'
+      form: {
+        category_id: '',
+        name: '',
+        image: '',
+        price: '',
+        unit: '',
+        stock: ''
+      }
     }
   },
   mounted() {
-    this.fetchCategories();
-    this.fetchProductsbyCategories();
+    this.fetchCategories()
+    this.fetchProductsbyCategories()
   },
   methods: {
     async fetchCategories() {
@@ -219,11 +206,17 @@ export default {
       // Logic to delete the category based on sectionId
       try {
         // Fetch products from the API
-        const response = await fetch(`http://127.0.0.1:5000/delete_category/${categoryId}`)
+        const response = await fetch(`http://127.0.0.1:5000/delete_category/${categoryId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
 
         if (response.ok) {
-          alert("Category Deleted Successfully!")
-
+          alert('Category Deleted Successfully!')
+          window.location.reload()
         } else {
           alert('Oops! Something went wrong. Cannot delete the category.')
         }
@@ -235,11 +228,17 @@ export default {
       // Logic to delete the product based on productId
       try {
         // Fetch products from the API
-        const response = await fetch(`http://127.0.0.1:5000/delete_product/${productId}`)
+        const response = await fetch(`http://127.0.0.1:5000/delete_product/${productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
 
         if (response.ok) {
-          alert("Product Deleted Successfully!")
-
+          alert('Product Deleted Successfully!')
+          window.location.reload()
         } else {
           alert('Oops! Something went wrong. Cannot delete the product.')
         }
@@ -247,38 +246,116 @@ export default {
         console.error('Error deleting the product ', error)
       }
     },
-    showCategoryForm() {
-      this.showAddCategoryForm = true;
+    showAddCategoryForm() {
+      this.showForm('Category')
     },
+    showAddProductForm(categoryId) {
+      this.showForm('Product')
+      this.form.category_id = categoryId
+    },
+    showEditCategoryForm(category) {
+      this.showForm('Category', true, category)
+    },
+    showEditProductForm(product) {
+      this.showForm('Product', true, product)
+    },
+    showForm(formType, editMode = false, data = null) {
+      this.formType = formType
+      this.editMode = editMode
 
-    cancelCategoryForm() {
-      this.showAddCategoryForm = false;
-    },
+      if (editMode) {
+        // Pre-fill form fields when editing
+        this.form = { ...data }
+        console.log('DATA EDIT FORM: ', { ...data })
+        console.log('DATA EDIT FORM2: ', this.form)
+      } else {
+        // Clear form fields when adding
+        this.form = {
+          name: '',
+          image: '',
+          price: '',
+          unit: '',
+          stock: ''
+        }
+      }
 
-    showProductForm() {
-      this.showAddProductForm = true;
+      this.showAddEditForm = true
     },
+    cancelForm() {
+      this.showAddEditForm = false
+      // Optionally clear the form fields
+      this.form = {
+        name: '',
+        image: '',
+        price: '',
+        unit: '',
+        stock: ''
+      }
+    },
+    async submitForm() {
+      try {
+        // Determine which API to call based on formType and editMode
+        let apiUrl
 
-    cancelProductForm() {
-      this.showAddProductForm = false;
-    },
+        if (this.editMode) {
+          if (this.formType === 'Product') {
+            // Edit product API with category_id as a parameter
+            apiUrl = `http://127.0.0.1:5000/api/edit_product/${this.form.product_id}`
+          } else {
+            // Edit category API
+            apiUrl = `http://127.0.0.1:5000/api/edit_category/${this.form.category_id}`
+          }
 
-    // Additional methods for submitting category and product forms
-    addCategory() {
-      // Logic to add a new category
-      // After adding, refresh categories and hide the form
-      // You need to implement the actual API call to add a category here
-      this.fetchCategories();
-      this.showAddCategoryForm = false;
-    },
+          // Make the API call with the form data
+          const response = await fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify(this.form)
+          })
 
-    addProduct() {
-      // Logic to add a new product
-      // After adding, refresh products and hide the form
-      // You need to implement the actual API call to add a product here
-      this.fetchProductsbyCategories();
-      this.showAddProductForm = false;
-    },
+          if (response.ok) {
+            alert('Update Form Submitted Successfully!')
+            window.location.reload()
+          } else {
+            alert('Update Form Submission Failed')
+          }
+        } else {
+          if (this.formType === 'Product') {
+            // Add product API with category_id as a parameter
+            apiUrl = `http://127.0.0.1:5000/api/${this.form.category_id}/add_product`
+          } else {
+            // Add category API
+            apiUrl = 'http://127.0.0.1:5000/api/add_category'
+          }
+
+          // Make the API call with the form data
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify(this.form)
+          })
+
+          console.log('THIS FORM: ', this.form)
+          if (response.ok) {
+            alert('Add Form Submitted Successfully!')
+            window.location.reload()
+          } else {
+            alert('Add Form Submission Failed')
+          }
+        }
+      } catch (error) {
+        console.error('Error submitting form:', error)
+      } finally {
+        // Close the form whether the submission succeeds or fails
+        this.cancelForm()
+      }
+    }
   }
 }
 </script>
