@@ -51,7 +51,7 @@ def role_required(roles):
 # Example of using the decorator to protect an endpoint
 @app.route('/api/manager', methods=['GET'])
 @jwt_required()
-@role_required(roles=['manager'])
+@role_required(roles=['manager', 'admin'])
 def admin_endpoint():
     # This endpoint can only be accessed by users with the 'admin' role
     return jsonify({'message': 'You have access to the admin endpoint.'})
@@ -293,38 +293,82 @@ def get_categories():
 
         for category in categories:
             category_data = {
-                'id': category.category_id,
-                'name': category.category_name,
-                'image': category.category_image
+                'category_id': category.category_id,
+                'category_name': category.category_name,
+                'category_image': category.category_image
             }
             category_list.append(category_data)
 
         return jsonify({'categories': category_list}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching categories', 'error': str(e)}), 500
+    
+
+# Add Category
+@app.route('/api/add_category', methods=['POST'])
+@jwt_required()
+@role_required(roles=['admin'])
+def add_category():
+
+    name = request.json['name']
+    image = request.json['image']
+
+    if request.json['image'] == '':
+        image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
+    else:
+        image = request.json['image']
+
+    category = Category(category_name=name, category_image=image)
+            
+    try:
+        db.session.add(category)
+        db.session.commit()
+    
+        return jsonify({'message': 'Category Added Successfully!'}), 200
+    
+    except Exception as e:
+        return jsonify({'message': 'Error Adding the Category', 'error': str(e)}), 500
 
 
-# @app.route('/api/products', methods=['GET'])
-# def get_products():
-#     try:
-#         products = Product.query.all()
-#         product_list = []
 
-#         for product in products:
-#             product_data = {
-#                 'id': product.product_id,
-#                 'category_id': product.category_id,
-#                 'name': product.product_name,
-#                 'description': product.description,
-#                 'price': product.price,
-#                 'image': product.product_image
-#             }
-#             product_list.append(product_data)
+# Update Database Record in Category
+@app.route('/api/edit_category/<int:category_id>', methods=['PUT'])
+@jwt_required()
+@role_required(roles=['admin'])
+def update_category(category_id):
+    category_to_update = Category.query.get_or_404(category_id)
+    data = request.json
 
-#         return jsonify({'products': product_list}), 200
-#     except Exception as e:
-#         return jsonify({'message': 'Error fetching products', 'error': str(e)}), 500
+    try:
+        category_to_update.category_name = data['name']
+        category_to_update.category_image = data['image']
 
+        if data['image'] == '':
+            category_to_update.category_image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
+        else:
+            category_to_update.category_image = data['image']
+    
+        db.session.commit()
+        return jsonify({'message': 'Category Info Updated Successfully!'}), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Error Updating the Category', 'error': str(e)}), 500
+
+
+# Delete a Category from the Database Record
+@app.route('/delete_category/<int:category_id>', methods=['DELETE'])
+@jwt_required()
+@role_required(roles=['admin'])
+def delete_category(category_id):
+    category_to_delete = Category.query.get_or_404(category_id)
+
+    try: 
+        db.session.delete(category_to_delete)
+        db.session.commit()
+        return jsonify({'message': "Category Deleted Successfully!"}), 200
+    
+    except Exception as e:
+        return jsonify({'message': 'Error deleting the category', 'error': str(e)}), 500
 
 
 @app.route('/api/products', methods=['GET'])
@@ -357,6 +401,123 @@ def get_products():
         return jsonify({'products': product_list}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching products', 'error': str(e)}), 500
+    
+
+
+# Add a Product to the Database
+@app.route('/api/<int:category_id>/add_product', methods=['POST'])
+@jwt_required()
+@role_required(roles=['admin'])
+def add_product(category_id):
+
+    name = request.json['name']
+    #image = request.json['image']
+    price = request.json['price']
+    unit = request.json['unit']
+    stock = request.json['stock']
+
+    if request.json['image'] == '':
+        image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
+    else:
+        image = request.json['image']
+
+    product = Product(category_id=category_id, product_name=name, product_image=image, price=price, unit=unit, stock=stock)
+
+    try:
+
+        db.session.add(product)
+        db.session.commit()
+
+        return jsonify({'message': 'Product Added Successfully!'}), 200
+    
+    except Exception as e:
+        return jsonify({'message': 'Error Adding the Product.', 'error': str(e)}), 500
+
+
+
+# Update Database Record in Product
+@app.route('/api/edit_product/<int:product_id>', methods=['PUT'])
+@jwt_required()
+@role_required(roles=['admin'])
+def update_product(product_id):
+
+    product_to_update = Product.query.get_or_404(product_id)
+    data = request.json
+
+    try:
+        product_to_update.product_name = data['name']
+        #product_to_update.product_image = data['image']
+        product_to_update.price = data['price']
+        product_to_update.unit = data['unit']
+        product_to_update.stock = data['stock']
+
+        if data['image'] == '':
+            product_to_update.product_image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
+        else:
+            product_to_update.product_image = data['image']
+    
+        db.session.commit()
+        return jsonify({'message': 'Product Info Updated Successfully!'}), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Error Updating the Product', 'error': str(e)}), 500
+
+
+
+# Delete a Product from the Database Record
+@app.route('/delete_product/<int:product_id>', methods=['DELETE'])
+@jwt_required()
+@role_required(roles=['admin'])
+def delete_product(product_id):
+    product_to_delete = Product.query.get(product_id)
+    if not product_to_delete:
+        return jsonify({'message': 'Product not found'}), 404
+
+    try: 
+        db.session.delete(product_to_delete)
+        db.session.commit()
+        return jsonify({'message': "Product Deleted Successfully!"}), 200
+    
+    except Exception as e:
+        return jsonify({'message': 'Error deleting the product', 'error': str(e)}), 500
+    
+    
+
+# Show the Categories and Products on the Manager & Admin Dashboard
+@app.route('/api/manager_admin_dashboard', methods=['GET'])
+# @jwt_required()
+# @role_required(roles=['manager', 'admin'])
+def manager_admin_dashboard():
+    try:
+        categories = Category.query.order_by(Category.category_id).all()
+
+        # Create a dictionary to store products per category
+        products_by_category = {}
+
+        # Fetch products for each category and store them in the dictionary
+        for category in categories:
+            products = Product.query.filter_by(category_id=category.category_id).all()
+
+            # Convert Product objects to dictionaries
+            products_data = []
+            for product in products:
+                products_data.append({
+                    'name': product.product_name,
+                    'image': product.product_image,
+                    'manufacture_date': product.manufacturing_date, 
+                    'rate_per_unit': product.price,
+                    'unit': product.unit,
+                    'stock': product.stock,
+                    'product_id': product.product_id,
+                    'category_id': product.category_id
+                })
+
+            products_by_category[category.category_id] = products_data
+
+        return jsonify({'productsByCategory': products_by_category}), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Error fetching products by category for managers', 'error': str(e)}), 500
 
 
 
