@@ -29,6 +29,7 @@ class User(db.Model):
 class Category(db.Model):
     category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     category_name = db.Column(db.Text, nullable=False)
+    category_approval = db.Column(db.Integer, nullable=True, default=0)
     category_image = db.Column(
         db.String(255), nullable=True, default='/default_img.png')
     products = db.relationship('Product', backref='category', lazy=True)

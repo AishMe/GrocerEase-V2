@@ -9,6 +9,7 @@ import ShoppingCart from '../views/ShoppingCart.vue'
 import OrdersView from '../views/OrdersView.vue'
 import AccessDenied from '../views/AccessDenied.vue'
 import AdminDashboard from '../components/AdminDashboard.vue'
+import PendingRequests from '../components/PendingRequests.vue'
 import ManagerPending from '../components/ManagerPending.vue'
 import ManagerAccepted from '../components/ManagerAccepted.vue'
 import ManagerRejected from '../components/ManagerRejected.vue'
@@ -33,6 +34,9 @@ const routes = [
   }, },
   { path: '/access_denied', name: 'access_denied', component: AccessDenied },
   { path: '/admin_dashboard', name: 'admin_dashboard', component: AdminDashboard, meta: {
+    allowedRoles: ['admin'],
+  }, },
+  { path: '/pending_requests', name: 'pending_requests', component: PendingRequests, meta: {
     allowedRoles: ['admin'],
   }, },
   { path: '/manager_pending', name: 'manager_pending', component: ManagerPending, meta: {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-white">Pending Requests</h1>
+    <h1 class="text-white">Pending Manager Requests</h1>
     <br />
     <div class="row">
       <div class="col-md-3" v-for="user in pendingManagers" :key="user.user_id">

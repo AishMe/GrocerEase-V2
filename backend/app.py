@@ -522,6 +522,7 @@ def manager_admin_dashboard():
 # Fetch pending managers
 @app.route('/admin/pending/managers', methods=['GET'])
 @jwt_required()
+@role_required(roles=['admin'])
 def get_pending_managers():
     try:
         # Fetch a list of pending manager requests from the database
@@ -541,6 +542,7 @@ def get_pending_managers():
 # Fetch approved managers
 @app.route('/admin/approved/managers', methods=['GET'])
 @jwt_required()
+@role_required(roles=['admin'])
 def get_approved_managers():
     try:
         # Fetch a list of pending manager requests from the database
@@ -560,6 +562,7 @@ def get_approved_managers():
 # Fetch rejected managers
 @app.route('/admin/rejected/managers', methods=['GET'])
 @jwt_required()
+@role_required(roles=['admin'])
 def get_rejected_managers():
     try:
         # Fetch a list of pending manager requests from the database
@@ -576,9 +579,10 @@ def get_rejected_managers():
         return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
 
 
-# Approve request
+# Approve manager request
 @app.route('/admin/approve/<int:user_id>', methods=['PUT'])
 @jwt_required()
+@role_required(roles=['admin'])
 def approve_request(user_id):
     try:
         # Update the request_approval status to 1 for the specified user
@@ -593,9 +597,10 @@ def approve_request(user_id):
         return jsonify({'message': 'Error approving request', 'error': str(e)}), 500
 
 
-# Decline request
+# Decline manager request
 @app.route('/admin/decline/<int:user_id>', methods=['PUT'])
 @jwt_required()
+@role_required(roles=['admin'])
 def decline_request(user_id):
     try:
         # Update the request_approval status to -1 for the specified user
@@ -610,9 +615,10 @@ def decline_request(user_id):
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
 
 
-# Revert request
+# Revert manager status
 @app.route('/admin/revert/<int:user_id>', methods=['PUT'])
 @jwt_required()
+@role_required(roles=['admin'])
 def revert_request(user_id):
     try:
         # Update the request_approval status to -1 for the specified user
@@ -625,6 +631,62 @@ def revert_request(user_id):
             return jsonify({'message': 'User not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error processing request', 'error': str(e)}), 500
+    
+
+# Fetch pending categories
+@app.route('/admin/pending_categories', methods=['GET'])
+@jwt_required()
+@role_required(roles=['admin'])
+def get_pending_categories():
+    try:
+        # Fetch a list of pending category requests from the database
+        pending_categories = Category.query.filter_by(category_approval=0).all()
+        pending_categories_data = [{'category_id': category.category_id,
+                                  'name': category.category_name,
+                                  'image': category.category_image,
+                                  } for category in pending_categories]
+
+        return jsonify({'pendingCategories': pending_categories_data}), 200
+    except Exception as e:
+        return jsonify({'message': 'Error fetching pending categories', 'error': str(e)}), 500
+
+
+
+# Approve category request
+@app.route('/admin/approve_category/<int:category_id>', methods=['PUT'])
+@jwt_required()
+@role_required(roles=['admin'])
+def approve_category_request(category_id):
+    try:
+        # Update the request_approval status to 1 for the specified category
+        category = Category.query.get(category_id)
+        if category:
+            category.category_approval = 1
+            db.session.commit()
+            return jsonify({'message': 'Category request approved'}), 200
+        else:
+            return jsonify({'message': 'Category not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Error approving request', 'error': str(e)}), 500
+
+
+# Decline category request
+@app.route('/admin/decline_category/<int:category_id>', methods=['PUT'])
+@jwt_required()
+@role_required(roles=['admin'])
+def decline_category_request(category_id):
+    try:
+        # Update the request_approval status to -1 for the specified category
+        category = Category.query.get(category_id)
+        if category:
+            category.category_approval = -1
+            db.session.commit()
+            return jsonify({'message': 'Category request declined'}), 200
+        else:
+            return jsonify({'message': 'Category not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
+
 
 
 @app.route('/api/visited_status', methods=['GET'])

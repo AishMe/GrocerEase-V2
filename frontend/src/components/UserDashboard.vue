@@ -99,6 +99,7 @@
               v-if="product.image === ''"
               class="bd-placeholder-img card-img-top"
               :src="`{{ url_for('assets', filename='FrontPageDesign.png') }}`"
+              style="width: 100%; height: 14vw;"
               alt="{{ product.name }} Image"
             />
             <img

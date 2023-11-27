@@ -50,7 +50,7 @@
               <fa-icon class="fas fa-search" color="#ffffff" size="1.2rem"></fa-icon>
             </button>
           </form> -->
-          <a href="/manager_pending" class="text-white mx-5 position-relative">
+          <a href="/pending_requests" class="text-white mx-5 position-relative">
             <i class="bi bi-bell-fill" style="font-size: 22px">
               <span
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
