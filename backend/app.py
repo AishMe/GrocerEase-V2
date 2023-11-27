@@ -288,7 +288,7 @@ def get_orders():
 @app.route('/api/categories', methods=['GET'])
 def get_categories():
     try:
-        categories = Category.query.all()
+        categories = Category.query.filter_by(category_approval=1).all()
         category_list = []
 
         for category in categories:
