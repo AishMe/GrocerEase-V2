@@ -423,7 +423,6 @@ def add_product(category_id):
     product = Product(category_id=category_id, product_name=name, product_image=image, price=price, unit=unit, stock=stock)
 
     try:
-
         db.session.add(product)
         db.session.commit()
 
@@ -484,8 +483,8 @@ def delete_product(product_id):
 
 # Show the Categories and Products on the Manager & Admin Dashboard
 @app.route('/api/manager_admin_dashboard', methods=['GET'])
-# @jwt_required()
-# @role_required(roles=['manager', 'admin'])
+@jwt_required()
+@role_required(roles=['manager', 'admin'])
 def manager_admin_dashboard():
     try:
         categories = Category.query.order_by(Category.category_id).all()
@@ -593,9 +592,8 @@ def approve_request(user_id):
     except Exception as e:
         return jsonify({'message': 'Error approving request', 'error': str(e)}), 500
 
+
 # Decline request
-
-
 @app.route('/admin/decline/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def decline_request(user_id):
@@ -612,7 +610,7 @@ def decline_request(user_id):
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
 
 
-# Decline request
+# Revert request
 @app.route('/admin/revert/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def revert_request(user_id):
@@ -627,22 +625,6 @@ def revert_request(user_id):
             return jsonify({'message': 'User not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error processing request', 'error': str(e)}), 500
-
-
-# @app.route('/category/add', methods=['POST'])
-# def add_details():
-#     email = request.json['email']
-#     name = request.json['name']
-#     password = request.json['password']
-#     role = request.json['role']
-
-#     add_category = Category(category_name=category_name,
-#                     category_image=category_image)
-
-#     db.session.add(add_category)
-#     db.session.commit()
-
-#     return jsonify({'msg': 'Category Added Successfully!'})
 
 
 @app.route('/api/visited_status', methods=['GET'])

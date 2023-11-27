@@ -185,7 +185,13 @@ export default {
     async fetchProductsbyCategories() {
       try {
         // Fetch products from the API
-        const response = await fetch('http://127.0.0.1:5000/api/manager_admin_dashboard')
+        const response = await fetch('http://127.0.0.1:5000/api/manager_admin_dashboard', {
+          method: 'GET',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
 
         if (response.ok) {
           const responseData = await response.json()
