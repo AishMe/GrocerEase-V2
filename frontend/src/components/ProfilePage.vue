@@ -139,7 +139,7 @@ export default {
             alert('Your account has been deleted.')
 
             // Redirect to the login page or take appropriate action
-            this.$router.push({ path: '/home' })
+            this.$router.push({ path: '/' })
           }
         } else {
           // Show an error alert if the email doesn't match

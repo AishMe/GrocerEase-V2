@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <a
           class="navbar-brand"
-          href="/home"
+          href="/"
           style="padding: 0 15px; font-size: x-large; font-weight: 600"
           >GrocerEase</a
         >
@@ -83,7 +83,7 @@ export default {
     logout: function () {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('role')
-      this.$router.push({ path: '/home' })
+      this.$router.push({ path: '/' })
       alert('Successfully Logged Out!')
     }
   }
