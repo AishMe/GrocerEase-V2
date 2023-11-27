@@ -1,246 +1,154 @@
-<!-- <template>
-  <div class="container min-h-content text-center">
-    
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <select v-model="selectedCategory" class="form-select" id="categoryDropdown">
-          <option value="">All Categories</option>
-          <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <input v-model="searchTerm" @input="updateFilteredProducts" type="text" class="form-control" id="searchInput" placeholder="Enter product name">
-      </div>
-      <div class="col-md-4">
-        <select v-model="sortOrder" @change="updateFilteredProducts" class="form-select" id="sortDropdown">
-          <option value="asc">Oldest first</option>
-          <option value="desc">Newest first</option>
-        </select>
-      </div>
+<template>
+  <div>
+    <!-- Toggle button for filter box -->
+    <div class="fab">
+      <a @click="toggleFilterBox" data-bs-toggle="tooltip" data-bs-placement="top" title="Filter">
+        <i class="bi bi-funnel-fill"></i>
+      </a>
     </div>
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-        <div class="col" v-for="product in filteredProducts" :key="product.id">
-          <div class="card shadow-sm">
-            <img class="bd-placeholder-img card-img-top" width="100%" :src="product.image" alt="" />
-            <div class="card-body">
-              <p class="card-text">{{ product.name }}</p>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="btn-group">
-                  <CartButton :product="product" />
-                </div>
-                <small class="text-muted"
-                  ><i class="bi bi-currency-dollar"></i>{{ product.price }}</small
-                >
-              </div>
-            </div>
+    <div class="container min-h-content py-5 text-center">
+      <h1 class="mb-3" style="font-size: 5rem; color: #c1e1c1">
+        <strong>Products</strong>
+      </h1>
+
+      <!-- Filter box (hidden by default) -->
+      <div v-show="showFilterBox" class="my-3 p-2" style="border: 2px solid #c1e1c1;border-radius: 10px;">
+        <div class="d-flex align-items-center justify-content-center">
+          <div class="mb-3 p-1">
+            <label for="category" class="form-label text-white">Category</label>
+            <select
+              class="form-select"
+              style="width: 300px"
+              id="category"
+              name="category"
+              v-model="selectedCategory"
+            >
+              <option value="">All</option>
+              <option
+                v-for="category in categories"
+                :key="category.category_id"
+                :value="category.category_id"
+              >
+                {{ category.category_name }}
+              </option>
+            </select>
+          </div>
+          <div class="mb-3 p-1">
+            <label for="min_rate" class="form-label text-white">Min Rate</label>
+            <input
+              type="number"
+              style="width: 100px"
+              class="form-control"
+              min=0
+              max=10000
+              id="min_rate"
+              name="min_rate"
+              v-model="minRate"
+            />
+          </div>
+          <div class="mb-3 p-1">
+            <label for="max_rate" class="form-label text-white">Max Rate</label>
+            <input
+              type="number"
+              style="width: 100px"
+              class="form-control"
+              min=0
+              max=10000
+              id="max_rate"
+              name="max_rate"
+              v-model="maxRate"
+            />
+          </div>
+          <div class="mb-3 p-1">
+            <label for="search" class="form-label text-white">Search</label>
+            <input
+              type="text"
+              class="form-control"
+              style="width: 300px"
+              id="search"
+              name="search"
+              v-model="search"
+              placeholder="Search by name..."
+            />
+          </div>
+          <div class="mb-3 p-1">
+            <button @click="toggleManufactureSorting" class="btn mt-4" style="background-color: #ffffff;">
+              <i v-if="manufactureSortOrder === 'asc'" class="bi bi-sort-down-alt"></i>
+              <i v-else class="bi bi-sort-down"></i>
+            </button>
+          </div>
+          <div class="mb-3 p-1">
+            <button @click="toggleNameSorting" class="btn mt-4" style="background-color: #ffffff;">
+              <i v-if="nameSortOrder === 'asc'" class="bi bi-sort-alpha-down"></i>
+              <i v-else class="bi bi-sort-alpha-up"></i>
+            </button>
           </div>
         </div>
-    </div>
-    <br /><br />
-  </div>
-</template>
+      </div>
 
-<script>
-import CartButton from '../components/CartButton.vue'
+      <div class="row row-cols-1 row-cols-md-4 g-4 mt-4">
+        <div v-for="(product, index) in filteredProducts" :key="index" class="col">
+          <div class="card shadow-sm">
+            <img
+              v-if="product.image === ''"
+              class="bd-placeholder-img card-img-top"
+              :src="`{{ url_for('static', filename='images/Logo.png') }}`"
+              alt="{{ product.name }} Image"
+            />
+            <img
+              v-else
+              class="bd-placeholder-img card-img-top"
+              :src="product.image"
+              alt="{{ product.name }} Image"
+            />
+            <div class="card-body">
+              <h4 class="card-title text-capitalize fw-bold text-black">{{ product.name }}</h4>
+              <hr style="margin-top: 1rem; border: 1px solid black" />
+              <h6 class="card-text" style="color: black">Vendor</h6>
+              <p class="card-text">
+                Manufacturing Date: {{ product.manufacturing_date }}<br />
+                Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
+                Stock: {{ product.stock }}
+              </p>
 
-export default {
-  layout: null,
-  components: { CartButton },
-  data() {
-    return {
-      products: [],
-      categories: [],
-      filteredProducts: [],
-      selectedCategory: '',
-      searchTerm: '',
-      sortOrder: 'asc',
-    }
-  },
-  mounted() {
-    this.fetchCategories();
-    this.fetchProducts();
-    this.fetchData();
-  },
-  methods: {
-    async fetchCategories() {
-      try {
-        const response = await fetch('http://127.0.0.1:5000/api/categories');
-        if (response.ok) {
-          const responseData = await response.json();
-          this.categories = responseData.categories;
-        } else {
-          console.error('Error fetching categories:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    },
-    async fetchProducts() {
-  try {
-    const url = this.selectedCategory
-      ? `http://127.0.0.1:5000/api/products?category_id=${this.selectedCategory.id}`
-      : 'http://127.0.0.1:5000/api/products';
-
-    const response = await fetch(url);
-    if (response.ok) {
-      const responseData = await response.json();
-
-      // Ensure all products have the manufacturing_date property
-      this.products = responseData.products.map(product => ({
-        ...product,
-        manufacturing_date: product.manufacturing_date || null,
-      }));
-    } else {
-      alert('Oops! Something went wrong. Cannot fetch the products.');
-    }
-  } catch (error) {
-    console.error('Error fetching products:', error);
-  }
-},
-    async fetchData() {
-      try {
-        const productResponse = await fetch('http://127.0.0.1:5000/api/products');
-        const categoryResponse = await fetch('http://127.0.0.1:5000/api/categories');
-
-        if (productResponse.ok && categoryResponse.ok) {
-          const productData = await productResponse.json();
-          const categoryData = await categoryResponse.json();
-
-          this.products = productData.products;
-          this.categories = categoryData.categories;
-          this.updateFilteredProducts();
-        } else {
-          console.error('Error fetching products or categories:', productResponse.statusText, categoryResponse.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching products or categories:', error);
-      }
-    },
-    updateFilteredProducts() {
-  // Filter products based on selected options
-  this.filteredProducts = this.products.filter(product =>
-    (this.selectedCategory === '' || product.category_id === this.selectedCategory || this.selectedCategory === 'All Categories') &&
-    (product.product_name && product.product_name.toLowerCase().includes(this.searchTerm.toLowerCase())) &&
-    (product.manufacturing_date !== undefined)
-  );
-
-  // Sort filtered products
-  this.sortProducts();
-},
-sortProducts() {
-  // Sort filtered products based on selected order
-  if (this.sortOrder === 'asc') {
-    this.filteredProducts.sort((a, b) => {
-      if (a.manufacturing_date && b.manufacturing_date) {
-        return new Date(a.manufacturing_date) - new Date(b.manufacturing_date);
-      } else {
-        return 0; // Handle the case where manufacturing_date is missing
-      }
-    });
-  } else {
-    this.filteredProducts.sort((a, b) => {
-      if (a.manufacturing_date && b.manufacturing_date) {
-        return new Date(b.manufacturing_date) - new Date(a.manufacturing_date);
-      } else {
-        return 0; // Handle the case where manufacturing_date is missing
-      }
-    });
-  }
-},
-
-  }
-}
-</script>
-
-<style scoped>
-.container {
-  backdrop-filter: blur(15px);
-}
-</style> -->
-
-<template>
-  <div class="container min-h-content py-5 text-center">
-    <h1 class="mb-5" style="font-size: 5rem; color: #c1e1c1">
-      <strong>Categories & Products</strong>
-    </h1>
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-      <div v-for="(product, index) in products" :key="index" class="col">
-        <div class="card shadow-sm">
-          <img
-            v-if="product.image === ''"
-            class="bd-placeholder-img card-img-top"
-            :src="`{{ url_for('static', filename='images/Logo.png') }}`"
-            alt="{{ product.name }} Image"
-          />
-          <img
-            v-else
-            class="bd-placeholder-img card-img-top"
-            :src="product.image"
-            alt="{{ product.name }} Image"
-          />
-          <div class="card-body">
-            <h5 class="card-title" style="color: black">{{ product.name }}</h5>
-            <h6 class="card-text" style="color: black">Vendor</h6>
-            <p class="card-text">
-              Manufacturing Date: {{ product.manufacturing_date }}<br />
-              Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
-              Stock: {{ product.stock }}
-            </p>
-
-            <div class="row align-items-center justify-content-center">
-              <form @submit.prevent="addToCartOrPurchase(product)">
-                <div class="input-group">
-                  <input type="hidden" name="product_id" value="{{ product.product_id }}" />
-                  <input type="hidden" name="section_id" value="{{ product.section_id }}" />
-                  <!-- <input
-                    type="number"
-                    class="form-control"
-                    name="quantity"
-                    placeholder="Qtn(kg)"
-                    min="1"
-                    :max="product.stock"
-                    required
-                  /> -->
-                  <input
-                    type="number"
-                    class="form-control"
-                    name="quantity"
-                    placeholder="Qtn(kg)"
-                    v-model="qty"
-                    min="1"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    class="btn btn-outline-primary"
-                    name="action"
-                    value="cart"
-                    data-product-id="{{ product.product_id }}"
-                    data-section-id="{{ product.section_id }}"
-                  >
-                    <i class="bi bi-cart-fill"></i>
-                  </button>
-                  <button
-                    type="submit"
-                    class="btn btn-outline-success"
-                    name="action"
-                    value="purchase"
-                    data-product-id="{{ product.product_id }}"
-                    data-section-id="{{ product.section_id }}"
-                  >
-                    <i class="bi bi-basket2-fill"></i>
-                  </button>
-                </div>
-              </form>
+              <div class="row align-items-center justify-content-center">
+                <form @submit.prevent="addToCartOrPurchase(product)">
+                  <div class="input-group">
+                    <input type="hidden" name="product_id" value="{{ product.product_id }}" />
+                    <input type="hidden" name="section_id" value="{{ product.section_id }}" />
+                    <input
+                      type="number"
+                      class="form-control"
+                      name="quantity"
+                      placeholder="Qtn(kg)"
+                      v-model="qty"
+                      min="1"
+                      required
+                    />
+                    <button
+                      type="submit"
+                      class="btn btn-outline-primary"
+                      name="action"
+                      value="cart"
+                      data-product-id="{{ product.product_id }}"
+                      data-section-id="{{ product.section_id }}"
+                    >
+                      <i class="bi bi-cart-fill"></i>
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-outline-success"
+                      name="action"
+                      value="purchase"
+                      data-product-id="{{ product.product_id }}"
+                      data-section-id="{{ product.section_id }}"
+                    >
+                      <i class="bi bi-basket2-fill"></i>
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
-            <!-- <div class="row align-items-center justify-content-center">
-              <form >
-                <input type="hidden" name="section_id" :value="product.section_id">
-                <input type="number" class="form-control" name="quantity" placeholder="Qtn(kg)" min="0" :max="product.stock" required v-model="product.quantity">
-                <button type="submit" class="btn btn-outline-primary"><i class="fa fa-shopping-cart"></i></button>
-                <button type="submit" class="btn btn-outline-success"><i class="fa fa-shopping-bag"></i></button>
-              </form>
-            </div> -->
           </div>
         </div>
       </div>
@@ -253,14 +161,22 @@ import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
 export default {
-  
   data() {
     return {
-      products: []
+      products: [],
+      categories: [],
+      showFilterBox: false,
+      minRate: null,
+      maxRate: null,
+      selectedCategory: '',
+      search: '',
+      manufactureSortOrder: 'asc',
+      nameSortOrder: 'asc'
     }
   },
   mounted() {
     this.fetchProducts()
+    this.fetchCategories()
   },
 
   methods: {
@@ -268,23 +184,34 @@ export default {
       try {
         // Fetch products from the API
         const response = await fetch('http://127.0.0.1:5000/api/products')
-        // if (response.ok) {
-        //   const responseData = await response.json()
-        //   this.products = responseData.products
-        //   this.products.qty = this.qty
 
-          if (response.ok) {
-      const responseData = await response.json();
-      this.products = responseData.products.map(product => ({
-        ...product,
-        manufacturing_date: product.manufacturing_date || null,
-        qty: this.qty || 1, // Set the initial quantity to 1
-      }));
+        if (response.ok) {
+          const responseData = await response.json()
+          this.products = responseData.products.map((product) => ({
+            ...product,
+            manufacturing_date: product.manufacturing_date || null,
+            qty: this.qty || 1 // Set the initial quantity to 1
+          }))
         } else {
           alert('Oops! Something went wrong. Cannot fetch the products.')
         }
       } catch (error) {
         console.error('Error fetching products:', error)
+      }
+    },
+    async fetchCategories() {
+      try {
+        // Fetch products from the API
+        const response = await fetch('http://127.0.0.1:5000/api/categories')
+
+        if (response.ok) {
+          const responseData = await response.json()
+          this.categories = responseData.categories
+        } else {
+          alert('Oops! Something went wrong. Cannot fetch the categories.')
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error)
       }
     },
 
@@ -309,17 +236,71 @@ export default {
           })
         } else {
           // If the item is not in the cart, add it
-          this.$store.commit('addRemoveCart', { product: { ...product, qty: this.qty }, toAdd: true })
+          this.$store.commit('addRemoveCart', {
+            product: { ...product, qty: this.qty },
+            toAdd: true
+          })
         }
 
         // Show success toast
         showToast('Added to Cart', 'success')
       }
     },
+    toggleFilterBox() {
+      this.showFilterBox = !this.showFilterBox
+    },
+    toggleManufactureSorting() {
+      this.manufactureSortOrder = this.manufactureSortOrder === 'asc' ? 'desc' : 'asc';
+    },
+    toggleNameSorting() {
+      this.nameSortOrder = this.nameSortOrder === 'asc' ? 'desc' : 'asc';
+    },
+  },
+  computed: {
+    filteredProducts() {
+      let filtered = this.products.filter((product) => {
+        const meetsCategoryCriteria =
+          !this.selectedCategory || product.category_id === this.selectedCategory;
+        const meetsMinRateCriteria = !this.minRate || product.price >= this.minRate;
+        const meetsMaxRateCriteria = !this.maxRate || product.price <= this.maxRate;
+
+        return meetsCategoryCriteria && meetsMinRateCriteria && meetsMaxRateCriteria;
+      });
+
+      // Filter by search text
+      if (this.search) {
+        filtered = filtered.filter((product) =>
+          product.name.toLowerCase().includes(this.search.toLowerCase())
+        );
+      }
+
+      // Sorting
+      if (this.manufactureSortOrder === 'asc') {
+  filtered.sort((a, b) =>
+    a.manufacturing_date > b.manufacturing_date ? 1 : a.manufacturing_date < b.manufacturing_date ? -1 : 0
+  );
+} else {
+  filtered.sort((a, b) =>
+    a.manufacturing_date < b.manufacturing_date ? 1 : a.manufacturing_date > b.manufacturing_date ? -1 : 0
+  );
+}
+
+      if (this.nameSortOrder === 'asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+      } else {
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+      }
+
+      return filtered;
+    }
   }
 }
 </script>
 
-<style>
-/* Add custom styles if needed */
+<style scoped>
+.fab {
+  width: 90px;
+  height: 90px;
+  background-color: #023020;
+}
 </style>
