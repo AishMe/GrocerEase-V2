@@ -406,7 +406,7 @@ def get_products():
 # Add a Product to the Database
 @app.route('/api/<int:category_id>/add_product', methods=['POST'])
 @jwt_required()
-@role_required(roles=['admin'])
+@role_required(roles=['admin', 'manager'])
 def add_product(category_id):
 
     name = request.json['name']
@@ -437,7 +437,7 @@ def add_product(category_id):
 # Update Database Record in Product
 @app.route('/api/edit_product/<int:product_id>', methods=['PUT'])
 @jwt_required()
-@role_required(roles=['admin'])
+@role_required(roles=['admin', 'manager'])
 def update_product(product_id):
 
     product_to_update = Product.query.get_or_404(product_id)
@@ -466,7 +466,7 @@ def update_product(product_id):
 # Delete a Product from the Database Record
 @app.route('/delete_product/<int:product_id>', methods=['DELETE'])
 @jwt_required()
-@role_required(roles=['admin'])
+@role_required(roles=['admin', 'manager'])
 def delete_product(product_id):
     product_to_delete = Product.query.get(product_id)
     if not product_to_delete:

@@ -20,11 +20,7 @@
       >
         <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
           <img
-            :src="
-              category.image
-                ? category.image
-                : require('@/assets/images/Logo.png')
-            "
+            :src="category.image ? category.image : require('../assets/FrontPageDesign.png')"
             :alt="category.name + ' Image'"
             style="width: 100%; height: 10vw; object-fit: cover"
             class="card-img-top"
@@ -42,7 +38,7 @@
                 style="width: 310px"
               >
                 <img
-                  :src="product.image ? product.image : require('@/assets/images/Logo.png')"
+                  :src="product.image ? product.image : require('../assets/FrontPageDesign.png')"
                   :alt="product.name + ' Image'"
                   style="width: 100%; height: 7vw; object-fit: cover"
                   class="card-img-top"
@@ -64,7 +60,7 @@
                       </button></a
                     >
                     <span style="flex-grow: 0.5"></span>
-                    <a @click="deleteProduct(product.product_id)"
+                    <a @click="deleteProduct(product)"
                       ><button class="btn btn-outline-danger">
                         <i class="bi bi-trash"></i>Delete
                       </button></a
@@ -202,48 +198,94 @@ export default {
       }
     },
 
-    async deleteCategory(categoryId) {
-      // Logic to delete the category based on sectionId
-      try {
-        // Fetch products from the API
-        const response = await fetch(`http://127.0.0.1:5000/delete_category/${categoryId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-          }
-        })
+    async deleteCategory(category) {
+      // Initial confirmation
+      const confirmDelete = window.confirm('Are you sure you want to delete this category?')
 
-        if (response.ok) {
-          alert('Category Deleted Successfully!')
-          window.location.reload()
+      if (confirmDelete) {
+        // Prompt for category name confirmation
+        const categoryNameConfirmation = window.prompt(
+          'Please type the name of the category to confirm deletion:'
+        )
+
+        if (categoryNameConfirmation === category.name) {
+          try {
+            // Fetch categories from the API
+            const response = await fetch(
+              `http://127.0.0.1:5000/delete_category/${category.category_id}`,
+              {
+                method: 'DELETE',
+                headers: {
+                  'Content-type': 'application/json',
+                  Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+                }
+              }
+            )
+
+            if (response.ok) {
+              alert('Category Deleted Successfully!')
+              window.location.reload()
+            } else {
+              alert('Oops! Something Went Wrong. Cannot Delete the Category.')
+            }
+          } catch (error) {
+            console.error('Error deleting the category ', error)
+          }
+        } else if (categoryNameConfirmation === null) {
+          // User clicked Cancel on the category name prompt
+          alert('Deletion Canceled. Category Name is not Provided.')
         } else {
-          alert('Oops! Something went wrong. Cannot delete the category.')
+          // User typed-in the wrong category name
+          alert('Deletion Canceled. Category Name is Wrong.')
         }
-      } catch (error) {
-        console.error('Error deleting the category', error)
+      } else {
+        // User clicked Cancel on the initial confirmation
+        alert('Deletion Canceled.')
       }
     },
-    async deleteProduct(productId) {
-      // Logic to delete the product based on productId
-      try {
-        // Fetch products from the API
-        const response = await fetch(`http://127.0.0.1:5000/delete_product/${productId}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-          }
-        })
+    async deleteProduct(product) {
+      // Initial confirmation
+      const confirmDelete = window.confirm('Are you sure you want to delete this product?')
 
-        if (response.ok) {
-          alert('Product Deleted Successfully!')
-          window.location.reload()
+      if (confirmDelete) {
+        // Prompt for product name confirmation
+        const productNameConfirmation = window.prompt(
+          'Please type the name of the product to confirm deletion:'
+        )
+
+        if (productNameConfirmation === product.name) {
+          try {
+            // Fetch products from the API
+            const response = await fetch(
+              `http://127.0.0.1:5000/delete_product/${product.product_id}`,
+              {
+                method: 'DELETE',
+                headers: {
+                  'Content-type': 'application/json',
+                  Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+                }
+              }
+            )
+
+            if (response.ok) {
+              alert('Product Deleted Successfully!')
+              window.location.reload()
+            } else {
+              alert('Oops! Something Went Wrong. Cannot Delete the Product.')
+            }
+          } catch (error) {
+            console.error('Error deleting the product ', error)
+          }
+        } else if (productNameConfirmation === null) {
+          // User clicked Cancel on the product name prompt
+          alert('Deletion Canceled. Product Name is not Provided.')
         } else {
-          alert('Oops! Something went wrong. Cannot delete the product.')
+          // User typed-in the wrong product name
+          alert('Deletion Canceled. Product Name is Wrong.')
         }
-      } catch (error) {
-        console.error('Error deleting the product ', error)
+      } else {
+        // User clicked Cancel on the initial confirmation
+        alert('Deletion Canceled.')
       }
     },
     showAddCategoryForm() {

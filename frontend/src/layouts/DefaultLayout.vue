@@ -7,7 +7,7 @@ import AppFooter from '../components/AppFooter.vue'
 <template>
     <div>
         <UserNavbar v-if="role === 'user'"/>
-        <AdminNavbar v-if="role === 'admin'"/>
+        <AdminNavbar v-if="role === 'admin' || role === 'manager'"/>
          <router-view/>
         <AppFooter/>
     </div>
