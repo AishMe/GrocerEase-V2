@@ -162,6 +162,7 @@ def edit_user():
 
     return jsonify({'message': 'User information updated successfully'}), 200
 
+
 @app.route('/api/add_to_cart', methods=['POST'])
 @jwt_required()
 def add_to_cart():
@@ -177,7 +178,8 @@ def add_to_cart():
             return jsonify({'message': 'Product not found'}), 404
 
         # Check if the user has an active cart or create a new one
-        cart = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+        cart = Cart.query.filter_by(
+            user_id=user_id, product_id=product_id).first()
         if not cart:
             cart = Cart(
                 user_id=user_id,
@@ -214,19 +216,27 @@ def checkout():
         db.session.add(order)
         db.session.commit()
 
-        # Save items in the order
+        # Save items in the order and update product quantities
         for item in cart_items:
             product = Product.query.get(item['id'])
 
             if product:
+                # Check if the product has enough quantity in stock
+                if product.stock < item['qty']:
+                    return jsonify({'message': 'Not enough quantity in stock for product {}'.format(product.product_name)}), 400
+
+                # Create order item
                 order_item = OrderItem(
                     order_id=order.order_id,
                     product_id=product.product_id,
-                    category_id=product.category_id,  # Associate category with the product
+                    category_id=product.category_id,
                     quantity=item['qty'],
                     total_price=item['price'] * item['qty']
                 )
                 db.session.add(order_item)
+
+                # Update product quantity in the database
+                product.stock -= item['qty']
 
         db.session.commit()
 
@@ -234,6 +244,7 @@ def checkout():
 
     except Exception as e:
         print(f"Error during checkout: {str(e)}")
+        db.session.rollback()  # Rollback changes in case of an error
         return jsonify({'message': 'Error during checkout', 'error': str(e)}), 500
 
 
@@ -302,7 +313,7 @@ def get_categories():
         return jsonify({'categories': category_list}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching categories', 'error': str(e)}), 500
-    
+
 
 # Add Category
 @app.route('/api/add_category', methods=['POST'])
@@ -319,16 +330,15 @@ def add_category():
         image = request.json['image']
 
     category = Category(category_name=name, category_image=image)
-            
+
     try:
         db.session.add(category)
         db.session.commit()
-    
+
         return jsonify({'message': 'Category Added Successfully!'}), 200
-    
+
     except Exception as e:
         return jsonify({'message': 'Error Adding the Category', 'error': str(e)}), 500
-
 
 
 # Update Database Record in Category
@@ -347,7 +357,7 @@ def update_category(category_id):
             category_to_update.category_image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
         else:
             category_to_update.category_image = data['image']
-    
+
         db.session.commit()
         return jsonify({'message': 'Category Info Updated Successfully!'}), 200
 
@@ -362,11 +372,11 @@ def update_category(category_id):
 def delete_category(category_id):
     category_to_delete = Category.query.get_or_404(category_id)
 
-    try: 
+    try:
         db.session.delete(category_to_delete)
         db.session.commit()
         return jsonify({'message': "Category Deleted Successfully!"}), 200
-    
+
     except Exception as e:
         return jsonify({'message': 'Error deleting the category', 'error': str(e)}), 500
 
@@ -400,7 +410,6 @@ def get_products():
         return jsonify({'products': product_list}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching products', 'error': str(e)}), 500
-    
 
 
 # Add a Product to the Database
@@ -410,7 +419,7 @@ def get_products():
 def add_product(category_id):
 
     name = request.json['name']
-    #image = request.json['image']
+    # image = request.json['image']
     price = request.json['price']
     unit = request.json['unit']
     stock = request.json['stock']
@@ -420,17 +429,17 @@ def add_product(category_id):
     else:
         image = request.json['image']
 
-    product = Product(category_id=category_id, product_name=name, product_image=image, price=price, unit=unit, stock=stock)
+    product = Product(category_id=category_id, product_name=name,
+                      product_image=image, price=price, unit=unit, stock=stock)
 
     try:
         db.session.add(product)
         db.session.commit()
 
         return jsonify({'message': 'Product Added Successfully!'}), 200
-    
+
     except Exception as e:
         return jsonify({'message': 'Error Adding the Product.', 'error': str(e)}), 500
-
 
 
 # Update Database Record in Product
@@ -444,7 +453,7 @@ def update_product(product_id):
 
     try:
         product_to_update.product_name = data['name']
-        #product_to_update.product_image = data['image']
+        # product_to_update.product_image = data['image']
         product_to_update.price = data['price']
         product_to_update.unit = data['unit']
         product_to_update.stock = data['stock']
@@ -453,13 +462,12 @@ def update_product(product_id):
             product_to_update.product_image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
         else:
             product_to_update.product_image = data['image']
-    
+
         db.session.commit()
         return jsonify({'message': 'Product Info Updated Successfully!'}), 200
 
     except Exception as e:
         return jsonify({'message': 'Error Updating the Product', 'error': str(e)}), 500
-
 
 
 # Delete a Product from the Database Record
@@ -471,15 +479,14 @@ def delete_product(product_id):
     if not product_to_delete:
         return jsonify({'message': 'Product not found'}), 404
 
-    try: 
+    try:
         db.session.delete(product_to_delete)
         db.session.commit()
         return jsonify({'message': "Product Deleted Successfully!"}), 200
-    
+
     except Exception as e:
         return jsonify({'message': 'Error deleting the product', 'error': str(e)}), 500
-    
-    
+
 
 # Show the Categories and Products on the Manager & Admin Dashboard
 @app.route('/api/manager_admin_dashboard', methods=['GET'])
@@ -494,7 +501,8 @@ def manager_admin_dashboard():
 
         # Fetch products for each category and store them in the dictionary
         for category in categories:
-            products = Product.query.filter_by(category_id=category.category_id).all()
+            products = Product.query.filter_by(
+                category_id=category.category_id).all()
 
             # Convert Product objects to dictionaries
             products_data = []
@@ -502,7 +510,7 @@ def manager_admin_dashboard():
                 products_data.append({
                     'name': product.product_name,
                     'image': product.product_image,
-                    'manufacture_date': product.manufacturing_date, 
+                    'manufacture_date': product.manufacturing_date,
                     'price': product.price,
                     'unit': product.unit,
                     'stock': product.stock,
@@ -516,7 +524,6 @@ def manager_admin_dashboard():
 
     except Exception as e:
         return jsonify({'message': 'Error fetching products by category for managers', 'error': str(e)}), 500
-
 
 
 # Fetch pending managers
@@ -631,7 +638,7 @@ def revert_request(user_id):
             return jsonify({'message': 'User not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error processing request', 'error': str(e)}), 500
-    
+
 
 # Fetch pending categories
 @app.route('/admin/pending_categories', methods=['GET'])
@@ -640,16 +647,16 @@ def revert_request(user_id):
 def get_pending_categories():
     try:
         # Fetch a list of pending category requests from the database
-        pending_categories = Category.query.filter_by(category_approval=0).all()
+        pending_categories = Category.query.filter_by(
+            category_approval=0).all()
         pending_categories_data = [{'category_id': category.category_id,
-                                  'name': category.category_name,
-                                  'image': category.category_image,
-                                  } for category in pending_categories]
+                                    'name': category.category_name,
+                                    'image': category.category_image,
+                                    } for category in pending_categories]
 
         return jsonify({'pendingCategories': pending_categories_data}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching pending categories', 'error': str(e)}), 500
-
 
 
 # Approve category request
@@ -688,7 +695,6 @@ def decline_category_request(category_id):
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
 
 
-
 @app.route('/api/visited_status', methods=['GET'])
 def user_visited_status():
     try:
@@ -716,7 +722,6 @@ def user_visited_status():
         return jsonify({'message': 'Error fetching visted status', 'error': str(e)}), 500
 
 
-
 @app.route('/download_csv')
 def download_csv():
     try:
@@ -737,7 +742,6 @@ def download_csv():
 
     except Exception as e:
         return f"Error: {str(e)}", 500
-
 
 
 if __name__ == "__main__":

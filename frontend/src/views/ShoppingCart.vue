@@ -50,7 +50,8 @@
                         <div class="d-flex flex-row align-items-center">
                           <div>
                             <h5 class="mb-0" v-if="item.price">
-                              <i class="bi bi-currency-dollar"></i>{{ item.price * (item.qty || 0) }}
+                              <i class="bi bi-currency-dollar"></i
+                              >{{ item.price * (item.qty || 0) }}
                             </h5>
                             <small
                               v-if="item.hasDiscount && item.price"
@@ -124,7 +125,6 @@ export default {
     async checkout() {
       try {
         // Send a request to your Flask backend to save the items in the database
-        //await this.$axios.post('/api/checkout', { cart: this.$store.state.cart });
 
         const res = await fetch('http://127.0.0.1:5000/api/checkout', {
           method: 'POST',
@@ -146,7 +146,7 @@ export default {
         console.error('Error during checkout:', error)
         // Handle error, show a message, etc.
       }
-    },
+    }
   },
   mounted() {}
 }

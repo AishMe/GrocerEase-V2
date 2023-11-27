@@ -12,7 +12,11 @@
       </h1>
 
       <!-- Filter box (hidden by default) -->
-      <div v-show="showFilterBox" class="my-3 p-2" style="border: 2px solid #c1e1c1;border-radius: 10px;">
+      <div
+        v-show="showFilterBox"
+        class="my-3 p-2"
+        style="border: 2px solid #c1e1c1; border-radius: 10px"
+      >
         <div class="d-flex align-items-center justify-content-center">
           <div class="mb-3 p-1">
             <label for="category" class="form-label text-white">Category</label>
@@ -39,8 +43,8 @@
               type="number"
               style="width: 100px"
               class="form-control"
-              min=0
-              max=10000
+              min="0"
+              max="10000"
               id="min_rate"
               name="min_rate"
               v-model="minRate"
@@ -52,8 +56,8 @@
               type="number"
               style="width: 100px"
               class="form-control"
-              min=0
-              max=10000
+              min="0"
+              max="10000"
               id="max_rate"
               name="max_rate"
               v-model="maxRate"
@@ -72,19 +76,23 @@
             />
           </div>
           <div class="mb-3 p-1">
-            <button @click="toggleManufactureSorting" class="btn mt-4" style="background-color: #c1e1c1;">
+            <button
+              @click="toggleManufactureSorting"
+              class="btn mt-4"
+              style="background-color: #c1e1c1"
+            >
               <i v-if="manufactureSortOrder === 'asc'" class="bi bi-sort-down-alt"></i>
               <i v-else class="bi bi-sort-down"></i>
             </button>
           </div>
           <div class="mb-3 p-1">
-            <button @click="toggleNameSorting" class="btn mt-4" style="background-color: #c1e1c1;">
+            <button @click="toggleNameSorting" class="btn mt-4" style="background-color: #c1e1c1">
               <i v-if="nameSortOrder === 'asc'" class="bi bi-sort-alpha-down"></i>
               <i v-else class="bi bi-sort-alpha-up"></i>
             </button>
           </div>
           <div class="mb-3 p-1">
-            <button @click="resetFilters" class="btn mt-4" style="background-color: #c1e1c1;">
+            <button @click="resetFilters" class="btn mt-4" style="background-color: #c1e1c1">
               <i class="bi bi-arrow-counterclockwise"></i>
               Reset
             </button>
@@ -94,19 +102,19 @@
 
       <div class="row row-cols-1 row-cols-md-4 g-4 mt-4">
         <div v-for="(product, index) in filteredProducts" :key="index" class="col">
-          <div class="card shadow-sm">
+          <div :class="{ card: true, 'shadow-sm': true, 'out-of-stock': product.stock === 0 }">
             <img
               v-if="product.image === ''"
               class="bd-placeholder-img card-img-top"
               :src="`{{ url_for('assets', filename='FrontPageDesign.png') }}`"
-              style="width: 100%; height: 14vw;"
+              style="width: 100%; height: 14vw"
               alt="{{ product.name }} Image"
             />
             <img
               v-else
               class="bd-placeholder-img card-img-top"
               :src="product.image"
-              style="width: 100%; height: 14vw;"
+              style="width: 100%; height: 14vw"
               alt="{{ product.name }} Image"
             />
             <div class="card-body">
@@ -125,6 +133,7 @@
                     <input type="hidden" name="product_id" value="{{ product.product_id }}" />
                     <input type="hidden" name="section_id" value="{{ product.section_id }}" />
                     <input
+                      :disabled="product.stock === 0"
                       type="number"
                       class="form-control"
                       name="quantity"
@@ -134,6 +143,7 @@
                       required
                     />
                     <button
+                      :disabled="product.stock === 0"
                       type="submit"
                       class="btn btn-outline-primary"
                       name="action"
@@ -144,6 +154,7 @@
                       <i class="bi bi-cart-fill"></i>
                     </button>
                     <button
+                      :disabled="product.stock === 0"
                       type="submit"
                       class="btn btn-outline-success"
                       name="action"
@@ -255,59 +266,67 @@ export default {
       }
     },
     resetFilters() {
-      this.selectedCategory = '';
-      this.minRate = null;
-      this.maxRate = null;
+      this.selectedCategory = ''
+      this.minRate = null
+      this.maxRate = null
       this.search = ''
-      this.nameSortOrder = 'asc';
-      this.manufactureSortOrder = 'asc';
+      this.nameSortOrder = 'asc'
+      this.manufactureSortOrder = 'asc'
     },
     toggleFilterBox() {
       this.showFilterBox = !this.showFilterBox
     },
     toggleManufactureSorting() {
-      this.manufactureSortOrder = this.manufactureSortOrder === 'asc' ? 'desc' : 'asc';
+      this.manufactureSortOrder = this.manufactureSortOrder === 'asc' ? 'desc' : 'asc'
     },
     toggleNameSorting() {
-      this.nameSortOrder = this.nameSortOrder === 'asc' ? 'desc' : 'asc';
-    },
+      this.nameSortOrder = this.nameSortOrder === 'asc' ? 'desc' : 'asc'
+    }
   },
   computed: {
     filteredProducts() {
       let filtered = this.products.filter((product) => {
         const meetsCategoryCriteria =
-          !this.selectedCategory || product.category_id === this.selectedCategory;
-        const meetsMinRateCriteria = !this.minRate || product.price >= this.minRate;
-        const meetsMaxRateCriteria = !this.maxRate || product.price <= this.maxRate;
+          !this.selectedCategory || product.category_id === this.selectedCategory
+        const meetsMinRateCriteria = !this.minRate || product.price >= this.minRate
+        const meetsMaxRateCriteria = !this.maxRate || product.price <= this.maxRate
 
-        return meetsCategoryCriteria && meetsMinRateCriteria && meetsMaxRateCriteria;
-      });
+        return meetsCategoryCriteria && meetsMinRateCriteria && meetsMaxRateCriteria
+      })
 
       // Filter by search text
       if (this.search) {
         filtered = filtered.filter((product) =>
           product.name.toLowerCase().includes(this.search.toLowerCase())
-        );
+        )
       }
 
       // Sorting
       if (this.manufactureSortOrder === 'asc') {
-  filtered.sort((a, b) =>
-    a.manufacturing_date > b.manufacturing_date ? 1 : a.manufacturing_date < b.manufacturing_date ? -1 : 0
-  );
-} else {
-  filtered.sort((a, b) =>
-    a.manufacturing_date < b.manufacturing_date ? 1 : a.manufacturing_date > b.manufacturing_date ? -1 : 0
-  );
-}
-
-      if (this.nameSortOrder === 'asc') {
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        filtered.sort((a, b) =>
+          a.manufacturing_date > b.manufacturing_date
+            ? 1
+            : a.manufacturing_date < b.manufacturing_date
+            ? -1
+            : 0
+        )
       } else {
-        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        filtered.sort((a, b) =>
+          a.manufacturing_date < b.manufacturing_date
+            ? 1
+            : a.manufacturing_date > b.manufacturing_date
+            ? -1
+            : 0
+        )
       }
 
-      return filtered;
+      if (this.nameSortOrder === 'asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name))
+      } else {
+        filtered.sort((a, b) => b.name.localeCompare(a.name))
+      }
+
+      return filtered
     }
   }
 }
@@ -318,5 +337,10 @@ export default {
   width: 90px;
   height: 90px;
   background-color: #023020;
+}
+.out-of-stock {
+  filter: blur(5px);
+  opacity: 0.9;
+  position: relative;
 }
 </style>
