@@ -21,17 +21,17 @@
         <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
           <img
             :src="
-              category.category_image
-                ? category.category_image
+              category.image
+                ? category.image
                 : require('@/assets/images/Logo.png')
             "
-            :alt="category.category_name + ' Image'"
+            :alt="category.name + ' Image'"
             style="width: 100%; height: 10vw; object-fit: cover"
             class="card-img-top"
           />
           <div class="card-body">
             <center>
-              <h3 class="fw-bold text-uppercase text-black">{{ category.category_name }}</h3>
+              <h3 class="fw-bold text-uppercase text-black">{{ category.name }}</h3>
             </center>
 
             <div class="overflow-auto" style="height: 400px">
@@ -54,7 +54,7 @@
                   <hr style="margin-top: 1rem; border: 1px solid black" />
                   <p class="card-text">
                     Manufacturing Date: {{ product.manufacture_date }}<br />
-                    Rate per unit: Rs.{{ product.rate_per_unit }}/{{ product.unit }}<br />
+                    Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
                     Stock: {{ product.stock }}
                   </p>
                   <div class="d-flex justify-content-center align-items-center">

@@ -29,7 +29,7 @@
                 :key="category.category_id"
                 :value="category.category_id"
               >
-                {{ category.category_name }}
+                {{ category.name }}
               </option>
             </select>
           </div>
@@ -72,15 +72,21 @@
             />
           </div>
           <div class="mb-3 p-1">
-            <button @click="toggleManufactureSorting" class="btn mt-4" style="background-color: #ffffff;">
+            <button @click="toggleManufactureSorting" class="btn mt-4" style="background-color: #c1e1c1;">
               <i v-if="manufactureSortOrder === 'asc'" class="bi bi-sort-down-alt"></i>
               <i v-else class="bi bi-sort-down"></i>
             </button>
           </div>
           <div class="mb-3 p-1">
-            <button @click="toggleNameSorting" class="btn mt-4" style="background-color: #ffffff;">
+            <button @click="toggleNameSorting" class="btn mt-4" style="background-color: #c1e1c1;">
               <i v-if="nameSortOrder === 'asc'" class="bi bi-sort-alpha-down"></i>
               <i v-else class="bi bi-sort-alpha-up"></i>
+            </button>
+          </div>
+          <div class="mb-3 p-1">
+            <button @click="resetFilters" class="btn mt-4" style="background-color: #c1e1c1;">
+              <i class="bi bi-arrow-counterclockwise"></i>
+              Reset
             </button>
           </div>
         </div>
@@ -245,6 +251,14 @@ export default {
         // Show success toast
         showToast('Added to Cart', 'success')
       }
+    },
+    resetFilters() {
+      this.selectedCategory = '';
+      this.minRate = null;
+      this.maxRate = null;
+      this.search = ''
+      this.nameSortOrder = 'asc';
+      this.manufactureSortOrder = 'asc';
     },
     toggleFilterBox() {
       this.showFilterBox = !this.showFilterBox

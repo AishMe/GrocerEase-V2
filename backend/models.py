@@ -39,7 +39,6 @@ class Product(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey(
         Category.category_id), nullable=False)
     product_name = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=True)
     manufacturing_date = db.Column(db.Text, default=datetime.now().date(), nullable=False)
     stock = db.Column(db.Integer, nullable=False)
     unit = db.Column(db.Text, nullable=False)
@@ -89,7 +88,7 @@ class OrderSchema(ma.Schema):
 
 class ProductSchema(ma.Schema):
     class Meta:
-        fields = ('product_id', 'name', 'description', 'price', 'image', 'manufacturing_date')
+        fields = ('product_id', 'name', 'price', 'image', 'manufacturing_date')
 
 
 class OrderItemSchema(ma.Schema):

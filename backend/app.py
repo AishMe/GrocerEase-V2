@@ -294,8 +294,8 @@ def get_categories():
         for category in categories:
             category_data = {
                 'category_id': category.category_id,
-                'category_name': category.category_name,
-                'category_image': category.category_image
+                'name': category.category_name,
+                'image': category.category_image
             }
             category_list.append(category_data)
 
@@ -389,7 +389,6 @@ def get_products():
                 'id': product.product_id,
                 'category_id': product.category_id,
                 'name': product.product_name,
-                'description': product.description,
                 'manufacturing_date': product.manufacturing_date,
                 'stock': product.stock,
                 'unit': product.unit,
@@ -505,7 +504,7 @@ def manager_admin_dashboard():
                     'name': product.product_name,
                     'image': product.product_image,
                     'manufacture_date': product.manufacturing_date, 
-                    'rate_per_unit': product.price,
+                    'price': product.price,
                     'unit': product.unit,
                     'stock': product.stock,
                     'product_id': product.product_id,

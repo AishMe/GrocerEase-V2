@@ -25,7 +25,7 @@
               <tr v-for="item in category.items" :key="item.order_item_id">
                 <template v-if="category.items.length > 1">
                   <td>{{ item.product_name }}</td>
-                  <td>{{ category.category_name }}</td>
+                  <td>{{ category.name }}</td>
                   <td>{{ item.quantity }}</td>
                   <td>{{ item.total_price }}</td>
                 </template>
