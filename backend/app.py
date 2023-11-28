@@ -168,12 +168,13 @@ def edit_user():
 def add_to_cart():
     try:
         data = request.json
+        print("Received Data:", data)
         product_id = data.get('product_id')
         quantity = data.get('quantity')
         user_id = get_jwt_identity().get('userId')
 
         # Check if the product exists
-        product = Product.query.filter_by(product_id=product_id).all
+        product = Product.query.get(product_id)
         if not product:
             return jsonify({'message': 'Product not found'}), 404
 
@@ -198,8 +199,43 @@ def add_to_cart():
         return jsonify({'message': 'Product added to cart'}), 200
 
     except Exception as e:
-        print(e)
+        print(f"Error: {str(e)}")
         return jsonify({'message': 'Failed to add to cart'}), 500
+
+
+# Get Cart Info
+@app.route('/api/get_cart', methods=['GET'])
+@jwt_required()
+def get_cart():
+    try:
+        # Get the user ID from the JWT token
+        user_id = get_jwt_identity().get('userId')
+
+        # Query the database to retrieve the user's cart data
+        cart_items = Cart.query.filter_by(user_id=user_id).all()
+
+        # Convert the cart items to a list of dictionaries
+        cart_data = []
+        for cart_item in cart_items:
+            product = Product.query.get(cart_item.product_id)
+            if product:
+                cart_data.append({
+                    'id': product.product_id,
+                    'name': product.product_name,
+                    'qty': cart_item.quantity,
+                    'total_price': cart_item.total_price,
+                    'image': product.product_image,  # Include the product image URL
+                    'price': product.price,  # Include the product price
+                    'unit': product.unit,  # Include the product unit
+                    'stock': product.stock,
+                })
+
+        # Return the cart data as JSON
+        return jsonify({'cart': cart_data}), 200
+
+    except Exception as e:
+        print(f"Error fetching cart data: {str(e)}")
+        return jsonify({'message': 'Error fetching cart data'}), 500
 
 
 # New Flask route for checkout
@@ -223,7 +259,7 @@ def checkout():
             if product:
                 # Check if the product has enough quantity in stock
                 if product.stock < item['qty']:
-                    return jsonify({'message': 'Not enough quantity in stock for product {}'.format(product.product_name)}), 400
+                    return jsonify({'message': f'Not enough quantity in stock for product {product.product_name}'}), 400
 
                 # Create order item
                 order_item = OrderItem(
@@ -237,6 +273,12 @@ def checkout():
 
                 # Update product quantity in the database
                 product.stock -= item['qty']
+
+                # Update cart to remove items after checkout
+                cart = Cart.query.filter_by(
+                    user_id=user_id, product_id=product.product_id).first()
+                if cart:
+                    db.session.delete(cart)
 
         db.session.commit()
 
@@ -700,7 +742,8 @@ def decline_category_request(category_id):
 def get_notification_count():
     try:
         # Fetch the notification count from your data source
-        pending_categories = Category.query.filter_by(category_approval=0).all()
+        pending_categories = Category.query.filter_by(
+            category_approval=0).all()
         pending_managers = User.query.filter_by(request_approval=0).all()
 
         notification_count = len(pending_categories) + len(pending_managers)
