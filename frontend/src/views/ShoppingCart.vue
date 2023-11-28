@@ -144,9 +144,8 @@ export default {
         }
       } catch (error) {
         console.error('Error during checkout:', error)
-        // Handle error, show a message, etc.
       }
-    }
+    },
   },
   mounted() {}
 }

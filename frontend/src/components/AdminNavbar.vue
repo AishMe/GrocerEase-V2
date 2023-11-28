@@ -46,6 +46,7 @@
           <a href="/pending_requests" class="text-white mt-2 mx-5 position-relative">
             <i class="bi bi-bell-fill" style="font-size: 22px">
               <span
+                v-if="$store.state.notificationCount > 0"
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                 style="font-size: 12px; transform: scale(0.8)"
               >
