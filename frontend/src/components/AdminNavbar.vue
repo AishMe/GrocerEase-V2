@@ -39,17 +39,10 @@
             </a>
           </ul>
 
-          <!-- <form class="d-flex" role="search">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button class="btn btn-dark btn-outline-success" type="submit">
-              <fa-icon class="fas fa-search" color="#ffffff" size="1.2rem"></fa-icon>
-            </button>
-          </form> -->
+          <a href="/summary_dashboard" class="text-white"
+            ><i class="bi bi-clipboard-data-fill" style="font-size: 26px"></i
+          ></a>
+
           <a href="/pending_requests" class="text-white mx-5 position-relative">
             <i class="bi bi-bell-fill" style="font-size: 22px">
               <span

@@ -13,6 +13,7 @@ import PendingRequests from '../components/PendingRequests.vue'
 import ManagerPending from '../components/ManagerPending.vue'
 import ManagerAccepted from '../components/ManagerAccepted.vue'
 import ManagerRejected from '../components/ManagerRejected.vue'
+import SummaryDashboard from '../components/SummaryDashboard.vue'
 
 const routes = [
   {
@@ -47,6 +48,9 @@ const routes = [
   }, },
   { path: '/manager_rejected', name: 'manager_rejected', component: ManagerRejected, meta: {
     allowedRoles: ['admin'],
+  }, },
+  { path: '/summary_dashboard', name: 'summary_dashboard', component: SummaryDashboard, meta: {
+    allowedRoles: ['admin', 'manager'],
   }, }
 ]
   }]
