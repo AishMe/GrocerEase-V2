@@ -695,6 +695,21 @@ def decline_category_request(category_id):
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
 
 
+@app.route('/notification_count', methods=['GET'])
+@jwt_required()
+def get_notification_count():
+    try:
+        # Fetch the notification count from your data source
+        pending_categories = Category.query.filter_by(category_approval=0).all()
+        pending_managers = User.query.filter_by(request_approval=0).all()
+
+        notification_count = len(pending_categories) + len(pending_managers)
+
+        return jsonify({'notificationCount': notification_count}), 200
+    except Exception as e:
+        return jsonify({'message': 'Error fetching notification count', 'error': str(e)}), 500
+
+
 @app.route('/api/visited_status', methods=['GET'])
 def user_visited_status():
     try:

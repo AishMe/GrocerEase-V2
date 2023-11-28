@@ -49,7 +49,7 @@
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                 style="font-size: 12px; transform: scale(0.8)"
               >
-                1
+                {{ $store.state.notificationCount }}
                 <span class="visually-hidden">pending requests</span>
               </span>
             </i>
@@ -97,7 +97,32 @@ export default {
       localStorage.removeItem('role')
       this.$router.push({ path: '/' })
       alert('Successfully Logged Out!')
+    },
+    async fetchNotificationCount() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/notification_count', {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          this.$store.commit('setNotificationCount', data.notificationCount)
+        }
+      } catch (error) {
+        console.error('Error fetching notification count:', error)
+      }
     }
+  },
+  created() {
+    // Fetch initial notification count
+    this.fetchNotificationCount()
+
+    // Example: Periodically fetch notification count (adjust as needed)
+    setInterval(() => {
+      this.fetchNotificationCount()
+    }, 60000) // Every 1 minute
   }
 }
 </script>

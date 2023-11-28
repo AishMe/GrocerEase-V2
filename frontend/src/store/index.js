@@ -4,6 +4,7 @@ export default createStore({
   state: {
     cart: [],
     cartTotal: 0,
+    notificationCount: 0,
   },
   mutations: {
     async initialiseStore(state) {
@@ -40,7 +41,16 @@ export default createStore({
       localStorage.setItem('cartTotal',JSON.stringify(state.cartTotal));
       localStorage.setItem('cart',JSON.stringify(state.cart));
 
-    }
+    },
+    setNotificationCount(state, count) {
+      state.notificationCount = count;
+    },
+    incrementNotificationCount(state) {
+      state.notificationCount++;
+    },
+    decrementNotificationCount(state) {
+      state.notificationCount--;
+    },
   },
   actions: {},
   modules: {},

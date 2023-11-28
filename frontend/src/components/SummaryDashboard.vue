@@ -1,3 +1,8 @@
+<template>
+    <div>This this the Summary Page</div>
+</template>
+
+
 <!-- <template>
     <div id="wrapper">
       <div class="content-area">
