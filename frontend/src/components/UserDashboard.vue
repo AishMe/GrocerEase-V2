@@ -383,26 +383,32 @@ export default {
         showToast('Please specify a valid quantity.', 'error')
       }  else if (this.qty > 0) { 
 
-        // Implement your logic for adding to cart
-        const existingCartItem = this.$store.state.cart.find((item) => item.id === product.id)
-
-        if (existingCartItem) {
-          // If the item is already in the cart, update the quantity
-          this.$store.commit('updateCart', {
-            product: { id: product.id, qty: this.qty }
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          },
+          body: JSON.stringify({
+            product_id: product.id,
+            quantity: 1 // You can modify this based on user input
           })
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          // Show a success message to the user
+          toast.success(responseData.message);
         } else {
-          // If the item is not in the cart, add it
-          this.$store.commit('addRemoveCart', {
-            product: { ...product, qty: this.qty },
-            toAdd: true
-          })
+          const errorData = await response.json();
+          // Show an error message to the user
+          toast.error(errorData.message);
         }
-
-        // Show success toast
-        showToast('Added to Cart', 'success')
+      } catch (error) {
+        console.error('Error adding to cart:', error);
       }
-    },
+    }},
     async checkout(product) {
       const showToast = (message, type = 'info') => {
         toast[type](message)

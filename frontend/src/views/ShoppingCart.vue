@@ -146,7 +146,31 @@ export default {
         console.error('Error during checkout:', error)
       }
     },
+    async fetchCart() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/get_cart', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          // Update the cart state in the Vuex store with the fetched data
+          this.$store.commit('setCart', responseData.cart);
+        } else {
+          // Handle the case where fetching the cart data fails
+          console.error('Failed to fetch cart data');
+        }
+      } catch (error) {
+        console.error('Error fetching cart data:', error);
+      }
+    },
   },
-  mounted() {}
+  mounted() {
+    this.fetchCart();
+  }
 }
 </script>

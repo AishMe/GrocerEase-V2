@@ -40,7 +40,9 @@ export default createStore({
       },0);
       localStorage.setItem('cartTotal',JSON.stringify(state.cartTotal));
       localStorage.setItem('cart',JSON.stringify(state.cart));
-
+    },
+    setCart(state, cartData) {
+      state.cart = cartData;
     },
     setNotificationCount(state, count) {
       state.notificationCount = count;
