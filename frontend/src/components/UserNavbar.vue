@@ -32,17 +32,20 @@
               <a class="nav-link active" href="/register">Register</a>
             </li>
           </ul>
-          <!-- <form class="d-flex" role="search">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button class="btn btn-dark btn-outline-success" type="submit">
-              <fa-icon class="fas fa-search" color="#ffffff" size="1.2rem"></fa-icon>
-            </button>
-          </form> -->
+
+          <a href="/cart" class="text-white mt-2 position-relative">
+            <i class="bi bi-cart4" style="font-size: 35px">
+              <span
+                v-if="$store.state.cart.length > 0"
+                class="position-absolute top-0 start-80 mt-2 translate-middle badge rounded-pill bg-warning text-black"
+                style="font-size: 13px; transform: scale(0.8)"
+              >
+                {{ $store.state.cart.length }}
+                <span class="visually-hidden">cart items</span>
+              </span>
+            </i>
+          </a>
+
           <ul class="navbar-nav" style="margin-left: 5rem; margin-right: 3rem">
             <li class="nav-item">
               <div class="dropdown">

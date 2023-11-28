@@ -2,7 +2,7 @@
   <div>
     <!-- Toggle button for filter box -->
     <div class="fab">
-      <a @click="toggleFilterBox" data-bs-toggle="tooltip" data-bs-placement="top" title="Filter">
+      <a href="#" @click="toggleFilterBox" data-bs-toggle="tooltip" data-bs-placement="top" title="Filter">
         <i class="bi bi-funnel-fill"></i>
       </a>
     </div>

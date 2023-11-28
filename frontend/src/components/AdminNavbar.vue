@@ -34,16 +34,16 @@
             <li class="nav-item">
               <a class="nav-link active" href="/login">Login</a>
             </li>
-            <a class="mx-5" href="http://127.0.0.1:5000/download_csv" target="_blank">
+            <a class="mx-5 mt-1" href="http://127.0.0.1:5000/download_csv" target="_blank">
               <button class="btn btn-primary" type="button">Download CSV</button>
             </a>
           </ul>
 
-          <a href="/summary_dashboard" class="text-white"
+          <a href="/summary_dashboard" class="text-white mt-1"
             ><i class="bi bi-clipboard-data-fill" style="font-size: 26px"></i
           ></a>
 
-          <a href="/pending_requests" class="text-white mx-5 position-relative">
+          <a href="/pending_requests" class="text-white mt-2 mx-5 position-relative">
             <i class="bi bi-bell-fill" style="font-size: 22px">
               <span
                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
