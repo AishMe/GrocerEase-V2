@@ -2,7 +2,13 @@
   <div>
     <!-- Toggle button for filter box -->
     <div class="fab">
-      <a href="#" @click="toggleFilterBox" data-bs-toggle="tooltip" data-bs-placement="top" title="Filter">
+      <a
+        href="#"
+        @click="toggleFilterBox"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Filter"
+      >
         <i class="bi bi-funnel-fill"></i>
       </a>
     </div>
@@ -102,7 +108,7 @@
 
       <div class="row row-cols-1 row-cols-md-4 g-4 mt-4">
         <div v-for="(product, index) in filteredProducts" :key="index" class="col">
-          <div :class="{ card: true, 'shadow-sm': true, 'out-of-stock': product.stock === 0 }">
+          <div class="card shadow-sm">
             <img
               v-if="product.image === ''"
               class="bd-placeholder-img card-img-top"
@@ -120,7 +126,9 @@
             <div class="card-body">
               <h4 class="card-title text-capitalize fw-bold text-black">{{ product.name }}</h4>
               <hr style="margin-top: 1rem; border: 1px solid black" />
-              <h6 class="card-text" style="color: black">Vendor</h6>
+              <h6 class="card-text fw-bold" :style="getStockMessageStyle(product.stock, product.manufacturing_date)">
+                {{ getStockMessage(product) }}
+              </h6>
               <p class="card-text">
                 Manufacturing Date: {{ product.manufacturing_date }}<br />
                 Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
@@ -281,6 +289,35 @@ export default {
     },
     toggleNameSorting() {
       this.nameSortOrder = this.nameSortOrder === 'asc' ? 'desc' : 'asc'
+    },
+    getStockMessage(product) {
+      if (product.stock === 0) {
+        return 'Out of Stock'
+      } else if (product.stock <= 10) {
+        return 'HURRY! Limited Stock Available.'
+      } else if (this.isNewProduct(product.manufacturing_date)) {
+        return 'RECENTLY ADDED'
+      } else {
+        return 'In Stock'
+      }
+    },
+    getStockMessageStyle(stock, manufacturingDate) {
+      if (this.isNewProduct(manufacturingDate)) {
+        return 'color: #4CAF50;' // Bright green -> fresh
+      } else if (stock === 0) {
+        return 'color: red;'
+      } else if (stock <= 10) {
+        return 'color: #FF9800;' // orange -> urgency
+      } else {
+        return 'color: darkblue;'
+      }
+    },
+    isNewProduct(manufacturingDate) {
+      // Compare the manufacturing date with the current date and check if it's within a week
+      const manufacturingDateObject = new Date(manufacturingDate)
+      const oneWeekAgo = new Date()
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+      return manufacturingDateObject > oneWeekAgo
     }
   },
   computed: {
@@ -337,10 +374,5 @@ export default {
   width: 90px;
   height: 90px;
   background-color: #023020;
-}
-.out-of-stock {
-  filter: blur(5px);
-  opacity: 0.9;
-  position: relative;
 }
 </style>
