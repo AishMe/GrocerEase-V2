@@ -38,38 +38,78 @@ export default {
   data() {
     return {
       loading: false,
-      qty: this.product.qty || 1, // Set the initial quantity to the product's quantity or 1
+      qty: this.product.qty || 1 // Set the initial quantity to the product's quantity or 1
     }
   },
   methods: {
-    async addOrRemove(number){
-            this.loading = true
-            if(number == 1){ //add
-                if(this.qty < this.product.stock){
-                    this.qty++
-                    this.product.qty = this.qty
-                    await this.$store.commit('updateCart',{product:this.product})
-                    toast.success('cart updated')
-                }else{
-                    toast.warning('You reached the limit')
-                }
-            }
-            if( number == -1){ //remove
-                if(this.qty > 1){
-                    this.qty--
-                    this.product.qty = this.qty
-                    await this.$store.commit('updateCart',{product:this.product})
-                    toast.success('cart updated');
-                }else{
-                    toast.warning('You reached the limit');  
-                }
-            }
+    async addOrRemove(number) {
+      this.loading = true
+      if (number == 1) {
+        //add
+        if (this.qty < this.product.stock) {
+          this.qty++
+          this.product.qty = this.qty
 
-            this.loading = false
+          // Make a request to the update_cart_item API endpoint
+          const response = await fetch('http://127.0.0.1:5000/api/update_cart_item', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify({
+              product_id: this.product.id,
+              new_quantity: this.qty
+            })
+          })
+
+          if (response.ok) {
+            await this.$store.commit('updateCart', { product: this.product })
+            toast.success('Cart Updated')
+          } else {
+            toast.error('Failed to update cart item')
+          }
+        } else {
+          toast.warning('You reached the limit')
         }
+      }
+      if (number == -1) {
+        //remove
+        if (this.qty > 1) {
+          this.qty--
+          this.product.qty = this.qty
+
+          // Make a request to the update_cart_item API endpoint
+          const response = await fetch('http://127.0.0.1:5000/api/update_cart_item', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify({
+              product_id: this.product.id,
+              new_quantity: this.qty
+            })
+          })
+
+          if (response.ok) {
+            await this.$store.commit('updateCart', { product: this.product })
+            toast.success('Cart Updated')
+          } else {
+            toast.error('Failed to update cart item')
+          }
+        } else {
+          toast.warning('You reached the limit')
+        }
+      }
+
+      // Dispatch the action to update the cart in the Vuex store
+      await this.$store.dispatch('updateCartInStore', { product: this.product })
+      this.loading = false
+    }
   },
   mounted() {
-    this.qty = this.product.qty || 1;
+    this.qty = this.product.qty || 1
   }
 }
 </script>

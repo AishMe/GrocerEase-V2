@@ -115,11 +115,35 @@
 </template>
 <script>
 import CartAddRemove from '../components/CartAddRemove.vue'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 export default {
   components: { CartAddRemove },
   methods: {
-    removeItem(item) {
-      this.$store.commit('addRemoveCart', { product: item, toAdd: false })
+    async removeItem(item) {
+      try {
+      const response = await fetch('http://127.0.0.1:5000/api/remove_cart_item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
+        },
+        body: JSON.stringify({
+          product_id: item.id,
+        }),
+      });
+
+      if (response.ok) {
+        // Update the cart state in the Vuex store with the fetched data
+        this.$store.dispatch('fetchCart');
+        this.$store.commit('addRemoveCart', { product: item, toAdd: false })
+        toast.success('Cart item removed');
+      } else {
+        toast.error('Failed to remove cart item');
+      }
+    } catch (error) {
+      console.error('Error removing cart item:', error);
+    }
     },
 
     async checkout() {
@@ -137,6 +161,8 @@ export default {
 
         console.log(this.$store.state.cart)
         if (res.ok) {
+          // Clear the cart in the Vuex store and update the total
+          this.$store.dispatch('clearCart')
           // Redirect to the orders page after successful checkout
           this.$router.push({ name: 'orders' })
         } else {
@@ -154,23 +180,23 @@ export default {
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + localStorage.getItem('accessToken')
           }
-        });
+        })
 
         if (response.ok) {
-          const responseData = await response.json();
+          const responseData = await response.json()
           // Update the cart state in the Vuex store with the fetched data
-          this.$store.commit('setCart', responseData.cart);
+          this.$store.commit('setCart', responseData.cart)
         } else {
           // Handle the case where fetching the cart data fails
-          console.error('Failed to fetch cart data');
+          console.error('Failed to fetch cart data')
         }
       } catch (error) {
-        console.error('Error fetching cart data:', error);
+        console.error('Error fetching cart data:', error)
       }
-    },
+    }
   },
   mounted() {
-    this.fetchCart();
+    this.fetchCart()
   }
 }
 </script>

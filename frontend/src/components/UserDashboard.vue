@@ -368,19 +368,17 @@ export default {
     },
 
     async addToCart(product) {
-      const showToast = (message, type = 'info') => {
-        toast[type](message)
-      }
+
       console.log('Product Quantity:', this.qty)
       console.log('Product Stock:', product.stock)
 
       // Implement your logic for adding to cart
       if (this.qty > product.stock) {
-        showToast(`Sorry, we have only ${product.stock} in stock.`, 'error')
+        toast.danger(`Sorry, we have only ${product.stock} in stock.`)
       } else if (this.qty === undefined) {
-        showToast('Please specify the quantity.', 'error')
+        toast.danger('Please specify the quantity.')
       } else if (this.qty < 0) {
-        showToast('Please specify a valid quantity.', 'error')
+        toast.danger('Please specify a valid quantity.')
       }  else if (this.qty > 0) { 
 
       try {
@@ -410,9 +408,7 @@ export default {
       }
     }},
     async checkout(product) {
-      const showToast = (message, type = 'info') => {
-        toast[type](message)
-      }
+
       // Create the cart array based on the provided format
       const cartItem = {
         ...product,
@@ -442,9 +438,8 @@ export default {
             // Handle successful checkout
             console.log('Checkout successful:', data.message)
             window.location.reload()
-            showToast(
-              `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`,
-              'success'
+            toast.success(
+              `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`
             )
             console.log('Selected Payment Option:', this.selectedPaymentOption)
           })
@@ -510,15 +505,13 @@ export default {
       this.upiId = ''
     },
     showCheckoutForm(product) {
-      const showToast = (message, type = 'info') => {
-        toast[type](message)
-      }
+
       if (this.qty === undefined) {
-        showToast('Please specify the quantity.', 'error')
+        toast.danger('Please specify the quantity.')
       } else if (this.qty < 0) {
-        showToast('Please specify a valid quantity.', 'error')
+        toast.danger('Please specify a valid quantity.')
       } else if (this.qty > product.stock) {
-        showToast(`Sorry, we have only ${product.stock} in stock.`, 'error')
+        toast.danger(`Sorry, we have only ${product.stock} in stock.`)
       } else if (this.qty > 0) {
         this.selectedProduct = product
         this.showCheckoutFormBool = true

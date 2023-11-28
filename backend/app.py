@@ -236,6 +236,58 @@ def get_cart():
     except Exception as e:
         print(f"Error fetching cart data: {str(e)}")
         return jsonify({'message': 'Error fetching cart data'}), 500
+    
+
+# Update cart items
+@app.route('/api/update_cart_item', methods=['POST'])
+@jwt_required()
+def update_cart_item():
+    try:
+        data = request.get_json()
+        user_id = get_jwt_identity().get('userId')
+        product_id = data.get('product_id')
+        new_quantity = data.get('new_quantity')
+
+        # Update the cart item in the database
+        cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+        product = Product.query.filter_by(product_id=product_id).first()
+        if cart_item:
+            cart_item.quantity = new_quantity
+            cart_item.total_price = product.price * new_quantity
+            db.session.commit()
+
+            return jsonify({'message': 'Cart item updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Cart item not found'}), 404
+
+    except Exception as e:
+        print(f"Error updating cart item: {str(e)}")
+        return jsonify({'message': 'Error updating cart item'}), 500
+    
+
+# Remove cart items
+@app.route('/api/remove_cart_item', methods=['POST'])
+@jwt_required()
+def remove_cart_item():
+    try:
+        data = request.get_json()
+        user_id = get_jwt_identity().get('userId')
+        product_id = data.get('product_id')
+
+        # Remove the cart item from the database
+        cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+        if cart_item:
+            db.session.delete(cart_item)
+            db.session.commit()
+
+            return jsonify({'message': 'Cart item removed successfully'}), 200
+        else:
+            return jsonify({'message': 'Cart item not found'}), 404
+
+    except Exception as e:
+        print(f"Error removing cart item: {str(e)}")
+        return jsonify({'message': 'Error removing cart item'}), 500
+
 
 
 # New Flask route for checkout
