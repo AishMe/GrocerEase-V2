@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer text-muted py-5 bg-dark">
+  <footer v-if="role !== null" class="footer text-muted py-5 bg-dark">
     <div class="container text-white-50">
       <p class="float-end mb-1">
         <a href="#">Back to top</a>
@@ -12,3 +12,9 @@
     </div>
   </footer>
 </template>
+
+<script>
+export default {
+  props: ['role']
+}
+</script>

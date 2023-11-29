@@ -142,11 +142,7 @@
     
     <script>
 export default {
-  data() {
-    return {
-      role: localStorage.getItem('role')
-    }
-  },
+  props: ['role'],
   methods: {
     logout: function () {
       localStorage.removeItem('accessToken')

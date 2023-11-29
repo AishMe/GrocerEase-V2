@@ -5,9 +5,9 @@ import AppFooter from './AppFooter.vue'
 
 <template>
   <div>
-    <AppNavbar />
+    <AppNavbar :role="role" />
     <router-view />
-    <AppFooter v-if="role !== undefined" />
+    <AppFooter :role="role" />
   </div>
 </template>
 
@@ -17,11 +17,6 @@ export default {
   data() {
     return {
       role: localStorage.getItem('role')
-    }
-  },
-  async mounted() {
-    if (this.role === undefined) {
-      this.$router.push({ path: '/login' })
     }
   }
 }
