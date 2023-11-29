@@ -93,7 +93,7 @@
                       </div>
 
                       <button
-                        @click="checkout"
+                        @click.prevent="showCheckoutForm"
                         type="button"
                         class="btn btn-block btn-lg"
                         style="background-color: #c1e1c1"
@@ -111,6 +111,108 @@
       <br /><br /><br /><br />
       <br /><br /><br />
     </div>
+    <!-- Checkout form -->
+    <div v-if="showCheckoutFormBool" class="form-container">
+      <div class="form card">
+        <div class="card-header">
+          <h5 class="mb-0">Payment Options</h5>
+        </div>
+        <form @submit.prevent="checkout">
+          <div class="card-body">
+            <!-- Payment options radio buttons -->
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="paymentOption"
+                id="creditCardRadio"
+                value="creditCard"
+                v-model="selectedPaymentOption"
+              />
+              <label class="form-check-label" for="creditCardRadio"> Credit Card </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="paymentOption"
+                id="debitCardRadio"
+                value="debitCard"
+                v-model="selectedPaymentOption"
+                required
+              />
+              <label class="form-check-label" for="debitCardRadio"> Debit Card </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="paymentOption"
+                id="googlePayRadio"
+                value="googlePay"
+                v-model="selectedPaymentOption"
+                required
+              />
+              <label class="form-check-label" for="googlePayRadio"> Google Pay </label>
+            </div>
+            <br />
+
+            <!-- Credit/Debit Card Fields -->
+            <div
+              v-if="selectedPaymentOption === 'creditCard' || selectedPaymentOption === 'debitCard'"
+            >
+              <div class="mb-3">
+                <label for="cardName" class="form-label">Name on Card</label>
+                <input type="text" class="form-control" id="cardName" v-model="cardName" required />
+              </div>
+              <div class="mb-3">
+                <label for="cardNumber" class="form-label"
+                  >{{
+                    selectedPaymentOption === 'creditCard' ? 'Credit Card' : 'Debit Card'
+                  }}
+                  Number</label
+                >
+                <input
+                  type="number"
+                  class="form-control"
+                  id="cardNumber"
+                  v-model="cardNumber"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="cardExpiration" class="form-label">Expiration</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="cardExpiration"
+                  v-model="cardExpiration"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="cVV" class="form-label">CVV</label>
+                <input type="number" class="form-control" id="cVV" v-model="cVV" required />
+              </div>
+            </div>
+
+            <!-- Google Pay Field -->
+            <div v-if="selectedPaymentOption === 'googlePay'">
+              <div class="mb-3">
+                <label for="upiId" class="form-label">UPI ID</label>
+                <input type="text" class="form-control" id="upiId" v-model="upiId" required />
+              </div>
+            </div>
+
+            <!-- Checkout and Cancel Buttons -->
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-success">Checkout</button>
+              <button @click.prevent="cancelCheckout" class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </section>
 </template>
 <script>
@@ -118,6 +220,17 @@ import CartAddRemove from '../components/CartAddRemove.vue'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 export default {
+  data() {
+    return {
+      showCheckoutFormBool: false,
+      selectedPaymentOption: null,
+      cardName: '',
+      cardNumber: '',
+      cardExpiration: '',
+      cVV: '',
+      upiId: ''
+    }
+  },
   components: { CartAddRemove },
   methods: {
     async removeItem(item) {
@@ -149,28 +262,43 @@ export default {
     async checkout() {
       try {
         // Send a request to your Flask backend to save the items in the database
+        const confirmCheckout = window.confirm('Are you sure you want to buy this product?')
 
-        const res = await fetch('http://127.0.0.1:5000/api/checkout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-          },
-          body: JSON.stringify({ cart: this.$store.state.cart })
-        })
+        if (confirmCheckout) {
+          const res = await fetch('http://127.0.0.1:5000/api/checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify({ cart: this.$store.state.cart })
+          })
 
-        console.log(this.$store.state.cart)
-        if (res.ok) {
-          // Clear the cart in the Vuex store and update the total
-          this.$store.dispatch('clearCart')
-          // Redirect to the orders page after successful checkout
-          this.$router.push({ name: 'orders' })
-        } else {
-          alert('OOPS! Something Went Wrong. Please Try Again.')
+          console.log(this.$store.state.cart)
+          if (res.ok) {
+            // Clear the cart in the Vuex store and update the total
+            this.$store.dispatch('clearCart')
+            // Redirect to the orders page after successful checkout
+            this.$router.push({ name: 'orders' })
+          } else {
+            alert('OOPS! Something Went Wrong. Please Try Again.')
+          }
         }
       } catch (error) {
         console.error('Error during checkout:', error)
       }
+    },
+    // Cancel checkout
+    cancelCheckout() {
+      this.showCheckoutFormBool = false
+      // Reset form fields or take other necessary actions
+      this.selectedPaymentOption = null
+      this.cardName = ''
+      // Reset other credit/debit card fields similarly
+      this.upiId = ''
+    },
+    showCheckoutForm() {
+      this.showCheckoutFormBool = true
     },
     async fetchCart() {
       try {
@@ -200,3 +328,25 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.form-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(50px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.form {
+  width: 400px;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+</style>
