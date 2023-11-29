@@ -1,4 +1,4 @@
-from models import User, Cart, Order, OrderItem, Product, Category, db, bcrypt, ma
+from models import User, Cart, Favourite, Order, OrderItem, Product, Category, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask import Flask, jsonify, request, send_file
 from tasks import export_product_data_to_csv
@@ -247,7 +247,7 @@ def get_cart():
     except Exception as e:
         print(f"Error fetching cart data: {str(e)}")
         return jsonify({'message': 'Error fetching cart data'}), 500
-    
+
 
 # Update cart items
 @app.route('/api/update_cart_item', methods=['POST'])
@@ -260,7 +260,8 @@ def update_cart_item():
         new_quantity = data.get('new_quantity')
 
         # Update the cart item in the database
-        cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+        cart_item = Cart.query.filter_by(
+            user_id=user_id, product_id=product_id).first()
         product = Product.query.filter_by(product_id=product_id).first()
         if cart_item:
             cart_item.quantity = new_quantity
@@ -274,7 +275,7 @@ def update_cart_item():
     except Exception as e:
         print(f"Error updating cart item: {str(e)}")
         return jsonify({'message': 'Error updating cart item'}), 500
-    
+
 
 # Remove cart items
 @app.route('/api/remove_cart_item', methods=['POST'])
@@ -286,7 +287,8 @@ def remove_cart_item():
         product_id = data.get('product_id')
 
         # Remove the cart item from the database
-        cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+        cart_item = Cart.query.filter_by(
+            user_id=user_id, product_id=product_id).first()
         if cart_item:
             db.session.delete(cart_item)
             db.session.commit()
@@ -298,7 +300,6 @@ def remove_cart_item():
     except Exception as e:
         print(f"Error removing cart item: {str(e)}")
         return jsonify({'message': 'Error removing cart item'}), 500
-
 
 
 # New Flask route for checkout
@@ -351,6 +352,109 @@ def checkout():
         print(f"Error during checkout: {str(e)}")
         db.session.rollback()  # Rollback changes in case of an error
         return jsonify({'message': 'Error during checkout', 'error': str(e)}), 500
+
+
+@app.route('/api/favourites', methods=['GET'])
+@jwt_required()
+@role_required(roles=['user'])
+def get_favourites():
+    try:
+        user_id = get_jwt_identity()['userId']
+
+        # Fetch favourite items from the Cart table for the specified user
+        favourites = Favourite.query.filter_by(user_id=user_id).all()
+
+        # Create a list to store the favourite items' information
+        favourite_list = []
+
+        # Iterate through each favourite item
+        for favourite in favourites:
+            # Fetch product information from the Products table
+            product = Product.query.get(favourite.product_id)
+
+            if product:
+                # Create a dictionary with the required product information
+                product_data = {
+                    'id': product.product_id,
+                    'category_id': product.category_id,
+                    'name': product.product_name,
+                    'manufacturing_date': product.manufacturing_date,
+                    'stock': product.stock,
+                    'unit': product.unit,
+                    'price': product.price,
+                    'image': product.product_image
+                }
+
+                # Append the product information to the list
+                favourite_list.append(product_data)
+
+        # Create the final response structure
+        response_data = {'fav_products': favourite_list}
+
+        return jsonify(response_data), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Error fetching favourite items', 'error': str(e)}), 500
+
+
+@app.route('/api/add_to_favourite', methods=['POST'])
+@jwt_required()
+@role_required(roles=['user'])
+def add_to_favourite():
+    try:
+        data = request.json
+        print("Received Data Fav:", data)
+        product_id = data.get('product_id')
+        user_id = get_jwt_identity()['userId']
+
+        # Check if the product exists
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({'message': 'Product not found'}), 404
+
+        # Check if the user has already added the product to favourites
+        existing_favourite = Favourite.query.filter_by(
+            user_id=user_id, product_id=product_id).first()
+
+        if existing_favourite:
+            return jsonify({'message': 'Product already in favourites'}), 400
+
+        # Create a new favourite entry
+        favourite = Favourite(user_id=user_id, product_id=product_id)
+        db.session.add(favourite)
+        db.session.commit()
+
+        return jsonify({'message': 'Product added to favourites'}), 200
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'message': 'Failed to add to favourites'}), 500
+
+
+@app.route('/api/remove_from_fav', methods=['DELETE'])
+@jwt_required()
+@role_required(roles=['user'])
+def remove_fav():
+
+    try:
+        data = request.json
+        print("Received Data Remove Fav:", data)
+        product_id = data.get('product_id')
+        user_id = get_jwt_identity()['userId']
+
+        fav_item_to_remove = Favourite.query.filter_by(
+            user_id=user_id, product_id=product_id).first()
+        if not fav_item_to_remove:
+            return jsonify({'message': 'Product not found in favourites.'}), 404
+
+        db.session.delete(fav_item_to_remove)
+        db.session.commit()
+
+        return jsonify({'message': 'Product removed from favourites!'}), 200
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'message': 'Failed to remove from favourites'}), 500
 
 
 @app.route('/api/orders', methods=['GET'])

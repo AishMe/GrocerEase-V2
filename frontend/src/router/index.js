@@ -4,6 +4,7 @@ import LoginView from '../components/LoginView.vue'
 import HomeView from '../components/HomeView.vue'
 import ProfilePage from '../components/ProfilePage.vue'
 import DashBoard from '../views/DashBoard.vue'
+import FavouriteItems from '../components/FavouriteItems.vue'
 import RegisterView from '../components/RegisterView.vue'
 import ShoppingCart from '../views/ShoppingCart.vue'
 import OrdersView from '../views/OrdersView.vue'
@@ -31,6 +32,7 @@ const routes = [
     allowedRoles: ['user', 'admin', 'manager'],
   }, },
   { path: '/register', name: 'register', component: RegisterView },
+  
   { path: '/cart', name: 'cart', component: ShoppingCart, meta: {
     allowedRoles: ['user'],
   }, },
@@ -55,7 +57,10 @@ const routes = [
   }, },
   { path: '/summary_dashboard', name: 'summary_dashboard', component: SummaryDashboard, meta: {
     allowedRoles: ['admin', 'manager'],
-  }, }
+  }, },
+  { path: '/fav_items', name: 'fav_items', component: FavouriteItems, meta: {
+    allowedRoles: ['user'],
+  }, },
 ]
   }]
 

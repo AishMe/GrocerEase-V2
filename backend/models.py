@@ -49,6 +49,12 @@ class Product(db.Model):
     orders = db.relationship('OrderItem', backref='product', lazy=True)
 
 
+class Favourite(db.Model):
+    favourite_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey(Product.product_id), nullable=False)
+
+
 class Cart(db.Model):
     cart_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)

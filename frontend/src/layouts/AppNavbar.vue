@@ -66,6 +66,13 @@
           ></a>
 
           <a
+            href="/fav_items"
+            v-if="this.role === 'user'"
+            class="text-white mt-1 mx-2"
+            ><i class="bi bi-bag-heart-fill" style="font-size: 30px"></i
+          ></a>
+
+          <a
             href="/cart"
             v-if="this.role === 'user'"
             class="text-white mt-2 mx-5 position-relative"

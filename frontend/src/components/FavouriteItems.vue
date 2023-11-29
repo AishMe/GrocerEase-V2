@@ -1,114 +1,12 @@
 <template>
   <div class="min-vh-100">
-    <!-- Toggle button for filter box -->
-    <div class="fab">
-      <a
-        href="#"
-        @click="toggleFilterBox"
-        data-bs-toggle="tooltip"
-        data-bs-placement="top"
-        title="Filter"
-      >
-        <i class="bi bi-funnel-fill"></i>
-      </a>
-    </div>
-
     <div v-if="isLoading" class="container min-h-content py-5 text-center">
       <h1 class="mb-3" style="font-size: 5rem; color: #c1e1c1">
-        <strong>Products</strong>
+        <strong>My Favourites</strong>
       </h1>
 
-      <!-- Filter box (hidden by default) -->
-      <div
-        v-show="showFilterBox"
-        class="my-3 p-2"
-        style="border: 2px solid #c1e1c1; border-radius: 10px"
-      >
-        <div class="d-flex align-items-center justify-content-center">
-          <div class="mb-3 p-1">
-            <label for="category" class="form-label text-white">Category</label>
-            <select
-              class="form-select"
-              style="width: 300px"
-              id="category"
-              name="category"
-              v-model="selectedCategory"
-            >
-              <option value="">All</option>
-              <option
-                v-for="category in categories"
-                :key="category.category_id"
-                :value="category.category_id"
-              >
-                {{ category.name }}
-              </option>
-            </select>
-          </div>
-          <div class="mb-3 p-1">
-            <label for="min_rate" class="form-label text-white">Min Rate</label>
-            <input
-              type="number"
-              style="width: 100px"
-              class="form-control"
-              min="0"
-              max="10000"
-              id="min_rate"
-              name="min_rate"
-              v-model="minRate"
-            />
-          </div>
-          <div class="mb-3 p-1">
-            <label for="max_rate" class="form-label text-white">Max Rate</label>
-            <input
-              type="number"
-              style="width: 100px"
-              class="form-control"
-              min="0"
-              max="10000"
-              id="max_rate"
-              name="max_rate"
-              v-model="maxRate"
-            />
-          </div>
-          <div class="mb-3 p-1">
-            <label for="search" class="form-label text-white">Search</label>
-            <input
-              type="text"
-              class="form-control"
-              style="width: 300px"
-              id="search"
-              name="search"
-              v-model="search"
-              placeholder="Search by product name..."
-            />
-          </div>
-          <div class="mb-3 p-1">
-            <button
-              @click="toggleManufactureSorting"
-              class="btn mt-4"
-              style="background-color: #c1e1c1"
-            >
-              <i v-if="manufactureSortOrder === 'asc'" class="bi bi-sort-down-alt"></i>
-              <i v-else class="bi bi-sort-down"></i>
-            </button>
-          </div>
-          <div class="mb-3 p-1">
-            <button @click="toggleNameSorting" class="btn mt-4" style="background-color: #c1e1c1">
-              <i v-if="nameSortOrder === 'asc'" class="bi bi-sort-alpha-down"></i>
-              <i v-else class="bi bi-sort-alpha-up"></i>
-            </button>
-          </div>
-          <div class="mb-3 p-1">
-            <button @click="resetFilters" class="btn mt-4" style="background-color: #c1e1c1">
-              <i class="bi bi-arrow-counterclockwise"></i>
-              Reset
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div class="row row-cols-1 row-cols-md-4 g-4 mt-4">
-        <div v-for="(product, index) in filteredProducts" :key="index" class="col">
+        <div v-for="(product, index) in products" :key="index" class="col">
           <div class="card shadow-sm">
             <img
               v-if="product.image === ''"
@@ -139,54 +37,56 @@
                 Stock: {{ product.stock }}
               </p>
 
-              <div class="row align-items-center justify-content-center">
-                <form>
-                  <div class="input-group">
-                    <input type="hidden" name="product_id" value="{{ product.product_id }}" />
-                    <input type="hidden" name="section_id" value="{{ product.section_id }}" />
-                    <input
-                      :disabled="product.stock === 0"
-                      type="number"
-                      class="form-control"
-                      name="quantity"
-                      placeholder="Qtn(kg)"
-                      v-model="qty"
-                      min="1"
-                    />
-                    <button
-                      :disabled="product.stock === 0"
-                      @click.prevent="addToCart(product)"
-                      class="btn btn-outline-primary"
-                      name="action"
-                      value="cart"
-                      data-product-id="{{ product.product_id }}"
-                      data-section-id="{{ product.section_id }}"
-                    >
-                      <i class="bi bi-cart-fill"></i>
-                    </button>
-                    <button
-                      :disabled="product.stock === 0"
-                      @click.prevent="showCheckoutForm(product)"
-                      class="btn btn-outline-success"
-                      name="action"
-                      value="purchase"
-                      data-product-id="{{ product.product_id }}"
-                      data-section-id="{{ product.section_id }}"
-                    >
-                      <i class="bi bi-basket2-fill"></i>
-                    </button>
-                    <button
-                      @click.prevent="addToFavorites(product.id)"
-                      class="btn btn-outline-danger"
-                      name="action"
-                      value="purchase"
-                      data-product-id="{{ product.product_id }}"
-                      data-section-id="{{ product.section_id }}"
-                    >
-                      <i class="bi bi-heart-fill"></i>
-                    </button>
-                  </div>
-                </form>
+              <div class="d-flex flex-column align-items-center">
+                <!-- Quantity input and heart button with spacing -->
+                <div class="mb-2 input-group">
+                  <input
+                    :disabled="product.stock === 0"
+                    type="number"
+                    class="form-control"
+                    name="quantity"
+                    placeholder="Qtn(kg)"
+                    v-model="qty"
+                    min="1"
+                  />
+                  <button
+                    @click.prevent="removeFromFavorites(product.id)"
+                    class="btn btn-outline-danger ms-2"
+                    name="action"
+                    value="purchase"
+                  >
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </div>
+
+                <!-- Buy Now and Add to Cart buttons with the same width as Quantity + Heart -->
+                <div class="d-grid gap-2">
+                  <button
+                    :disabled="product.stock === 0"
+                    @click.prevent="showCheckoutForm(product)"
+                    class="btn btn-success"
+                    style="padding: 8px 100px"
+                    name="action"
+                    value="purchase"
+                    data-product-id="{{ product.product_id }}"
+                    data-section-id="{{ product.section_id }}"
+                  >
+                    Buy Now
+                  </button>
+
+                  <button
+                    :disabled="product.stock === 0"
+                    @click.prevent="addToCart(product)"
+                    class="btn btn-primary w-100"
+                    style="padding: 8px"
+                    name="action"
+                    value="cart"
+                    data-product-id="{{ product.product_id }}"
+                    data-section-id="{{ product.section_id }}"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -297,8 +197,8 @@
     </div>
   </div>
 </template>
-
-<script>
+  
+  <script>
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
@@ -308,13 +208,6 @@ export default {
       isLoading: false,
       products: [],
       categories: [],
-      showFilterBox: false,
-      minRate: null,
-      maxRate: null,
-      selectedCategory: '',
-      search: '',
-      manufactureSortOrder: 'asc',
-      nameSortOrder: 'asc',
 
       showCheckoutFormBool: false,
       selectedProduct: null,
@@ -335,11 +228,16 @@ export default {
     async fetchProducts() {
       try {
         // Fetch products from the API
-        const response = await fetch('http://127.0.0.1:5000/api/products')
+        const response = await fetch('http://127.0.0.1:5000/api/favourites', {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
 
         if (response.ok) {
           const responseData = await response.json()
-          this.products = responseData.products.map((product) => ({
+          this.products = responseData.fav_products.map((product) => ({
             ...product,
             manufacturing_date: product.manufacturing_date || null,
             qty: this.qty || 1 // Set the initial quantity to 1
@@ -394,9 +292,28 @@ export default {
           })
 
           if (response.ok) {
-            const responseData = await response.json()
-            // Show a success message to the user
-            toast.success(responseData.message)
+            await fetch('http://127.0.0.1:5000/api/remove_from_fav', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+              },
+              body: JSON.stringify({ product_id: product.id })
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error('Failed to add to cart.')
+                }
+                return response.json()
+              })
+              .then((data) => {
+                // Handle successful checkout
+                console.log('Add to cart successful:', data.message)
+                toast.success(`${product.name} added to cart!`)
+                setTimeout(() => {
+                  window.location.reload()
+                }, 5000)
+              })
           } else {
             const errorData = await response.json()
             // Show an error message to the user
@@ -407,29 +324,36 @@ export default {
         }
       }
     },
-
-    async addToFavorites(productId) {
+    async removeFromFavorites(productId) {
       try {
-        // Make a POST request to the backend API for adding to favourites
-        const response = await fetch('http://127.0.0.1:5000/api/add_to_favourite', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-          },
-          body: JSON.stringify({ product_id: productId })
-        })
+        const confirmDelete = window.confirm(
+          'Are you sure you want to remove this product from favourites?'
+        )
 
-        if (response.ok) {
-          toast.success('Product added to favourite!')
-        } else {
-          toast.error('Could not add this product to favourite. Sorry')
+        if (confirmDelete) {
+          // Make a POST request to the backend API for removing from favourites
+          const response = await fetch('http://127.0.0.1:5000/api/remove_from_fav', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify({ product_id: productId })
+          })
+
+          if (response.ok) {
+            toast.success('Product removed from favourites!')
+            setTimeout(() => {
+              window.location.reload()
+            }, 5000)
+          } else {
+            toast.error('Couldn not remove this product from favourites. Sorry')
+          }
         }
       } catch (error) {
-        console.error('Error adding to favourite:', error)
+        console.error('Error removing from favourites:', error)
       }
     },
-
     async checkout(product) {
       // Create the cart array based on the provided format
       const cartItem = {
@@ -442,7 +366,7 @@ export default {
       const confirmCheckout = window.confirm('Are you sure you want to buy this product?')
 
       if (confirmCheckout) {
-        await fetch('http://127.0.0.1:5000/api/checkout', {
+        const res = await fetch('http://127.0.0.1:5000/api/checkout', {
           method: 'POST',
           headers: {
             'Content-type': 'application/json',
@@ -450,43 +374,35 @@ export default {
           },
           body: JSON.stringify({ cart: cart })
         })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Checkout failed')
-            }
-            return response.json()
+
+        if (res.ok) {
+          await fetch('http://127.0.0.1:5000/api/remove_from_fav', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify({ product_id: product.id })
           })
-          .then((data) => {
-            // Handle successful checkout
-            console.log('Checkout successful:', data.message)
-            window.location.reload()
-            toast.success(
-              `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`
-            )
-            console.log('Selected Payment Option:', this.selectedPaymentOption)
-          })
-          .catch((error) => {
-            // Handle checkout failure
-            console.error('Error during checkout:', error)
-          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error('Failed to checkout.')
+              }
+              return response.json()
+            })
+            .then(() => {
+              // Handle successful checkout
+              toast.success(
+                `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`
+              )
+              setTimeout(() => {
+                window.location.reload()
+              }, 5000)
+            })
+        } else {
+          toast.error('Checkout unsuccessful. Please try again...')
+        }
       }
-    },
-    resetFilters() {
-      this.selectedCategory = ''
-      this.minRate = null
-      this.maxRate = null
-      this.search = ''
-      this.nameSortOrder = 'asc'
-      this.manufactureSortOrder = 'asc'
-    },
-    toggleFilterBox() {
-      this.showFilterBox = !this.showFilterBox
-    },
-    toggleManufactureSorting() {
-      this.manufactureSortOrder = this.manufactureSortOrder === 'asc' ? 'desc' : 'asc'
-    },
-    toggleNameSorting() {
-      this.nameSortOrder = this.nameSortOrder === 'asc' ? 'desc' : 'asc'
     },
     getStockMessage(product) {
       if (product.stock === 0) {
@@ -538,62 +454,11 @@ export default {
         this.showCheckoutFormBool = true
       }
     }
-  },
-  computed: {
-    filteredProducts() {
-      let filtered = this.products.filter((product) => {
-        const meetsCategoryCriteria =
-          !this.selectedCategory || product.category_id === this.selectedCategory
-        const meetsMinRateCriteria = !this.minRate || product.price >= this.minRate
-        const meetsMaxRateCriteria = !this.maxRate || product.price <= this.maxRate
-
-        return meetsCategoryCriteria && meetsMinRateCriteria && meetsMaxRateCriteria
-      })
-
-      // Filter by search text
-      if (this.search) {
-        filtered = filtered.filter((product) =>
-          product.name.toLowerCase().includes(this.search.toLowerCase())
-        )
-      }
-
-      // Sorting
-      if (this.manufactureSortOrder === 'asc') {
-        filtered.sort((a, b) =>
-          a.manufacturing_date > b.manufacturing_date
-            ? 1
-            : a.manufacturing_date < b.manufacturing_date
-            ? -1
-            : 0
-        )
-      } else {
-        filtered.sort((a, b) =>
-          a.manufacturing_date < b.manufacturing_date
-            ? 1
-            : a.manufacturing_date > b.manufacturing_date
-            ? -1
-            : 0
-        )
-      }
-
-      if (this.nameSortOrder === 'asc') {
-        filtered.sort((a, b) => a.name.localeCompare(b.name))
-      } else {
-        filtered.sort((a, b) => b.name.localeCompare(a.name))
-      }
-
-      return filtered
-    }
   }
 }
 </script>
-
-<style scoped>
-.fab {
-  width: 90px;
-  height: 90px;
-  background-color: #023020;
-}
+  
+  <style scoped>
 .form-container {
   position: fixed;
   top: 0;
@@ -615,3 +480,4 @@ export default {
   overflow: hidden;
 }
 </style>
+  
