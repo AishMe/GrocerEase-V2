@@ -4,6 +4,7 @@ Flask-Bcrypt
 flask-cors
 Flask-SQLAlchemy
 Flask-JWT-Extended
+Flask-Caching
 celery
 redis
 eventlet

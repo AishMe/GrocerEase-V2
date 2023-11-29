@@ -4,7 +4,9 @@ from flask import Flask, jsonify, request, send_file
 from tasks import export_product_data_to_csv
 from functools import wraps
 from flask_cors import CORS
+from flask_caching import Cache
 from datetime import date
+import time
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -18,6 +20,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'harekrishna'
 jwt = JWTManager(app)
 
+cache = Cache(config={
+    "DEBUG": True,
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_KEY_PREFIX": "grocery_store_mad2",
+    "CACHE_REDIS_URL": "redis://localhost:6379/1",
+    "CACHE_DEFAULT_TIMEOUT": 300
+})
+
 
 # -------------------- MODEL INITIALIZATION -------------------
 
@@ -27,6 +37,7 @@ db.create_all()
 bcrypt.init_app(app)
 ma.init_app(app)
 CORS(app)
+cache.init_app(app)
 
 
 # -------------------- RBAC DECORATOR -----------------------
@@ -391,6 +402,7 @@ def get_orders():
 
 
 @app.route('/api/categories', methods=['GET'])
+@cache.cached(timeout=50)
 def get_categories():
     try:
         categories = Category.query.filter_by(category_approval=1).all()
@@ -476,7 +488,9 @@ def delete_category(category_id):
 
 
 @app.route('/api/products', methods=['GET'])
+@cache.cached(timeout=50)
 def get_products():
+    start_time = time.time()
     try:
         category_id = request.args.get('category_id')
         if category_id:
@@ -500,6 +514,9 @@ def get_products():
                 'image': product.product_image
             }
             product_list.append(product_data)
+
+        end_time = time.time()
+        print(f"Time taken: {end_time - start_time} seconds")
 
         return jsonify({'products': product_list}), 200
     except Exception as e:
@@ -586,6 +603,7 @@ def delete_product(product_id):
 @app.route('/api/manager_admin_dashboard', methods=['GET'])
 @jwt_required()
 @role_required(roles=['manager', 'admin'])
+@cache.cached(timeout=50)
 def manager_admin_dashboard():
     try:
         categories = Category.query.order_by(Category.category_id).all()
