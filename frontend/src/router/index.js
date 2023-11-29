@@ -24,8 +24,12 @@ const routes = [
         children:[
   { path: '/login', name: 'login', component: LoginView },
   { path: '/', name: 'home', component: HomeView },
-  { path: '/profile', name: 'profile', component: ProfilePage },
-  { path: '/dashboard', name: 'dashboard', component: DashBoard },
+  { path: '/profile', name: 'profile', component: ProfilePage, meta: {
+    allowedRoles: ['user', 'admin', 'manager'],
+  }, },
+  { path: '/dashboard', name: 'dashboard', component: DashBoard, meta: {
+    allowedRoles: ['user', 'admin', 'manager'],
+  }, },
   { path: '/register', name: 'register', component: RegisterView },
   { path: '/cart', name: 'cart', component: ShoppingCart, meta: {
     allowedRoles: ['user'],

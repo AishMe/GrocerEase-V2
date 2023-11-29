@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <h1 class="text-white">Approved Requests</h1>
+  <div class="min-vh-100">
+    <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
+      <strong>Approved Requests</strong>
+    </h1>
     <br />
     <div class="row">
       <div class="col-md-3" v-for="user in approvedManagers" :key="user.user_id">
@@ -36,6 +38,7 @@
 export default {
   data() {
     return {
+      isLoading: false,
       approvedManagers: []
     }
   },
@@ -50,8 +53,9 @@ export default {
 
         if (response.ok) {
           const data = await response.json()
-          console.log("APPROVED MANAGERS: ", data)
+          console.log('APPROVED MANAGERS: ', data)
           this.approvedManagers = data.approvedManagers
+          this.isLoading = true
         }
       } catch (error) {
         console.error('Error fetching approved managers:', error)
@@ -77,7 +81,7 @@ export default {
       } catch (error) {
         console.error('Error approving request:', error)
       }
-    },
+    }
   },
   created() {
     this.fetchApprovedManagers()

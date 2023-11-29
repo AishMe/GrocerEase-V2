@@ -6,9 +6,9 @@ import AdminDashboard from '../components/AdminDashboard.vue'
 
 <template>
   <main>
-    <UserDashboard v-if="role === 'user'"/>
-    <ManagerDashboard v-else-if="role === 'manager'"/>
-    <AdminDashboard v-else-if="role === 'admin'"/>
+    <UserDashboard v-if="role === 'user'" />
+    <ManagerDashboard v-else-if="role === 'manager'" />
+    <AdminDashboard v-else-if="role === 'admin'" />
   </main>
 </template>
 
@@ -32,8 +32,9 @@ export default {
     if (res.ok) {
       console.log(d)
     } else {
-      //alert(d.message)
-      this.$router.push({ path: '/login' })
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
       console.log(d.msg)
     }
   }

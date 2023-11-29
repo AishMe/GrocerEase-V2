@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="min-vh-100">
     <!-- Toggle button for filter box -->
     <div class="fab">
       <a
@@ -12,7 +12,8 @@
         <i class="bi bi-funnel-fill"></i>
       </a>
     </div>
-    <div class="container min-h-content py-5 text-center">
+
+    <div v-if="isLoading" class="container min-h-content py-5 text-center">
       <h1 class="mb-3" style="font-size: 5rem; color: #c1e1c1">
         <strong>Products</strong>
       </h1>
@@ -173,8 +174,8 @@
                       data-product-id="{{ product.product_id }}"
                       data-section-id="{{ product.section_id }}"
                     >
-                    <i class="bi bi-basket2-fill"></i>
-                  </button>
+                      <i class="bi bi-basket2-fill"></i>
+                    </button>
                     <button
                       :disabled="product.stock === 0"
                       @click.prevent="showCheckoutForm(product)"
@@ -306,6 +307,7 @@ import 'vue3-toastify/dist/index.css'
 export default {
   data() {
     return {
+      isLoading: false,
       products: [],
       categories: [],
       showFilterBox: false,
@@ -344,6 +346,7 @@ export default {
             manufacturing_date: product.manufacturing_date || null,
             qty: this.qty || 1 // Set the initial quantity to 1
           }))
+          this.isLoading = true
         } else {
           alert('Oops! Something went wrong. Cannot fetch the products.')
         }
@@ -368,7 +371,6 @@ export default {
     },
 
     async addToCart(product) {
-
       console.log('Product Quantity:', this.qty)
       console.log('Product Stock:', product.stock)
 
@@ -379,36 +381,35 @@ export default {
         toast.danger('Please specify the quantity.')
       } else if (this.qty < 0) {
         toast.danger('Please specify a valid quantity.')
-      }  else if (this.qty > 0) { 
-
-      try {
-        const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-          },
-          body: JSON.stringify({
-            product_id: product.id,
-            quantity: 1 // You can modify this based on user input
+      } else if (this.qty > 0) {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+            },
+            body: JSON.stringify({
+              product_id: product.id,
+              quantity: 1 // You can modify this based on user input
+            })
           })
-        });
 
-        if (response.ok) {
-          const responseData = await response.json();
-          // Show a success message to the user
-          toast.success(responseData.message);
-        } else {
-          const errorData = await response.json();
-          // Show an error message to the user
-          toast.error(errorData.message);
+          if (response.ok) {
+            const responseData = await response.json()
+            // Show a success message to the user
+            toast.success(responseData.message)
+          } else {
+            const errorData = await response.json()
+            // Show an error message to the user
+            toast.error(errorData.message)
+          }
+        } catch (error) {
+          console.error('Error adding to cart:', error)
         }
-      } catch (error) {
-        console.error('Error adding to cart:', error);
       }
-    }},
+    },
     async checkout(product) {
-
       // Create the cart array based on the provided format
       const cartItem = {
         ...product,
@@ -505,7 +506,6 @@ export default {
       this.upiId = ''
     },
     showCheckoutForm(product) {
-
       if (this.qty === undefined) {
         toast.danger('Please specify the quantity.')
       } else if (this.qty < 0) {

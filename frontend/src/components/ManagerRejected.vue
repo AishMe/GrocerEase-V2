@@ -1,8 +1,10 @@
 <template>
-  <div>
-    <h1 class="text-white">Requests Rejected</h1>
+  <div class="min-vh-100">
+    <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
+      <strong>Requests Rejected</strong>
+    </h1>
     <br />
-    <div class="row">
+    <div v-if="isLoading" class="row">
       <div class="col-md-3" v-for="user in rejectedManagers" :key="user.user_id">
         <div class="card mb-4" style="width: 18rem">
           <div class="text-center">
@@ -36,6 +38,7 @@
 export default {
   data() {
     return {
+      isLoading: false,
       rejectedManagers: []
     }
   },
@@ -50,8 +53,9 @@ export default {
 
         if (response.ok) {
           const data = await response.json()
-          console.log("REJECTED MANAGERS: ", data)
+          console.log('REJECTED MANAGERS: ', data)
           this.rejectedManagers = data.rejectedManagers
+          this.isLoading = true
         }
       } catch (error) {
         console.error('Error fetching rejected managers:', error)
@@ -77,7 +81,7 @@ export default {
       } catch (error) {
         console.error('Error approving request:', error)
       }
-    },
+    }
   },
   created() {
     this.fetchRejectedManagers()

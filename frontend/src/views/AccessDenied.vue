@@ -3,7 +3,7 @@
     <div class="access-denied-content">
       <h1>Access Denied</h1>
       <p>Sorry, you don't have permission to access this page.</p>
-      <router-link to="/dashboard" class="back-button">Back to Home</router-link>
+      <router-link to="/dashboard" class="back-button">Back to My Dashboard</router-link>
     </div>
   </div>
 </template>
@@ -20,7 +20,6 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f2f2f2;
 }
 
 .access-denied-content {

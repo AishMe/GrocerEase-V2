@@ -122,28 +122,28 @@ export default {
   methods: {
     async removeItem(item) {
       try {
-      const response = await fetch('http://127.0.0.1:5000/api/remove_cart_item', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
-        },
-        body: JSON.stringify({
-          product_id: item.id,
-        }),
-      });
+        const response = await fetch('http://127.0.0.1:5000/api/remove_cart_item', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          },
+          body: JSON.stringify({
+            product_id: item.id
+          })
+        })
 
-      if (response.ok) {
-        // Update the cart state in the Vuex store with the fetched data
-        this.$store.dispatch('fetchCart');
-        this.$store.commit('addRemoveCart', { product: item, toAdd: false })
-        toast.success('Cart item removed');
-      } else {
-        toast.error('Failed to remove cart item');
+        if (response.ok) {
+          // Update the cart state in the Vuex store with the fetched data
+          this.$store.dispatch('fetchCart')
+          this.$store.commit('addRemoveCart', { product: item, toAdd: false })
+          toast.success('Cart item removed')
+        } else {
+          toast.error('Failed to remove cart item')
+        }
+      } catch (error) {
+        console.error('Error removing cart item:', error)
       }
-    } catch (error) {
-      console.error('Error removing cart item:', error);
-    }
     },
 
     async checkout() {

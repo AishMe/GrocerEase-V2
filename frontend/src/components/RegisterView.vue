@@ -1,7 +1,7 @@
 <template>
   <div>
-    <section class="vh-100">
-      <div class="container py-5 h-100">
+    <section>
+      <div class="container py-3 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col col-xl-10">
             <div class="card text-black" style="border-radius: 2rem; background-color: #f4f7f3">

@@ -1,6 +1,6 @@
 
 <template>
-  <div>
+  <div class="min-vh-100">
     <div class="fab">
       <a
         @click="showAddCategoryForm"
@@ -11,129 +11,136 @@
         <i class="bi bi-bag-plus-fill"></i>
       </a>
     </div>
+    <div class="text-center">
+      <h1 class="my-5" style="font-size: 5rem; color: #c1e1c1">
+        <strong>Products & Categories</strong>
+      </h1>
+      <div v-if="isLoading" class="row">
+        <div
+          v-for="(category, index) in categories"
+          :key="index"
+          class="col-md-4 d-flex justify-content-center"
+        >
+          <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
+            <img
+              :src="category.image ? category.image : require('../assets/FrontPageDesign.png')"
+              :alt="category.name + ' Image'"
+              style="width: 100%; height: 10vw; object-fit: cover"
+              class="card-img-top"
+            />
+            <div class="card-body">
+              <center>
+                <h3 class="fw-bold text-uppercase text-black">{{ category.name }}</h3>
+              </center>
 
-    <div class="row">
-      <div
-        v-for="(category, index) in categories"
-        :key="index"
-        class="col-md-4 d-flex justify-content-center"
-      >
-        <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
-          <img
-            :src="category.image ? category.image : require('../assets/FrontPageDesign.png')"
-            :alt="category.name + ' Image'"
-            style="width: 100%; height: 10vw; object-fit: cover"
-            class="card-img-top"
-          />
-          <div class="card-body">
-            <center>
-              <h3 class="fw-bold text-uppercase text-black">{{ category.name }}</h3>
-            </center>
-
-            <div class="overflow-auto" style="height: 400px">
-              <div
-                v-for="product in productsByCategory[category.category_id]"
-                :key="product.product_id"
-                class="card mb-2 shadow p-3 mb-5 rounded"
-                style="width: 310px"
-              >
-                <img
-                  :src="product.image ? product.image : require('../assets/FrontPageDesign.png')"
-                  :alt="product.name + ' Image'"
-                  style="width: 100%; height: 7vw; object-fit: cover"
-                  class="card-img-top"
-                />
-                <div class="card-body">
-                  <center>
-                    <h5 class="card-title text-black">{{ product.name }}</h5>
-                  </center>
-                  <hr style="margin-top: 1rem; border: 1px solid black" />
-                  <p class="card-text">
-                    Manufacturing Date: {{ product.manufacture_date }}<br />
-                    Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
-                    Stock: {{ product.stock }}
-                  </p>
-                  <div class="d-flex justify-content-center align-items-center">
-                    <a @click="showEditProductForm(product)"
-                      ><button class="btn btn-outline-warning">
-                        <i class="bi bi-pencil-square"></i>Edit
-                      </button></a
-                    >
-                    <span style="flex-grow: 0.5"></span>
-                    <a @click="deleteProduct(product)"
-                      ><button class="btn btn-outline-danger">
-                        <i class="bi bi-trash"></i>Delete
-                      </button></a
-                    >
+              <div class="overflow-auto" style="height: 400px">
+                <div
+                  v-for="product in productsByCategory[category.category_id]"
+                  :key="product.product_id"
+                  class="card mb-2 shadow p-3 mb-5 rounded"
+                  style="width: 310px"
+                >
+                  <img
+                    :src="product.image ? product.image : require('../assets/FrontPageDesign.png')"
+                    :alt="product.name + ' Image'"
+                    style="width: 100%; height: 7vw; object-fit: cover"
+                    class="card-img-top"
+                  />
+                  <div class="card-body">
+                    <center>
+                      <h5 class="card-title text-black">{{ product.name }}</h5>
+                    </center>
+                    <hr style="margin-top: 1rem; border: 1px solid black" />
+                    <p class="card-text">
+                      Manufacturing Date: {{ product.manufacture_date }}<br />
+                      Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
+                      Stock: {{ product.stock }}
+                    </p>
+                    <div class="d-flex justify-content-center align-items-center">
+                      <a @click="showEditProductForm(product)"
+                        ><button class="btn btn-outline-warning">
+                          <i class="bi bi-pencil-square"></i>Edit
+                        </button></a
+                      >
+                      <span style="flex-grow: 0.5"></span>
+                      <a @click="deleteProduct(product)"
+                        ><button class="btn btn-outline-danger">
+                          <i class="bi bi-trash"></i>Delete
+                        </button></a
+                      >
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <br />
-              <div class="d-flex justify-content-between">
-                <a @click="showAddProductForm(category.category_id)"
-                  ><button class="btn btn-outline-primary">
-                    <i class="fa fa-plus-circle"></i>Add Items
-                  </button></a
-                >
-                <span style="flex-grow: 1"></span>
-                <a @click="showEditCategoryForm(category)"
-                  ><button class="btn btn-outline-warning">
-                    <i class="bi bi-pencil-square"></i></button
-                ></a>
-                <span style="flex-grow: 0.3"></span>
-                <a @click="deleteCategory(category)"
-                  ><button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button
-                ></a>
+              <div>
+                <br />
+                <div class="d-flex justify-content-between">
+                  <a @click="showAddProductForm(category.category_id)"
+                    ><button class="btn btn-outline-primary">
+                      <i class="fa fa-plus-circle"></i>Add Items
+                    </button></a
+                  >
+                  <span style="flex-grow: 1"></span>
+                  <a @click="showEditCategoryForm(category)"
+                    ><button class="btn btn-outline-warning">
+                      <i class="bi bi-pencil-square"></i></button
+                  ></a>
+                  <span style="flex-grow: 0.3"></span>
+                  <a @click="deleteCategory(category)"
+                    ><button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button
+                  ></a>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <!-- Add/Edit Category Form -->
-      <div v-if="showAddEditForm" class="blur-background">
-        <div class="center-form">
-          <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
-            <div class="card-body">
-              <h5 class="card-title text-center">{{ editMode ? 'Edit' : 'Add' }} {{ formType }}</h5>
-              <!-- Category/ Product Form Fields -->
-              <form @submit.prevent="submitForm">
-                <div class="mb-3">
-                  <label class="form-label">Category ID</label>
-                  <input v-model="form.category_id" type="number" class="form-control" disabled />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Name</label>
-                  <input v-model="form.name" type="text" class="form-control" required />
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Image URL</label>
-                  <input v-model="form.image" type="url" class="form-control" />
-                </div>
-                <div class="mb-3" v-if="formType === 'Product'">
-                  <label class="form-label">Price</label>
-                  <input v-model="form.price" type="number" class="form-control" required />
-                </div>
-                <div class="mb-3" v-if="formType === 'Product'">
-                  <label class="form-label">Unit</label>
-                  <input v-model="form.unit" type="text" class="form-control" required />
-                </div>
-                <div class="mb-3" v-if="formType === 'Product'">
-                  <label class="form-label">Stock</label>
-                  <input v-model="form.stock" type="number" class="form-control" required />
-                </div>
-                <!-- Add/Edit and Cancel Buttons -->
-                <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-primary">
-                    {{ editMode ? 'Edit' : 'Add' }} {{ formType }}
-                  </button>
-                  <button type="button" class="btn btn-secondary" @click="cancelForm">
-                    Cancel
-                  </button>
-                </div>
-              </form>
+
+        <!-- Add/Edit Category Form -->
+        <div v-if="showAddEditForm" class="blur-background">
+          <div class="center-form">
+            <div class="card bg-light mb-4 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
+              <div class="card-body">
+                <h5 class="card-title text-center">
+                  {{ editMode ? 'Edit' : 'Add' }} {{ formType }}
+                </h5>
+                <!-- Category/ Product Form Fields -->
+                <form @submit.prevent="submitForm">
+                  <div class="mb-3">
+                    <label class="form-label">Category ID</label>
+                    <input v-model="form.category_id" type="number" class="form-control" disabled />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input v-model="form.name" type="text" class="form-control" required />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Image URL</label>
+                    <input v-model="form.image" type="url" class="form-control" />
+                  </div>
+                  <div class="mb-3" v-if="formType === 'Product'">
+                    <label class="form-label">Price</label>
+                    <input v-model="form.price" type="number" class="form-control" required />
+                  </div>
+                  <div class="mb-3" v-if="formType === 'Product'">
+                    <label class="form-label">Unit</label>
+                    <input v-model="form.unit" type="text" class="form-control" required />
+                  </div>
+                  <div class="mb-3" v-if="formType === 'Product'">
+                    <label class="form-label">Stock</label>
+                    <input v-model="form.stock" type="number" class="form-control" required />
+                  </div>
+                  <!-- Add/Edit and Cancel Buttons -->
+                  <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">
+                      {{ editMode ? 'Edit' : 'Add' }} {{ formType }}
+                    </button>
+                    <button type="button" class="btn btn-secondary" @click="cancelForm">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -146,6 +153,7 @@
 export default {
   data() {
     return {
+      isLoading: false,
       categories: [],
       productsByCategory: {},
 
@@ -196,6 +204,7 @@ export default {
         if (response.ok) {
           const responseData = await response.json()
           this.productsByCategory = responseData.productsByCategory
+          this.isLoading = true
         } else {
           alert('Oops! Something went wrong. Cannot fetch the products by categories.')
         }

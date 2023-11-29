@@ -1,9 +1,7 @@
 <template>
   <div>
-    <section
-      class="vh-100"
-    >
-      <div class="container py-5 h-100">
+    <section>
+      <div class="container py-3 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col col-xl-10">
             <div class="card" style="border-radius: 2rem; background-color: #f4f7f3">
@@ -60,7 +58,8 @@
 
                       <a class="small text-muted" href="#!">Forgot password?</a>
                       <p class="mb-5 pb-lg-2" style="color: #393f81">
-                        Don't have an account? <a href="/register" style="color: #393f81">Register here</a>
+                        Don't have an account?
+                        <a href="/register" style="color: #393f81">Register here</a>
                       </p>
                       <a href="#!" class="small text-muted">Terms of use</a>
                       <span> | </span>
@@ -105,7 +104,9 @@ export default {
           localStorage.setItem('accessToken', res.access_token)
           localStorage.setItem('role', res.role)
           alert(res.msg)
-          this.$router.push({ path: '/dashboard' })
+          this.$router.push({ path: '/dashboard' }).then(() => {
+            this.$router.go()
+          })
         } else {
           alert(res.msg)
         }

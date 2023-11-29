@@ -1,5 +1,9 @@
 <template>
-    <div>This this the Summary Page</div>
+  <div class="min-vh-100">
+    <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
+      <strong>Sales Summary Dashboard</strong>
+    </h1>
+  </div>
 </template>
 
 
