@@ -11,7 +11,6 @@ import time
 import os
 
 
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 # print("BASE DIR PATH: ", basedir)
 
@@ -582,7 +581,6 @@ def update_category(category_id):
         return jsonify({'message': 'Error Updating the Category', 'error': str(e)}), 500
 
 
-
 # Delete a Category from the Database Record
 @app.route('/delete_category/<int:category_id>', methods=['DELETE'])
 @jwt_required()
@@ -821,6 +819,7 @@ def approve_request(user_id):
         user = User.query.get(user_id)
         if user:
             user.request_approval = 1
+            user.role = 'manager'
             db.session.commit()
             return jsonify({'message': 'Request approved'}), 200
         else:
@@ -918,7 +917,7 @@ def decline_category_request(category_id):
             return jsonify({'message': 'Category not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
-    
+
 
 # Fetch pending categories for deletion request
 @app.route('/admin/category_deletion_request', methods=['GET'])
@@ -939,7 +938,6 @@ def get_category_deletion_requests():
         return jsonify({'message': 'Error fetching pending categories', 'error': str(e)}), 500
 
 
-
 # Decline category deletion request (Keep the category)
 @app.route('/admin/keep_category/<int:category_id>', methods=['PUT'])
 @jwt_required()
@@ -958,7 +956,6 @@ def decline_category_deletion_request(category_id):
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
 
 
-
 @app.route('/notification_count', methods=['GET'])
 @jwt_required()
 def get_notification_count():
@@ -970,12 +967,12 @@ def get_notification_count():
             category_approval=-2).all()
         pending_managers = User.query.filter_by(request_approval=0).all()
 
-        notification_count = len(pending_categories) + len(pending_managers) + len(pending_category_deletion_requests)
+        notification_count = len(
+            pending_categories) + len(pending_managers) + len(pending_category_deletion_requests)
 
         return jsonify({'notificationCount': notification_count}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching notification count', 'error': str(e)}), 500
-    
 
 
 # Fetch product-wise sales data
@@ -989,16 +986,18 @@ def get_product_sales_data():
         product_sales_data = {}
 
         for product in products:
-            order_items = OrderItem.query.filter_by(product_id=product.product_id).all()
-            total_sales = sum(order_item.total_price for order_item in order_items)
+            order_items = OrderItem.query.filter_by(
+                product_id=product.product_id).all()
+            total_sales = sum(
+                order_item.total_price for order_item in order_items)
             category_name = product.category.category_name
-            product_sales_data[product.product_name] = [category_name, total_sales]
+            product_sales_data[product.product_name] = [
+                category_name, total_sales]
 
         return jsonify({'productSalesData': product_sales_data}), 200
 
     except Exception as e:
         return jsonify({'message': 'Error fetching product-wise sales data', 'error': str(e)}), 500
-    
 
 
 # Fetch summary cards data
@@ -1009,9 +1008,11 @@ def get_card_data():
     try:
         total_users = User.query.filter_by(role='user').count()
         out_of_stock_count = Product.query.filter_by(stock=0).count()
-        limited_stock_count = Product.query.filter(Product.stock > 0, Product.stock <= 10).count()
+        limited_stock_count = Product.query.filter(
+            Product.stock > 0, Product.stock <= 10).count()
         total_products = Product.query.count()
-        total_sales = db.session.query(db.func.sum(OrderItem.total_price)).scalar()
+        total_sales = db.session.query(
+            db.func.sum(OrderItem.total_price)).scalar()
 
         card_data = {
             "Total Users": total_users,
@@ -1025,8 +1026,6 @@ def get_card_data():
 
     except Exception as e:
         return jsonify({'message': 'Error fetching card data', 'error': str(e)}), 500
-
-
 
 
 @app.route('/api/visited_status', methods=['GET'])
@@ -1083,7 +1082,7 @@ def download_csv():
 @role_required(roles=['manager', 'admin'])
 def generate_monthly_report():
     file_path = generate_pdf_report()
-    
+
     # Check if the file exists
     if os.path.exists(file_path):
         return send_file(
@@ -1094,8 +1093,6 @@ def generate_monthly_report():
         )
     else:
         return "Error: Report not generated.", 500
-
-
 
 
 if __name__ == "__main__":

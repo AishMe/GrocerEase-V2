@@ -104,6 +104,9 @@ export default {
 
   methods: {
     register: async function () {
+      if (this.role === 'manager') {
+        this.role = 'pending'
+      }
       const req = await fetch('http://127.0.0.1:5000/add', {
         method: 'POST',
         headers: {

@@ -217,33 +217,33 @@ export default {
       const confirmDelete = window.confirm('Are you sure you want to delete this category?')
 
       if (confirmDelete) {
-
-          try {
-            // Fetch categories from the API
-            const response = await fetch(
-              `http://127.0.0.1:5000/api/edit_category/${category.category_id}`,
-              {
-                method: 'PUT',
-                headers: {
-                  'Content-type': 'application/json',
-                  Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
-                },
-                body: JSON.stringify({
-                  'name': category.name,
-                  'image': category.image,
-                  'category_approval': -2})
-              }
-            )
-
-            if (response.ok) {
-              alert('Category Deletion Request Sent to the Admin.')
-              window.location.reload()
-            } else {
-              alert('Oops! Something Went Wrong. Could Not Send Deletion Request to the Admin')
+        try {
+          // Fetch categories from the API
+          const response = await fetch(
+            `http://127.0.0.1:5000/api/edit_category/${category.category_id}`,
+            {
+              method: 'PUT',
+              headers: {
+                'Content-type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+              },
+              body: JSON.stringify({
+                name: category.name,
+                image: category.image,
+                category_approval: -2
+              })
             }
-          } catch (error) {
-            console.error('Error deleting the category ', error)
+          )
+
+          if (response.ok) {
+            alert('Category Deletion Request Sent to the Admin.')
+            window.location.reload()
+          } else {
+            alert('Oops! Something Went Wrong. Could Not Send Deletion Request to the Admin')
           }
+        } catch (error) {
+          console.error('Error deleting the category ', error)
+        }
       } else {
         // User clicked Cancel on the initial confirmation
         alert('Deletion Canceled.')
