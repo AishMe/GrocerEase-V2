@@ -1,13 +1,16 @@
 from models import User, Cart, Favourite, Order, OrderItem, Product, Category, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask import Flask, jsonify, request, send_file
+from monthly_report import generate_pdf_report
 from tasks import export_product_data_to_csv
+from flask_caching import Cache
 from functools import wraps
 from flask_cors import CORS
-from flask_caching import Cache
 from datetime import date
 import time
 import os
+
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 # print("BASE DIR PATH: ", basedir)
@@ -974,6 +977,26 @@ def download_csv():
 
     except Exception as e:
         return f"Error: {str(e)}", 500
+
+
+@app.route('/api/generate_monthly_report', methods=['GET'])
+@jwt_required()
+@role_required(roles=['manager', 'admin'])
+def generate_monthly_report():
+    file_path = generate_pdf_report()
+    
+    # Check if the file exists
+    if os.path.exists(file_path):
+        return send_file(
+            file_path,
+            mimetype='application/pdf',
+            download_name="monthly_report.pdf",
+            as_attachment=True
+        )
+    else:
+        return "Error: Report not generated.", 500
+
+
 
 
 if __name__ == "__main__":

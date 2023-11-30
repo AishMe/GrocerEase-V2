@@ -559,20 +559,13 @@ export default {
 
       // Sorting
       if (this.manufactureSortOrder === 'asc') {
+        
         filtered.sort((a, b) =>
-          a.manufacturing_date > b.manufacturing_date
-            ? 1
-            : a.manufacturing_date < b.manufacturing_date
-            ? -1
-            : 0
+        Date.parse(a.manufacturing_date) - Date.parse(b.manufacturing_date)
         )
       } else {
         filtered.sort((a, b) =>
-          a.manufacturing_date < b.manufacturing_date
-            ? 1
-            : a.manufacturing_date > b.manufacturing_date
-            ? -1
-            : 0
+        Date.parse(b.manufacturing_date) - Date.parse(a.manufacturing_date)
         )
       }
 

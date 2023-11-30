@@ -345,7 +345,7 @@ export default {
             toast.success('Product removed from favourites!')
             setTimeout(() => {
               window.location.reload()
-            }, 5000)
+            }, 2500)
           } else {
             toast.error('Couldn not remove this product from favourites. Sorry')
           }
@@ -397,7 +397,7 @@ export default {
               )
               setTimeout(() => {
                 window.location.reload()
-              }, 5000)
+              }, 2500)
             })
         } else {
           toast.error('Checkout unsuccessful. Please try again...')
