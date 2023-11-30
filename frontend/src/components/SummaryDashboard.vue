@@ -1,176 +1,203 @@
 <template>
   <div class="min-vh-100">
     <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
-      <strong>Sales Summary Dashboard</strong>
-    </h1>
+  <strong>Sales Summary Dashboard</strong>
+</h1>
+    <div class="card-container flex justify-content-center">
+      <!-- Cards -->
+      <div v-for="(value, key) in cardData" :key="key" class="card">
+        <div class="card-header">{{ key }}</div>
+        <div class="card-body fw-bold fs-1">{{ value }}</div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="chart-container">
+      <canvas ref="salesChart"></canvas>
+    </div>
   </div>
 </template>
 
+<script>
+import Chart from 'chart.js/auto'
 
-<!-- <template>
-    <div id="wrapper">
-      <div class="content-area">
-        <div class="container-fluid">
-  
-          <div class="main">
- 
-            <div class="row sparkboxes mt-4">
-
-              <div class="col-md-3">
-                <div class="box box1">
-                  <div class="details">
-                    <h3>1213</h3>
-                    <h4>CLICKS</h4>
-                  </div>
-                  <div ref="spark1"></div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="box box2">
-                  <div class="details">
-                    <h3>422</h3>
-                    <h4>VIEWS</h4>
-                  </div>
-                  <div ref="spark2"></div>
-                </div>
-              </div>
-      
-              <div class="col-md-3">
-                <div class="box box3">
-                  <div class="details">
-                    <h3>311</h3>
-                    <h4>LEADS</h4>
-                  </div>
-                  <div ref="spark3"></div>
-                </div>
-              </div>
- 
-              <div class="col-md-3">
-                <div class="box box4">
-                  <div class="details">
-                    <h3>22</h3>
-                    <h4>SALES</h4>
-                  </div>
-                  <div ref="spark4"></div>
-                </div>
-              </div>
-            </div>
-  
-   
-            <div class="row mt-4">
-
-              <div class="col-md-5">
-                <div class="box shadow mt-4">
-                  <div ref="lineChart"></div>
-                </div>
-              </div>
- 
-              <div class="col-md-7">
-                <div class="box shadow mt-4">
-                  <div ref="radialBarChart"></div>
-                </div>
-              </div>
-            </div>
-  
-            
-            <div class="row mt-4">
-    
-              <div class="col-md-5">
-                <div class="box shadow mt-4">
-                  <div ref="barChart"></div>
-                </div>
-              </div>
-
-              <div class="col-md-7">
-                <div class="box shadow mt-4">
-                  <div ref="areaChart"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </template>
-  
-  <script>
-  import ApexCharts from "apexcharts";
-  import VueApexCharts from "vue-apexcharts";
-  import "apexcharts/dist/apexcharts.css";
-  
-  
-  export default {
-    components: {
-    apexchart: VueApexCharts,
+export default {
+  data() {
+    return {
+      // productSalesData: {
+      //   "Product1": ["Dairy Products", 234],
+      //   "Product2": ["Fruits", 218.35],
+      //   "Product3": ["Stationary", 261.35],
+      //   "Product4": ["Vegetables", 66.89],
+      //   "Product5": ["Dairy Products", 251.3],
+      //   "Product6": ["Fruits", 163.75],
+      //   "Product7": ["Stationary", 453.6],
+      //   "Product8": ["Vegetables", 351.89],
+      // },
+      productSalesData: {}, 
+      // cardData: {
+      //   "Total Users": 23,
+      //   "Out of Stock": 10,
+      //   "Limited in Stock": 6,
+      //   "Total Products": 39,
+      //   "Total Sales": 4563
+      // }
+      cardData: {},
+    }
   },
-    mounted() {
-      // Sparkboxes
-      this.renderSparkChart("spark1", spark1);
-      this.renderSparkChart("spark2", spark2);
-      this.renderSparkChart("spark3", spark3);
-      this.renderSparkChart("spark4", spark4);
-  
-      // Line Chart
-      this.renderApexChart("lineChart", optionsLine);
-  
-      // RadialBar Chart
-      this.renderApexChart("radialBarChart", optionsCircle4);
-  
-      // Bar Chart
-      this.renderApexChart("barChart", optionsBar);
-  
-      // Area Chart
-      this.renderApexChart("areaChart", optionsArea);
+  mounted() {
+    this.fetchProductSalesData(),
+    this.fetchCardData()
+  },
+  methods: {
+    async fetchCardData() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/card_data', {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
+
+        if (response.ok) {
+          const responseData = await response.json()
+          this.cardData = responseData.cardData
+        } else {
+          console.log('ERROR!!!')
+        }
+      } catch (error) {
+        console.error('Error fetching card data:', error)
+      }
     },
-    methods: {
-      renderSparkChart(id, options) {
-        new ApexCharts(this.$refs[id], options).render();
-      },
-      renderApexChart(id, options) {
-        new ApexCharts(this.$refs[id], options).render();
-      },
+    async fetchProductSalesData() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/product_sales_data', {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
+
+        if (response.ok) {
+          const responseData = await response.json()
+          this.productSalesData = responseData.productSalesData
+          this.renderChart()
+        } else {
+          console.log('ERROR!!!')
+        }
+      } catch (error) {
+        console.error('Error fetching product sales data:', error)
+      }
     },
-  };
-  </script>
-  
-  <style scoped>
-.sparkboxes .box {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  text-shadow: 0 1px 1px 1px #666;
-  box-shadow: 0px 1px 15px 1px rgba(69, 65, 78, 0.08);
-  position: relative;
-  border-radius: 5px;
+    renderChart() {
+      const ctx = this.$refs.salesChart.getContext('2d')
+
+      // Extract categories and sales for each product
+      const categories = Object.values(this.productSalesData).map((value) => value[0])
+      const salesValues = Object.values(this.productSalesData).map((value) => value[1])
+
+      // Extract unique categories
+      const uniqueCategories = [...new Set(categories)]
+
+      // Create datasets for each category
+      const datasets = uniqueCategories.map((category) => ({
+        label: category,
+        data: salesValues.map((value, index) => (categories[index] === category ? value : 0)),
+        backgroundColor: this.getColorForCategory(category),
+        borderWidth: 0
+        // barThickness: 40,
+      }))
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(this.productSalesData),
+          datasets: datasets
+        },
+        options: {
+          scales: {
+            x: {
+              display: false, // Hide the x-axis labels
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: 'white'
+              }
+            }
+          },
+          indexAxis: 'x',
+          barPercentage: 35, // Inc this
+          categoryPercentage: 0.1 // And dec this
+        }
+      })
+    },
+    getColorForCategory(category) {
+      // Define color codes for each category
+      const colorCodes = {
+        'Dairy Products': 'rgba(255, 99, 132, 0.5)', // Red
+        Fruits: 'rgba(255, 205, 86, 0.5)', // Yellow
+        Stationary: 'rgba(75, 192, 192, 0.5)', // Teal
+        Vegetables: 'rgba(54, 162, 235, 0.5)' // Blue
+      }
+
+      // Return the color code for the given category
+      return colorCodes[category]
+    }
+  }
+}
+</script>
+
+<style scoped>
+/* Dark theme styling */
+.card-container {
+  display: flex;
 }
 
-.sparkboxes .box .details {
-  position: absolute;
-  color: #fff;
-  transform: scale(0.7) translate(-22px, 20px);
-}
-.sparkboxes strong {
-  position: relative;
-  z-index: 3;
-  top: -8px;
-  color: #fff;
-}
-
-
-.sparkboxes .box1 {
-  background-image: linear-gradient( 135deg, #ABDCFF 10%, #0396FF 100%);
+.card {
+  width: 215px;
+  height: 150px;
+  margin: 10px;
+  padding: 10px;
+  text-align: center;
+  background-color: #333;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.sparkboxes .box2 {
-  background-image: linear-gradient( 135deg, #2AFADF 10%, #4C83FF 100%);
+.card-header {
+  font-size: 18px;
+  font-weight: bold;
 }
 
-.sparkboxes .box3 {
-  background-image: linear-gradient( 135deg, #FFD3A5 10%, #FD6585 100%);
+.card-body {
+  font-size: 24px;
 }
 
-.sparkboxes .box4 {
-  background-image: linear-gradient( 135deg, #EE9AE5 10%, #5961F9 100%);
+.chart-container {
+  width: 80%;
+  margin: auto;
 }
-  </style>
-   -->
+
+/* Override Chart.js default styles */
+canvas {
+  background-color: #333;
+}
+</style>
+

@@ -928,6 +928,58 @@ def get_notification_count():
         return jsonify({'notificationCount': notification_count}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching notification count', 'error': str(e)}), 500
+    
+
+
+# Fetch product-wise sales data
+@app.route('/api/product_sales_data', methods=['GET'])
+@jwt_required()
+@role_required(roles=['manager', 'admin'])
+def get_product_sales_data():
+    try:
+        products = Product.query.all()
+
+        product_sales_data = {}
+
+        for product in products:
+            order_items = OrderItem.query.filter_by(product_id=product.product_id).all()
+            total_sales = sum(order_item.total_price for order_item in order_items)
+            category_name = product.category.category_name
+            product_sales_data[product.product_name] = [category_name, total_sales]
+
+        return jsonify({'productSalesData': product_sales_data}), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Error fetching product-wise sales data', 'error': str(e)}), 500
+    
+
+
+# Fetch summary cards data
+@app.route('/api/card_data', methods=['GET'])
+@jwt_required()
+@role_required(roles=['manager', 'admin'])
+def get_card_data():
+    try:
+        total_users = User.query.filter_by(role='user').count()
+        out_of_stock_count = Product.query.filter_by(stock=0).count()
+        limited_stock_count = Product.query.filter(Product.stock > 0, Product.stock <= 10).count()
+        total_products = Product.query.count()
+        total_sales = db.session.query(db.func.sum(OrderItem.total_price)).scalar()
+
+        card_data = {
+            "Total Users": total_users,
+            "Out of Stock": out_of_stock_count,
+            "Limited in Stock": limited_stock_count,
+            "Total Products": total_products,
+            "Total Sales": total_sales if total_sales else 0
+        }
+
+        return jsonify({'cardData': card_data}), 200
+
+    except Exception as e:
+        return jsonify({'message': 'Error fetching card data', 'error': str(e)}), 500
+
+
 
 
 @app.route('/api/visited_status', methods=['GET'])
