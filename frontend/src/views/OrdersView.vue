@@ -6,9 +6,13 @@
     </h1>
     <hr />
     <div v-if="isLoading">
-      <div v-for="order in orders" :key="order.order_id" class="card mb-4 shadow-lg rounded">
+      <div
+        v-for="(order, index) in orders"
+        :key="order.order_id"
+        class="card mb-4 shadow-lg rounded"
+      >
         <div class="card-header">
-          <h4>Order Number: {{ order.order_id }}</h4>
+          <h4>Order Number: {{ index + 1 }}</h4>
         </div>
         <div class="card-body">
           <table class="table table-bordered">

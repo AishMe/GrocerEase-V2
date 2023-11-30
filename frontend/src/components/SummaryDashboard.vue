@@ -1,8 +1,8 @@
 <template>
   <div class="min-vh-100">
     <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
-  <strong>Sales Summary Dashboard</strong>
-</h1>
+      <strong>Sales Summary Dashboard</strong>
+    </h1>
     <div class="card-container flex justify-content-center">
       <!-- Cards -->
       <div v-for="(value, key) in cardData" :key="key" class="card">
@@ -34,7 +34,7 @@ export default {
       //   "Product7": ["Stationary", 453.6],
       //   "Product8": ["Vegetables", 351.89],
       // },
-      productSalesData: {}, 
+      productSalesData: {},
       // cardData: {
       //   "Total Users": 23,
       //   "Out of Stock": 10,
@@ -42,12 +42,11 @@ export default {
       //   "Total Products": 39,
       //   "Total Sales": 4563
       // }
-      cardData: {},
+      cardData: {}
     }
   },
   mounted() {
-    this.fetchProductSalesData(),
-    this.fetchCardData()
+    this.fetchProductSalesData(), this.fetchCardData()
   },
   methods: {
     async fetchCardData() {

@@ -65,10 +65,7 @@
             ><i class="bi bi-clipboard-data-fill" style="font-size: 30px"></i
           ></a>
 
-          <a
-            href="/fav_items"
-            v-if="this.role === 'user'"
-            class="text-white mt-1 mx-2"
+          <a href="/fav_items" v-if="this.role === 'user'" class="text-white mt-1 mx-2"
             ><i class="bi bi-bag-heart-fill" style="font-size: 30px"></i
           ></a>
 
@@ -120,6 +117,11 @@
                   <li>
                     <a v-if="this.role === 'admin'" class="dropdown-item" href="/manager_rejected"
                       >Rejected</a
+                    >
+                  </li>
+                  <li>
+                    <a v-if="this.role === 'user'" class="dropdown-item" href="/fav_items"
+                      >Favourites</a
                     >
                   </li>
                   <li>
