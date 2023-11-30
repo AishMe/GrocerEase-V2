@@ -47,7 +47,7 @@
                             <option value="none" disabled selected>Role</option>
                             <option value="user">User</option>
                             <option value="manager">Manager</option>
-                            <option value="admin">Admin</option>
+                            <!-- <option value="admin">Admin</option> -->
                           </select>
                           <label class="form-label">Role</label>
                         </div>
