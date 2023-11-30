@@ -557,7 +557,7 @@ def add_category():
 # Update Database Record in Category
 @app.route('/api/edit_category/<int:category_id>', methods=['PUT'])
 @jwt_required()
-@role_required(roles=['admin'])
+@role_required(roles=['admin', 'manager'])
 def update_category(category_id):
     category_to_update = Category.query.get_or_404(category_id)
     data = request.json
@@ -565,6 +565,9 @@ def update_category(category_id):
     try:
         category_to_update.category_name = data['name']
         category_to_update.category_image = data['image']
+
+        if (data['category_approval']):
+            category_to_update.category_approval = data['category_approval']
 
         if data['image'] == '':
             category_to_update.category_image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
@@ -575,7 +578,9 @@ def update_category(category_id):
         return jsonify({'message': 'Category Info Updated Successfully!'}), 200
 
     except Exception as e:
+        print(e)
         return jsonify({'message': 'Error Updating the Category', 'error': str(e)}), 500
+
 
 
 # Delete a Category from the Database Record
@@ -618,7 +623,8 @@ def get_products():
                 'stock': product.stock,
                 'unit': product.unit,
                 'price': product.price,
-                'image': product.product_image
+                'image': product.product_image,
+                'hasDiscount': product.hasDiscount
             }
             product_list.append(product_data)
 
@@ -912,6 +918,45 @@ def decline_category_request(category_id):
             return jsonify({'message': 'Category not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
+    
+
+# Fetch pending categories for deletion request
+@app.route('/admin/category_deletion_request', methods=['GET'])
+@jwt_required()
+@role_required(roles=['admin'])
+def get_category_deletion_requests():
+    try:
+        # Fetch a list of pending category requests from the database
+        pending_categories = Category.query.filter_by(
+            category_approval=-2).all()
+        pending_categories_data = [{'category_id': category.category_id,
+                                    'name': category.category_name,
+                                    'image': category.category_image,
+                                    } for category in pending_categories]
+
+        return jsonify({'deleteCategories': pending_categories_data}), 200
+    except Exception as e:
+        return jsonify({'message': 'Error fetching pending categories', 'error': str(e)}), 500
+
+
+
+# Decline category deletion request (Keep the category)
+@app.route('/admin/keep_category/<int:category_id>', methods=['PUT'])
+@jwt_required()
+@role_required(roles=['admin'])
+def decline_category_deletion_request(category_id):
+    try:
+        # Update the request_approval status to 1 for the specified category
+        category = Category.query.get(category_id)
+        if category:
+            category.category_approval = 1
+            db.session.commit()
+            return jsonify({'message': 'Category request declined!'}), 200
+        else:
+            return jsonify({'message': 'Category not found'}), 404
+    except Exception as e:
+        return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
+
 
 
 @app.route('/notification_count', methods=['GET'])
@@ -921,9 +966,11 @@ def get_notification_count():
         # Fetch the notification count from your data source
         pending_categories = Category.query.filter_by(
             category_approval=0).all()
+        pending_category_deletion_requests = Category.query.filter_by(
+            category_approval=-2).all()
         pending_managers = User.query.filter_by(request_approval=0).all()
 
-        notification_count = len(pending_categories) + len(pending_managers)
+        notification_count = len(pending_categories) + len(pending_managers) + len(pending_category_deletion_requests)
 
         return jsonify({'notificationCount': notification_count}), 200
     except Exception as e:

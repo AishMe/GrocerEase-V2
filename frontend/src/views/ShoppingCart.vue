@@ -51,7 +51,7 @@
                           <div>
                             <h5 class="mb-0" v-if="item.price">
                               <i class="bi bi-currency-dollar"></i
-                              >{{ item.price * (item.qty || 0) }}
+                              >{{ calculateItemPrice(item) }}
                             </h5>
                             <small
                               v-if="item.hasDiscount && item.price"
@@ -321,7 +321,17 @@ export default {
       } catch (error) {
         console.error('Error fetching cart data:', error)
       }
-    }
+    },
+    // Add this method to calculate the discounted price
+    calculateItemPrice(item) {
+      if (item.hasDiscount && item.price) {
+        // Apply a 20% discount
+        const discountedPrice = item.price * 0.8;
+        return discountedPrice * (item.qty || 0);
+      } else {
+        return item.price * (item.qty || 0);
+      }
+    },
   },
   mounted() {
     this.fetchCart()

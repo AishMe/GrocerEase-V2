@@ -87,7 +87,7 @@
                       <i class="bi bi-pencil-square"></i></button
                   ></a>
                   <span style="flex-grow: 0.3"></span>
-                  <a @click="deleteCategory(category.category_id)"
+                  <a @click="deleteCategory(category)"
                     ><button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button
                   ></a>
                 </div>
@@ -217,41 +217,33 @@ export default {
       const confirmDelete = window.confirm('Are you sure you want to delete this category?')
 
       if (confirmDelete) {
-        // Prompt for category name confirmation
-        const categoryNameConfirmation = window.prompt(
-          'Please type the name of the category to confirm deletion:'
-        )
 
-        if (categoryNameConfirmation === category.name) {
           try {
             // Fetch categories from the API
             const response = await fetch(
-              `http://127.0.0.1:5000/delete_category/${category.category_id}`,
+              `http://127.0.0.1:5000/api/edit_category/${category.category_id}`,
               {
-                method: 'DELETE',
+                method: 'PUT',
                 headers: {
                   'Content-type': 'application/json',
-                  Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-                }
+                  Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
+                },
+                body: JSON.stringify({
+                  'name': category.name,
+                  'image': category.image,
+                  'category_approval': -2})
               }
             )
 
             if (response.ok) {
-              alert('Category Deleted Successfully!')
+              alert('Category Deletion Request Sent to the Admin.')
               window.location.reload()
             } else {
-              alert('Oops! Something Went Wrong. Cannot Delete the Category.')
+              alert('Oops! Something Went Wrong. Could Not Send Deletion Request to the Admin')
             }
           } catch (error) {
             console.error('Error deleting the category ', error)
           }
-        } else if (categoryNameConfirmation === null) {
-          // User clicked Cancel on the category name prompt
-          alert('Deletion Canceled. Category Name is not Provided.')
-        } else {
-          // User typed-in the wrong category name
-          alert('Deletion Canceled. Category Name is Wrong.')
-        }
       } else {
         // User clicked Cancel on the initial confirmation
         alert('Deletion Canceled.')
