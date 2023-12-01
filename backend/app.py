@@ -12,7 +12,6 @@ import os
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-# print("BASE DIR PATH: ", basedir)
 
 app = Flask(__name__)
 SQLITE_DB_DIR = os.path.join(basedir, "./instance")
@@ -21,6 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + \
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'harekrishna'
 jwt = JWTManager(app)
+
 
 cache = Cache(config={
     "DEBUG": True,
@@ -1114,8 +1114,8 @@ def download_csv():
 
 
 @app.route('/api/generate_monthly_report', methods=['GET'])
-@jwt_required()
-@role_required(roles=['manager', 'admin'])
+# @jwt_required()
+# @role_required(roles=['manager', 'admin'])
 def generate_monthly_report():
     file_path = generate_pdf_report()
 

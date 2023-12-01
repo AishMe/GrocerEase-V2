@@ -1,11 +1,15 @@
-Product ID,Category Name,Product Name,Description,Price
-1,Fruits,Apple,Fresh red apples,1.99
-2,Fruits,Banana,Ripe bananas,0.99
-3,Fruits,Orange,Juicy oranges,1.49
-4,Vegetables,Carrots,Crunchy carrots,1.29
-5,Vegetables,Broccoli,Fresh broccoli florets,1.99
-6,Vegetables,Spinach,Organic spinach leaves,2.49
-7,Dairy Products,Milk,Fresh cow's milk,2.49
-8,Dairy Products,Cheese,Cheddar cheese block,3.99
-9,Dairy Products,Yogurt,Greek yogurt,1.99
-10,Dairy Products,Eggs,Farm-fresh eggs,2.99
+Product ID,Category Name,Product Name,Price
+1,Fruits,Apple,23.0
+2,Fruits,Banana,12.0
+3,Fruits,Orange,45.0
+4,Vegetables,Carrots,23.0
+5,Vegetables,Broccoli,63.0
+6,Vegetables,Spinach,26.0
+7,Dairy Products,Milk,17.0
+8,Dairy Products,Cheese,52.0
+9,Dairy Products,Yogurt,15.0
+10,Dairy Products,Eggs,29.0
+11,Vegetables,Cauliflower,20.0
+12,Stationary,Color Pencils,83.0
+13,Stationary,Highlighters,50.0
+16,dummy,dummy,34.0
