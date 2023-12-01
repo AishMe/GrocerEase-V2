@@ -1,5 +1,5 @@
 <template>
-  <div style="background-color: #3a915d; height: 100vh">
+  <div style="background-color: #3a915d; height: 100vh; margin-top: -60px; margin-bottom: -60px">
     <div class="flex justify-content-center align-items-center">
       <div class="text-center pt-2">
         <transition name="fade" mode="out-in">

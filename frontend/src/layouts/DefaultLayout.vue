@@ -7,7 +7,7 @@ import AppFooter from './AppFooter.vue'
   <div>
     <AppNavbar :role="role" />
     <router-view />
-    <AppFooter :role="role" />
+    <AppFooter />
   </div>
 </template>
 

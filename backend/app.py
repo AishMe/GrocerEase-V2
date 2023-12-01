@@ -530,7 +530,7 @@ def get_categories():
 # Add Category
 @app.route('/api/add_category', methods=['POST'])
 @jwt_required()
-@role_required(roles=['admin'])
+@role_required(roles=['admin', 'manager'])
 def add_category():
 
     name = request.json['name']
@@ -541,7 +541,15 @@ def add_category():
     else:
         image = request.json['image']
 
-    category = Category(category_name=name, category_image=image)
+    user_id = get_jwt_identity()['userId']
+    user = User.query.filter_by(user_id=user_id).first()
+
+    if user.role == 'admin':
+        category_approval = 1
+    elif user.role == 'manager':
+        category_approval = 0
+
+    category = Category(category_name=name, category_image=image, category_approval=category_approval)
 
     try:
         db.session.add(category)
@@ -565,9 +573,6 @@ def update_category(category_id):
         category_to_update.category_name = data['name']
         category_to_update.category_image = data['image']
 
-        if (data['category_approval']):
-            category_to_update.category_approval = data['category_approval']
-
         if data['image'] == '':
             category_to_update.category_image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
         else:
@@ -579,6 +584,7 @@ def update_category(category_id):
     except Exception as e:
         print(e)
         return jsonify({'message': 'Error Updating the Category', 'error': str(e)}), 500
+    
 
 
 # Delete a Category from the Database Record
@@ -838,6 +844,7 @@ def decline_request(user_id):
         user = User.query.get(user_id)
         if user:
             user.request_approval = -1
+            user.role = 'Pending'
             db.session.commit()
             return jsonify({'message': 'Request declined'}), 200
         else:
@@ -936,6 +943,35 @@ def get_category_deletion_requests():
         return jsonify({'deleteCategories': pending_categories_data}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching pending categories', 'error': str(e)}), 500
+    
+
+@app.route('/api/edit_category_request/<int:category_id>', methods=['PUT'])
+@jwt_required()
+@role_required(roles=['manager'])
+def update_category_request(category_id):
+    category_to_update = Category.query.get_or_404(category_id)
+    data = request.json
+
+    try:
+        category_to_update.category_name = data['name']
+        category_to_update.category_image = data['image']
+
+        if (data['category_approval']):
+            category_to_update.category_approval = data['category_approval']
+        else: 
+            category_to_update.category_approval = 1
+
+        if data['image'] == '':
+            category_to_update.category_image = 'https://maxicus.com/wp-content/uploads/2022/05/Virtual-Shopping-A-Step-into-the-Future-of-Retail.png'
+        else:
+            category_to_update.category_image = data['image']
+
+        db.session.commit()
+        return jsonify({'message': 'Category Info Updated Successfully!'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Error Updating the Category', 'error': str(e)}), 500
 
 
 # Decline category deletion request (Keep the category)

@@ -30,7 +30,7 @@
             />
             <div class="card-body">
               <center>
-                <h3 class="fw-bold text-uppercase text-black">{{ category.name }}</h3>
+                <h3 class="fw-bold text-black">{{ category.name }}</h3>
               </center>
 
               <div class="overflow-auto" style="height: 400px">

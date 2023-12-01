@@ -30,7 +30,7 @@
             />
             <div class="card-body">
               <center>
-                <h3 class="fw-bold text-uppercase text-black">{{ category.name }}</h3>
+                <h3 class="fw-bold text-black">{{ category.name }}</h3>
               </center>
 
               <div class="overflow-auto" style="height: 400px">
@@ -220,7 +220,7 @@ export default {
         try {
           // Fetch categories from the API
           const response = await fetch(
-            `http://127.0.0.1:5000/api/edit_category/${category.category_id}`,
+            `http://127.0.0.1:5000/api/edit_category_request/${category.category_id}`,
             {
               method: 'PUT',
               headers: {
