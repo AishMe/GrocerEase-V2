@@ -226,7 +226,7 @@ export default {
           try {
             // Fetch categories from the API
             const response = await fetch(
-              `http://127.0.0.1:5000/delete_category/${category.category_id}`,
+              `http://127.0.0.1:5000/api/category/delete/${category.category_id}`,
               {
                 method: 'DELETE',
                 headers: {
@@ -359,7 +359,7 @@ export default {
             apiUrl = `http://127.0.0.1:5000/api/edit_product/${this.form.product_id}`
           } else {
             // Edit category API
-            apiUrl = `http://127.0.0.1:5000/api/edit_category/${this.form.category_id}`
+            apiUrl = `http://127.0.0.1:5000/api/category/edit/${this.form.category_id}`
           }
 
           // Make the API call with the form data
@@ -384,7 +384,7 @@ export default {
             apiUrl = `http://127.0.0.1:5000/api/${this.form.category_id}/add_product`
           } else {
             // Add category API
-            apiUrl = 'http://127.0.0.1:5000/api/add_category'
+            apiUrl = 'http://127.0.0.1:5000/api/category/add'
           }
 
           // Make the API call with the form data

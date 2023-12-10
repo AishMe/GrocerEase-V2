@@ -292,7 +292,7 @@ export default {
           try {
             // Fetch categories from the API
             const response = await fetch(
-              `http://127.0.0.1:5000/delete_category/${category.category_id}`,
+              `http://127.0.0.1:5000/api/category/delete/${category.category_id}`,
               {
                 method: 'DELETE',
                 headers: {

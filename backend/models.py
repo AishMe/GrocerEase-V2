@@ -14,15 +14,17 @@ class User(db.Model):
     name = db.Column(db.Text, nullable=False)
     password = db.Column(db.Text, nullable=False)
     role = db.Column(db.Text, nullable=False)
-    avatar = db.Column(db.Text, nullable=True)
+    avatar = db.Column(db.Text, nullable=True, default='https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg')
     request_approval = db.Column(db.Integer, nullable=False, default=0)
+    # carts = db.relationship('Cart', backref='user', cascade='all, delete-orphan')
+    # orders = db.relationship('Order', backref='user', cascade='all, delete-orphan')
+    # order_items = db.relationship('OrderItem', backref='user', cascade='all, delete-orphan')
 
-    def __init__(self, email, name, password, role, avatar):
+    def __init__(self, email, name, password, role):
         self.email = email
         self.name = name
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.role = role
-        self.avatar = avatar
         self.request_approval = 0
 
 
@@ -86,7 +88,7 @@ class OrderItem(db.Model):
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ('user_id', 'email', 'name', 'role', 'avatar')
+        fields = ('user_id', 'email', 'name', 'role')
 
 
 class OrderSchema(ma.Schema):

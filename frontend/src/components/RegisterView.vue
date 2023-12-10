@@ -13,14 +13,14 @@
                     <form class="mx-1 mx-md-4" @submit.prevent="register">
                       <div class="d-flex flex-row align-items-center mb-2">
                         <div class="form-outline flex-fill mb-0">
-                          <input type="text" id="userName" class="form-control" v-model="name" />
+                          <input type="text" id="userName" class="form-control" v-model="name" required/>
                           <label class="form-label" for="userName">Name</label>
                         </div>
                       </div>
 
                       <div class="d-flex flex-row align-items-center mb-4">
                         <div class="form-outline flex-fill mb-0">
-                          <input type="email" id="eMail" class="form-control" v-model="email" />
+                          <input type="email" id="eMail" class="form-control" v-model="email" required/>
                           <label class="form-label" for="eMail">Email</label>
                         </div>
                       </div>
@@ -32,6 +32,7 @@
                             id="passWord"
                             class="form-control"
                             v-model="password"
+                            required
                           />
                           <label class="form-label" for="passWord">Password</label>
                         </div>
@@ -43,6 +44,7 @@
                             class="form-select mb-1"
                             aria-label="Default select example"
                             v-model="role"
+                            required
                           >
                             <option value="none" disabled selected>Role</option>
                             <option value="user">User</option>
@@ -116,8 +118,7 @@ export default {
           email: this.email,
           name: this.name,
           password: this.password,
-          role: this.role,
-          avatar: ''
+          role: this.role
         })
       })
 

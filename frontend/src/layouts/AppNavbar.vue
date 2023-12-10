@@ -74,10 +74,10 @@
             v-if="this.role === 'user'"
             class="text-white mt-2 mx-5 position-relative"
           >
-            <i class="bi bi-cart4" style="font-size: 22px">
+            <i class="bi bi-cart4" style="font-size: 30px">
               <span
                 v-if="$store.state.cart.length > 0"
-                class="position-absolute top-0 start-80 mt-1 translate-middle badge rounded-pill bg-warning text-black"
+                class="position-absolute top-0 start-80 mt-2 translate-middle badge rounded-pill bg-warning text-black"
                 style="font-size: 11px; transform: scale(0.8)"
               >
                 {{ $store.state.cart.length }}

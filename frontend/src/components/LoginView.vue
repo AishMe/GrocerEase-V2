@@ -38,6 +38,7 @@
                           id="form2Example17"
                           class="form-control form-control-lg"
                           v-model="email"
+                          required
                         />
                         <label class="form-label" for="form2Example17">Email address</label>
                       </div>
@@ -48,6 +49,7 @@
                           id="form2Example27"
                           class="form-control form-control-lg"
                           v-model="password"
+                          required
                         />
                         <label class="form-label" for="form2Example27">Password</label>
                       </div>
@@ -108,10 +110,10 @@ export default {
             this.$router.go()
           })
         } else {
-          alert(res.msg)
+          alert("Login Failed. Please Try Again.")
         }
       } else {
-        alert(res.msg)
+        alert("Login Failed. Please Try Again.")
       }
     }
   }

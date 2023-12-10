@@ -84,13 +84,7 @@ def add_details():
     password = request.json['password']
     role = request.json['role']
 
-    if request.json['avatar'] == '':
-        avatar = 'https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg'
-    else:
-        avatar = request.json['avatar']
-
-    user_add = User(email=email, name=name, password=password,
-                    role=role, avatar=avatar)
+    user_add = User(email=email, name=name, password=password, role=role)
     db.session.add(user_add)
     db.session.commit()
 
@@ -136,7 +130,27 @@ def delete_user():
     user_to_delete = User.query.get(this_user['userId'])
     if not user_to_delete:
         return jsonify({'message': 'User not found'}), 404
+    
+    user_to_delete = User.query.get(this_user['userId'])
+    if not user_to_delete:
+        return jsonify({'message': 'User not found'}), 404
 
+    # Get a list of order IDs associated with the user
+    order_ids_to_delete = [order.order_id for order in Order.query.filter_by(user_id=user_to_delete.user_id)]
+
+    # Delete entries from the OrderItem table corresponding to the order IDs
+    OrderItem.query.filter(OrderItem.order_id.in_(order_ids_to_delete)).delete(synchronize_session=False)
+
+    # Delete entries from the Cart table associated with the user
+    Cart.query.filter_by(user_id=user_to_delete.user_id).delete()
+
+    # Delete entries from the Order table associated with the user
+    Order.query.filter_by(user_id=user_to_delete.user_id).delete()
+
+    # Commit the changes to the database
+    db.session.commit()
+
+    # Finally, delete the user
     db.session.delete(user_to_delete)
     db.session.commit()
 
@@ -528,7 +542,7 @@ def get_categories():
 
 
 # Add Category
-@app.route('/api/add_category', methods=['POST'])
+@app.route('/api/category/add', methods=['POST'])
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def add_category():
@@ -562,7 +576,7 @@ def add_category():
 
 
 # Update Database Record in Category
-@app.route('/api/edit_category/<int:category_id>', methods=['PUT'])
+@app.route('/api/category/edit/<int:category_id>', methods=['PUT'])
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def update_category(category_id):
@@ -588,7 +602,7 @@ def update_category(category_id):
 
 
 # Delete a Category from the Database Record
-@app.route('/delete_category/<int:category_id>', methods=['DELETE'])
+@app.route('/api/category/delete/<int:category_id>', methods=['DELETE'])
 @jwt_required()
 @role_required(roles=['admin'])
 def delete_category(category_id):

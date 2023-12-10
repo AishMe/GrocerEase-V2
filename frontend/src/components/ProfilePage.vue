@@ -137,9 +137,11 @@ export default {
           if (req.ok) {
             // Show a confirmation alert
             alert('Your account has been deleted.')
-
-            // Redirect to the login page or take appropriate action
-            this.$router.push({ path: '/' })
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('role')
+            this.$router.push({ path: '/' }).then(() => {
+              this.$router.go()
+            })
           }
         } else {
           // Show an error alert if the email doesn't match
