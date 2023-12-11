@@ -1,5 +1,5 @@
 <template>
-  <div class="min-vh-100">
+  <div class="min-vh-100" style="padding-top: 100px">
     <!-- Toggle button for filter box -->
     <div class="fab">
       <a
@@ -559,14 +559,9 @@ export default {
 
       // Sorting
       if (this.manufactureSortOrder === 'asc') {
-        
-        filtered.sort((a, b) =>
-        Date.parse(a.manufacturing_date) - Date.parse(b.manufacturing_date)
-        )
+        filtered.sort((a, b) => Date.parse(a.manufacturing_date) - Date.parse(b.manufacturing_date))
       } else {
-        filtered.sort((a, b) =>
-        Date.parse(b.manufacturing_date) - Date.parse(a.manufacturing_date)
-        )
+        filtered.sort((a, b) => Date.parse(b.manufacturing_date) - Date.parse(a.manufacturing_date))
       }
 
       if (this.nameSortOrder === 'asc') {

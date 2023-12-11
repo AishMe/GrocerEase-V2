@@ -1,6 +1,10 @@
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark" style="min-height: 5rem">
+    <nav
+      class="navbar navbar-expand-lg bg-dark fixed-top"
+      data-bs-theme="dark"
+      style="min-height: 5rem"
+    >
       <div class="container-fluid">
         <a class="navbar-brand" href="/" style="padding: 0 15px; font-size: x-large"
           >Grocer<span style="font-weight: 600; color: #c1e1c1">Ease</span></a

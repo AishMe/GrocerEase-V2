@@ -1,5 +1,5 @@
 <template>
-  <div class="min-vh-100">
+  <div class="min-vh-100" style="padding-top: 100px">
     <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
       <strong>Approved Requests</strong>
     </h1>

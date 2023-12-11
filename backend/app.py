@@ -130,16 +130,18 @@ def delete_user():
     user_to_delete = User.query.get(this_user['userId'])
     if not user_to_delete:
         return jsonify({'message': 'User not found'}), 404
-    
+
     user_to_delete = User.query.get(this_user['userId'])
     if not user_to_delete:
         return jsonify({'message': 'User not found'}), 404
 
     # Get a list of order IDs associated with the user
-    order_ids_to_delete = [order.order_id for order in Order.query.filter_by(user_id=user_to_delete.user_id)]
+    order_ids_to_delete = [order.order_id for order in Order.query.filter_by(
+        user_id=user_to_delete.user_id)]
 
     # Delete entries from the OrderItem table corresponding to the order IDs
-    OrderItem.query.filter(OrderItem.order_id.in_(order_ids_to_delete)).delete(synchronize_session=False)
+    OrderItem.query.filter(OrderItem.order_id.in_(
+        order_ids_to_delete)).delete(synchronize_session=False)
 
     # Delete entries from the Cart table associated with the user
     Cart.query.filter_by(user_id=user_to_delete.user_id).delete()
@@ -522,7 +524,7 @@ def get_orders():
 
 
 @app.route('/api/categories', methods=['GET'])
-@cache.cached(timeout=50)
+# @cache.cached(timeout=50)
 def get_categories():
     try:
         categories = Category.query.filter_by(category_approval=1).all()
@@ -563,7 +565,8 @@ def add_category():
     elif user.role == 'manager':
         category_approval = 0
 
-    category = Category(category_name=name, category_image=image, category_approval=category_approval)
+    category = Category(category_name=name, category_image=image,
+                        category_approval=category_approval)
 
     try:
         db.session.add(category)
@@ -598,7 +601,6 @@ def update_category(category_id):
     except Exception as e:
         print(e)
         return jsonify({'message': 'Error Updating the Category', 'error': str(e)}), 500
-    
 
 
 # Delete a Category from the Database Record
@@ -618,7 +620,7 @@ def delete_category(category_id):
 
 
 @app.route('/api/products', methods=['GET'])
-@cache.cached(timeout=50)
+# @cache.cached(timeout=50)
 def get_products():
     start_time = time.time()
     try:
@@ -734,7 +736,7 @@ def delete_product(product_id):
 @app.route('/api/manager_admin_dashboard', methods=['GET'])
 @jwt_required()
 @role_required(roles=['manager', 'admin'])
-@cache.cached(timeout=50)
+# @cache.cached(timeout=50)
 def manager_admin_dashboard():
     try:
         categories = Category.query.order_by(Category.category_id).all()
@@ -957,7 +959,7 @@ def get_category_deletion_requests():
         return jsonify({'deleteCategories': pending_categories_data}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching pending categories', 'error': str(e)}), 500
-    
+
 
 @app.route('/api/edit_category_request/<int:category_id>', methods=['PUT'])
 @jwt_required()
@@ -972,7 +974,7 @@ def update_category_request(category_id):
 
         if (data['category_approval']):
             category_to_update.category_approval = data['category_approval']
-        else: 
+        else:
             category_to_update.category_approval = 1
 
         if data['image'] == '':

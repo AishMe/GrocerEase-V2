@@ -1,6 +1,6 @@
 
 <template>
-  <div class="min-vh-100">
+  <div class="min-vh-100" style="padding-top: 100px">
     <div class="fab">
       <a
         @click="showAddCategoryForm"

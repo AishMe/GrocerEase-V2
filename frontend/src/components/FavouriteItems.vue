@@ -1,5 +1,5 @@
 <template>
-  <div class="min-vh-100">
+  <div class="min-vh-100" style="padding-top: 100px">
     <div v-if="isLoading" class="container min-h-content py-5 text-center">
       <h1 class="mb-3" style="font-size: 5rem; color: #c1e1c1">
         <strong>My Favourites</strong>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <section>
-      <div class="container py-3 h-100">
+      <div class="container h-100" style="padding-top: 125px">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col col-xl-10">
             <div class="card text-black" style="border-radius: 2rem; background-color: #f4f7f3">
@@ -13,14 +13,26 @@
                     <form class="mx-1 mx-md-4" @submit.prevent="register">
                       <div class="d-flex flex-row align-items-center mb-2">
                         <div class="form-outline flex-fill mb-0">
-                          <input type="text" id="userName" class="form-control" v-model="name" required/>
+                          <input
+                            type="text"
+                            id="userName"
+                            class="form-control"
+                            v-model="name"
+                            required
+                          />
                           <label class="form-label" for="userName">Name</label>
                         </div>
                       </div>
 
                       <div class="d-flex flex-row align-items-center mb-4">
                         <div class="form-outline flex-fill mb-0">
-                          <input type="email" id="eMail" class="form-control" v-model="email" required/>
+                          <input
+                            type="email"
+                            id="eMail"
+                            class="form-control"
+                            v-model="email"
+                            required
+                          />
                           <label class="form-label" for="eMail">Email</label>
                         </div>
                       </div>
@@ -61,8 +73,9 @@
                           type="checkbox"
                           value=""
                           id="form2Example3c"
+                          required
                         />
-                        <label class="form-check-label" for="form2Example3" required>
+                        <label class="form-check-label" for="form2Example3">
                           I agree all statements in <a href="#!">Terms of service</a>
                         </label>
                       </div>

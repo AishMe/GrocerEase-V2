@@ -1,5 +1,5 @@
 <template>
-  <div class="access-denied-container">
+  <div class="min-vh-100 access-denied-container">
     <div class="access-denied-content">
       <h1>Access Denied</h1>
       <p>Sorry, you don't have permission to access this page.</p>
@@ -32,7 +32,7 @@ export default {
 
 h1 {
   font-size: 2rem;
-  color: #ff6347; /* Tomato Red */
+  color: #ff6347;
 }
 
 p {
@@ -44,7 +44,7 @@ p {
 .back-button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #007bff; /* Blue */
+  background-color: #007bff;
   color: #fff;
   text-decoration: none;
   border-radius: 5px;
@@ -52,7 +52,7 @@ p {
 }
 
 .back-button:hover {
-  background-color: #0056b3; /* Darker Blue */
+  background-color: #0056b3;
 }
 </style>
   

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-vh-100">
+  <div class="min-vh-100" style="padding-top: 100px">
     <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
       <strong>Sales Summary Dashboard</strong>
     </h1>
@@ -24,29 +24,18 @@ import Chart from 'chart.js/auto'
 export default {
   data() {
     return {
-      // productSalesData: {
-      //   "Product1": ["Dairy Products", 234],
-      //   "Product2": ["Fruits", 218.35],
-      //   "Product3": ["Stationary", 261.35],
-      //   "Product4": ["Vegetables", 66.89],
-      //   "Product5": ["Dairy Products", 251.3],
-      //   "Product6": ["Fruits", 163.75],
-      //   "Product7": ["Stationary", 453.6],
-      //   "Product8": ["Vegetables", 351.89],
-      // },
       productSalesData: {},
-      // cardData: {
-      //   "Total Users": 23,
-      //   "Out of Stock": 10,
-      //   "Limited in Stock": 6,
-      //   "Total Products": 39,
-      //   "Total Sales": 4563
-      // }
-      cardData: {}
+      cardData: {},
+      categoryColors: {},
+      usedColors: new Set() // Set to store used colors
     }
   },
   mounted() {
     this.fetchProductSalesData(), this.fetchCardData()
+  },
+  created() {
+    // Fetch categories when the component is created
+    this.fetchCategories()
   },
   methods: {
     async fetchCardData() {
@@ -87,6 +76,40 @@ export default {
       } catch (error) {
         console.error('Error fetching product sales data:', error)
       }
+    },
+    async fetchCategories() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/categories')
+        const data = await response.json()
+
+        // Assign distinct bright colors to each category
+        this.categoryColors = data.categories.reduce((colors, category) => {
+          colors[category.name] = this.getRandomDistinctBrightColor()
+          return colors
+        }, {})
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    },
+    getColorForCategory(category) {
+      // Return the color code for the given category
+      return this.categoryColors[category] || this.getRandomDistinctBrightColor()
+    },
+    getRandomDistinctBrightColor() {
+      // Generate a random distinct bright color in rgba format
+      const randomHue = () => Math.floor(Math.random() * 80)
+      const brightness = 50 // Adjust this value to control brightness
+      let newColor
+
+      // Keep generating new colors until a distinct one is found
+      do {
+        newColor = `hsla(${randomHue()}, 100%, ${brightness}%, 0.5)`
+      } while (this.usedColors.has(newColor))
+
+      // Add the new color to the used colors set
+      this.usedColors.add(newColor)
+
+      return newColor
     },
     renderChart() {
       const ctx = this.$refs.salesChart.getContext('2d')
@@ -143,18 +166,6 @@ export default {
           categoryPercentage: 0.1 // And dec this
         }
       })
-    },
-    getColorForCategory(category) {
-      // Define color codes for each category
-      const colorCodes = {
-        'Dairy Products': 'rgba(255, 99, 132, 0.5)', // Red
-        Fruits: 'rgba(255, 205, 86, 0.5)', // Yellow
-        Stationary: 'rgba(75, 192, 192, 0.5)', // Teal
-        Vegetables: 'rgba(54, 162, 235, 0.5)' // Blue
-      }
-
-      // Return the color code for the given category
-      return colorCodes[category]
     }
   }
 }

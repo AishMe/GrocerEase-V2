@@ -1,5 +1,5 @@
 <template>
-  <div class="min-vh-100">
+  <div class="min-vh-100" style="padding-top: 100px">
     <h1 class="my-5 text-center" style="font-size: 5rem; color: #c1e1c1">
       <strong>All Pending Requests</strong>
     </h1>
@@ -82,14 +82,8 @@
 
             <!-- Buttons for category approval/rejection -->
             <div class="d-flex justify-content-between card-footer">
-              <a
-                @click="deleteCategory(category)"
-                class="btn btn-danger text-white px-4"
-                >Delete</a
-              >
-              <a
-                @click="keepCategory(category.category_id)"
-                class="btn btn-primary text-white px-4"
+              <a @click="deleteCategory(category)" class="btn btn-danger text-white px-4">Delete</a>
+              <a @click="keepCategory(category.category_id)" class="btn btn-primary text-white px-4"
                 >Keep</a
               >
             </div>
@@ -108,7 +102,7 @@ export default {
       isLoading: false,
       pendingManagers: [],
       pendingCategories: [],
-      deleteCategories: [],
+      deleteCategories: []
     }
   },
   mounted() {
@@ -270,7 +264,9 @@ export default {
 
         if (response.ok) {
           // Update the list by filtering out the user that was approved
-          this.deleteCategories = this.deleteCategories.filter((category) => category.categoryId !== categoryId)
+          this.deleteCategories = this.deleteCategories.filter(
+            (category) => category.categoryId !== categoryId
+          )
           window.location.reload()
           alert('Category Not Deleted!!')
         }
@@ -322,8 +318,8 @@ export default {
         // User clicked Cancel on the initial confirmation
         alert('Deletion Canceled.')
       }
-    },
-  },
+    }
+  }
 }
 </script>
   

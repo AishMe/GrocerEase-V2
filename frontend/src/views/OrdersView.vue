@@ -1,5 +1,5 @@
 <template>
-  <div class="container min-vh-100">
+  <div class="container min-vh-100" style="padding-top: 100px">
     <br />
     <h1 class="mb-5 text-center" style="font-size: 5rem; color: #c1e1c1">
       <strong>Orders</strong>

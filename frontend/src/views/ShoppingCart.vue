@@ -1,5 +1,5 @@
 <template>
-  <section class="h-100 h-custom min-h-content">
+  <section class="h-100 h-custom min-h-content" style="padding-top: 100px">
     <div class="container py-5 h-100">
       <br /><br /><br />
       <div class="row d-flex justify-content-center align-items-center h-100">
@@ -50,8 +50,7 @@
                         <div class="d-flex flex-row align-items-center">
                           <div>
                             <h5 class="mb-0" v-if="item.price">
-                              <i class="bi bi-currency-dollar"></i
-                              >{{ calculateItemPrice(item) }}
+                              <i class="bi bi-currency-dollar"></i>{{ calculateItemPrice(item) }}
                             </h5>
                             <small
                               v-if="item.hasDiscount && item.price"
@@ -326,12 +325,12 @@ export default {
     calculateItemPrice(item) {
       if (item.hasDiscount && item.price) {
         // Apply a 20% discount
-        const discountedPrice = item.price * 0.8;
-        return discountedPrice * (item.qty || 0);
+        const discountedPrice = item.price * 0.8
+        return discountedPrice * (item.qty || 0)
       } else {
-        return item.price * (item.qty || 0);
+        return item.price * (item.qty || 0)
       }
-    },
+    }
   },
   mounted() {
     this.fetchCart()

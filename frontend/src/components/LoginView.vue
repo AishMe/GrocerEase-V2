@@ -1,7 +1,7 @@
 <template>
   <div>
     <section>
-      <div class="container py-3 h-100">
+      <div class="container h-100" style="padding-top: 125px">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col col-xl-10">
             <div class="card" style="border-radius: 2rem; background-color: #f4f7f3">
@@ -13,18 +13,11 @@
                     class="img-fluid"
                     style="padding-top: 8rem"
                   />
-                  <!-- https://cdni.iconscout.com/illustration/premium/thumb/girl-doing-online-grocery-shopping-5713142-4771662.png -->
                 </div>
                 <div class="col-md-6 col-lg-5 d-flex align-items-center">
                   <div class="card-body p-4 p-lg-5 text-black">
                     <form @submit.prevent="login">
                       <div class="d-flex align-items-center mb-3 pb-1">
-                        <!-- <img
-                          src="../assets/logo_2.png"
-                          alt="Logo"
-                          class="me-3"
-                          style="height: 3rem; width: 1.82rem"
-                        /> -->
                         <span class="h1 fw-bold mb-0">Sign in</span>
                       </div>
 
@@ -110,10 +103,10 @@ export default {
             this.$router.go()
           })
         } else {
-          alert("Login Failed. Please Try Again.")
+          alert('Login Failed. Please Try Again.')
         }
       } else {
-        alert("Login Failed. Please Try Again.")
+        alert('Login Failed. Please Try Again.')
       }
     }
   }

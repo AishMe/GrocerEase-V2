@@ -6,14 +6,12 @@
       </p>
       <p class="mb-1">All right reserved &copy; 2024 example.com</p>
       <p class="mb-0">
-        About us <a href="/">Visit the homepage</a> or read our
-        <a href="../getting-started/introduction/">Terms</a>.
+        About us <a href="/">Visit the homepage</a> or read our <a href="#">Terms</a>.
       </p>
     </div>
   </footer>
 </template>
 
 <script>
-export default {
-}
+export default {}
 </script>
