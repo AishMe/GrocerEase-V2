@@ -546,8 +546,9 @@ export default {
           !this.selectedCategory || product.category_id === this.selectedCategory
         const meetsMinRateCriteria = !this.minRate || product.price >= this.minRate
         const meetsMaxRateCriteria = !this.maxRate || product.price <= this.maxRate
+        const meetsStatusCriteria = product.product_status !== 0 // Exclude products with status 0
 
-        return meetsCategoryCriteria && meetsMinRateCriteria && meetsMaxRateCriteria
+        return meetsCategoryCriteria && meetsMinRateCriteria && meetsMaxRateCriteria && meetsStatusCriteria
       })
 
       // Filter by search text

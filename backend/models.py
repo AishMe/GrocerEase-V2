@@ -47,6 +47,7 @@ class Product(db.Model):
     unit = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
     hasDiscount = db.Column(db.String(10), nullable=True)
+    product_status = db.Column(db.Integer, nullable=True, default=1)
     product_image = db.Column(
         db.String(255), nullable=True, default='/default_img.png')
     orders = db.relationship('OrderItem', backref='product', lazy=True)

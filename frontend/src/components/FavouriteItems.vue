@@ -27,7 +27,7 @@
               <hr style="margin-top: 1rem; border: 1px solid black" />
               <h6
                 class="card-text fw-bold"
-                :style="getStockMessageStyle(product.stock, product.manufacturing_date)"
+                :style="getStockMessageStyle(product)"
               >
                 {{ getStockMessage(product) }}
               </h6>
@@ -39,7 +39,7 @@
 
               <div class="d-flex flex-column align-items-center">
                 <!-- Quantity input and heart button with spacing -->
-                <div class="mb-2 input-group">
+                <div class="mb-2 input-group" v-if="product.product_status">
                   <input
                     :disabled="product.stock === 0"
                     type="number"
@@ -59,10 +59,22 @@
                   </button>
                 </div>
 
-                <!-- Buy Now and Add to Cart buttons with the same width as Quantity + Heart -->
-                <div class="d-grid gap-2">
+                <div class="mb-1 d-grid" v-if="!product.product_status">
                   <button
-                    :disabled="product.stock === 0"
+                    @click.prevent="removeFromFavorites(product.id)"
+                    class="btn btn-danger ms-2"
+                    name="action"
+                    value="purchase"
+                  >
+                    Remove from Favourites
+                  </button>
+                </div>
+
+
+                <!-- Buy Now and Add to Cart buttons with the same width as Quantity + Heart -->
+                <div class="d-grid gap-2" v-if="product.product_status">
+                  <button
+                    :disabled="product.stock === 0" 
                     @click.prevent="showCheckoutForm(product)"
                     class="btn btn-success"
                     style="padding: 8px 100px"
@@ -75,7 +87,7 @@
                   </button>
 
                   <button
-                    :disabled="product.stock === 0"
+                    :disabled="product.stock === 0" 
                     @click.prevent="addToCart(product)"
                     class="btn btn-primary w-100"
                     style="padding: 8px"
@@ -405,7 +417,9 @@ export default {
       }
     },
     getStockMessage(product) {
-      if (product.stock === 0) {
+      if (!product.product_status) {
+        return 'UNAVAILABLE'
+      } else if (product.stock === 0) {
         return 'Out of Stock'
       } else if (product.stock <= 10) {
         return 'HURRY! Limited Stock Available.'
@@ -415,12 +429,14 @@ export default {
         return 'In Stock'
       }
     },
-    getStockMessageStyle(stock, manufacturingDate) {
-      if (this.isNewProduct(manufacturingDate)) {
-        return 'color: #4CAF50;' // Bright green -> fresh
-      } else if (stock === 0) {
+    getStockMessageStyle(product) {
+      if (product.product_status === 0) {
         return 'color: red;'
-      } else if (stock <= 10) {
+      } else if (this.isNewProduct(product.manufacturing_date)) {
+        return 'color: #4CAF50;' // Bright green -> fresh
+      } else if (product.stock === 0) {
+        return 'color: red;'
+      } else if (product.stock <= 10) {
         return 'color: #FF9800;' // orange -> urgency
       } else {
         return 'color: darkblue;'

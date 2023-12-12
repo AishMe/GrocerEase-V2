@@ -33,6 +33,14 @@
                 <h3 class="fw-bold text-black">{{ category.name }}</h3>
               </center>
 
+              <h6
+                class="card-text fw-bold text-danger"
+                v-if="category.category_approval == -2"
+                style="color: yellow"
+              >
+                Waiting for Admin's Approval…
+              </h6>
+
               <div class="overflow-auto" style="height: 400px">
                 <div
                   v-for="product in productsByCategory[category.category_id]"
@@ -57,17 +65,21 @@
                       Stock: {{ product.stock }}
                     </p>
                     <div class="d-flex justify-content-center align-items-center">
-                      <a @click="showEditProductForm(product)"
-                        ><button class="btn btn-outline-warning">
-                          <i class="bi bi-pencil-square"></i>Edit
-                        </button></a
+                      <button
+                        :disabled="category.category_approval === -2"
+                        @click="showEditProductForm(product)"
+                        class="btn btn-outline-warning"
                       >
+                        <i class="bi bi-pencil-square"></i>Edit
+                      </button>
                       <span style="flex-grow: 0.5"></span>
-                      <a @click="deleteProduct(product)"
-                        ><button class="btn btn-outline-danger">
-                          <i class="bi bi-trash"></i>Delete
-                        </button></a
+                      <button
+                        :disabled="category.category_approval === -2"
+                        @click="deleteProduct(product)"
+                        class="btn btn-outline-danger"
                       >
+                        <i class="bi bi-trash"></i>Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -76,20 +88,29 @@
               <div>
                 <br />
                 <div class="d-flex justify-content-between">
-                  <a @click="showAddProductForm(category.category_id)"
-                    ><button class="btn btn-outline-primary">
-                      <i class="fa fa-plus-circle"></i>Add Items
-                    </button></a
+                  <button
+                    :disabled="category.category_approval === -2"
+                    @click="showAddProductForm(category.category_id)"
+                    class="btn btn-outline-primary"
                   >
+                    <i class="fa fa-plus-circle"></i>Add Items
+                  </button>
                   <span style="flex-grow: 1"></span>
-                  <a @click="showEditCategoryForm(category)"
-                    ><button class="btn btn-outline-warning">
-                      <i class="bi bi-pencil-square"></i></button
-                  ></a>
+                  <button
+                    :disabled="category.category_approval === -2"
+                    @click="showEditCategoryForm(category)"
+                    class="btn btn-outline-warning"
+                  >
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
                   <span style="flex-grow: 0.3"></span>
-                  <a @click="deleteCategory(category)"
-                    ><button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button
-                  ></a>
+                  <button
+                    :disabled="category.category_approval === -2"
+                    @click="deleteCategory(category)"
+                    class="btn btn-outline-danger"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </div>
               </div>
             </div>

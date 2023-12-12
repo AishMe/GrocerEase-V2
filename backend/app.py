@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request, send_file
 from monthly_report import generate_pdf_report
 from tasks import export_product_data_to_csv
 from flask_caching import Cache
+from sqlalchemy import or_
 from functools import wraps
 from flask_cors import CORS
 from datetime import date
@@ -400,7 +401,8 @@ def get_favourites():
                     'stock': product.stock,
                     'unit': product.unit,
                     'price': product.price,
-                    'image': product.product_image
+                    'image': product.product_image,
+                    'product_status': product.product_status
                 }
 
                 # Append the product information to the list
@@ -527,14 +529,15 @@ def get_orders():
 # @cache.cached(timeout=50)
 def get_categories():
     try:
-        categories = Category.query.filter_by(category_approval=1).all()
+        categories = Category.query.filter(or_(Category.category_approval == 1, Category.category_approval == -2)).all()
         category_list = []
 
         for category in categories:
             category_data = {
                 'category_id': category.category_id,
                 'name': category.category_name,
-                'image': category.category_image
+                'image': category.category_image,
+                'category_approval': category.category_approval
             }
             category_list.append(category_data)
 
@@ -604,19 +607,55 @@ def update_category(category_id):
 
 
 # Delete a Category from the Database Record
+# @app.route('/api/category/delete/<int:category_id>', methods=['DELETE'])
+# @jwt_required()
+# @role_required(roles=['admin'])
+# def delete_category(category_id):
+#     category_to_delete = Category.query.get_or_404(category_id)
+
+#     try:
+#         db.session.delete(category_to_delete)
+#         db.session.commit()
+#         return jsonify({'message': "Category Deleted Successfully!"}), 200
+
+#     except Exception as e:
+#         return jsonify({'message': 'Error deleting the category', 'error': str(e)}), 500
+    
+
+# Delete a Category and it's Products from the Database
 @app.route('/api/category/delete/<int:category_id>', methods=['DELETE'])
 @jwt_required()
 @role_required(roles=['admin'])
 def delete_category(category_id):
-    category_to_delete = Category.query.get_or_404(category_id)
-
     try:
-        db.session.delete(category_to_delete)
+        # Check if the category exists
+        category_to_delete = db.session.query(Category).get(category_id)
+        if not category_to_delete:
+            return jsonify({'message': 'Category not found'}), 404
+
+        # Get all products in the category
+        products_in_category = db.session.query(Product).filter_by(category_id=category_id).all()
+
+        # Delete each product in the category
+        for product in products_in_category:
+            delete_product(product.product_id)
+
+        # Check if there are no products or if all products are successfully deleted
+        if not products_in_category or not any(product.product_status == 0 for product in products_in_category):
+            # Delete the category
+            db.session.delete(category_to_delete)
+        else:
+            # If products have connections and cannot be directly deleted, update category_approval to -3
+            category_to_delete.category_approval = -3
+
+        # Commit the changes to the database
         db.session.commit()
-        return jsonify({'message': "Category Deleted Successfully!"}), 200
+
+        return jsonify({'message': 'Category and its products deleted or marked for approval'}), 200
 
     except Exception as e:
-        return jsonify({'message': 'Error deleting the category', 'error': str(e)}), 500
+        return jsonify({'message': 'Error deleting category and its products', 'error': str(e)}), 500
+
 
 
 @app.route('/api/products', methods=['GET'])
@@ -644,7 +683,8 @@ def get_products():
                 'unit': product.unit,
                 'price': product.price,
                 'image': product.product_image,
-                'hasDiscount': product.hasDiscount
+                'hasDiscount': product.hasDiscount,
+                'product_status': product.product_status,
             }
             product_list.append(product_data)
 
@@ -715,21 +755,61 @@ def update_product(product_id):
 
 
 # Delete a Product from the Database Record
+# @app.route('/delete_product/<int:product_id>', methods=['DELETE'])
+# @jwt_required()
+# @role_required(roles=['admin', 'manager'])
+# def delete_product(product_id):
+#     product_to_delete = Product.query.get(product_id)
+#     if not product_to_delete:
+#         return jsonify({'message': 'Product not found'}), 404
+
+#     try:
+#         db.session.delete(product_to_delete)
+#         db.session.commit()
+#         return jsonify({'message': "Product Deleted Successfully!"}), 200
+
+#     except Exception as e:
+#         return jsonify({'message': 'Error deleting the product', 'error': str(e)}), 500
+
+
+# Delete a Product from the Database Record
 @app.route('/delete_product/<int:product_id>', methods=['DELETE'])
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def delete_product(product_id):
+
+    # Check if the product exists
     product_to_delete = Product.query.get(product_id)
     if not product_to_delete:
         return jsonify({'message': 'Product not found'}), 404
 
+    # Check if the product is in the cart
+    product_in_cart = Cart.query.filter_by(product_id=product_id).first()
+
+    # If the product is in the cart, delete the cart item
+    if product_in_cart:
+        db.session.delete(product_in_cart)
+
+    # Check if the product is in the favorite or order
+    product_in_favorite = Favourite.query.filter_by(product_id=product_id).first()
+    product_in_order = OrderItem.query.filter_by(product_id=product_id).first()
+
     try:
-        db.session.delete(product_to_delete)
+        if product_in_favorite or product_in_order:
+            # If the product is in the cart, favorite, or order, update the status
+            product_to_delete.product_status = 0
+        else:
+            # If the product is not in the cart, favorite, or order, delete it
+            db.session.delete(product_to_delete)
+
+        # Commit the changes to the database
         db.session.commit()
-        return jsonify({'message': "Product Deleted Successfully!"}), 200
+        return jsonify({'message': 'Product deleted successfully'}), 200
 
     except Exception as e:
         return jsonify({'message': 'Error deleting the product', 'error': str(e)}), 500
+    
+
 
 
 # Show the Categories and Products on the Manager & Admin Dashboard
