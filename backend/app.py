@@ -529,7 +529,8 @@ def get_orders():
 # @cache.cached(timeout=50)
 def get_categories():
     try:
-        categories = Category.query.filter(or_(Category.category_approval == 1, Category.category_approval == -2)).all()
+        categories = Category.query.filter(
+            or_(Category.category_approval == 1, Category.category_approval == -2)).filter(Category.category_id != 0).all()
         category_list = []
 
         for category in categories:
@@ -620,7 +621,7 @@ def update_category(category_id):
 
 #     except Exception as e:
 #         return jsonify({'message': 'Error deleting the category', 'error': str(e)}), 500
-    
+
 
 # Delete a Category and it's Products from the Database
 @app.route('/api/category/delete/<int:category_id>', methods=['DELETE'])
@@ -634,7 +635,8 @@ def delete_category(category_id):
             return jsonify({'message': 'Category not found'}), 404
 
         # Get all products in the category
-        products_in_category = db.session.query(Product).filter_by(category_id=category_id).all()
+        products_in_category = db.session.query(
+            Product).filter_by(category_id=category_id).all()
 
         # Delete each product in the category
         for product in products_in_category:
@@ -657,19 +659,13 @@ def delete_category(category_id):
         return jsonify({'message': 'Error deleting category and its products', 'error': str(e)}), 500
 
 
-
 @app.route('/api/products', methods=['GET'])
 # @cache.cached(timeout=50)
 def get_products():
     start_time = time.time()
     try:
-        category_id = request.args.get('category_id')
-        if category_id:
-            # Filter products by category_id
-            products = Product.query.filter_by(category_id=category_id).all()
-        else:
-            # Fetch all products
-            products = Product.query.all()
+        # Fetch all products
+        products = Product.query.filter(Product.product_id != 0).all()
 
         product_list = []
 
@@ -791,7 +787,8 @@ def delete_product(product_id):
         db.session.delete(product_in_cart)
 
     # Check if the product is in the favorite or order
-    product_in_favorite = Favourite.query.filter_by(product_id=product_id).first()
+    product_in_favorite = Favourite.query.filter_by(
+        product_id=product_id).first()
     product_in_order = OrderItem.query.filter_by(product_id=product_id).first()
 
     try:
@@ -808,8 +805,6 @@ def delete_product(product_id):
 
     except Exception as e:
         return jsonify({'message': 'Error deleting the product', 'error': str(e)}), 500
-    
-
 
 
 # Show the Categories and Products on the Manager & Admin Dashboard
@@ -1020,6 +1015,70 @@ def decline_category_request(category_id):
             return jsonify({'message': 'Category not found'}), 404
     except Exception as e:
         return jsonify({'message': 'Error declining request', 'error': str(e)}), 500
+
+
+# Fetch items to hard delete them.
+@app.route('/admin/hard_delete_item', methods=['GET'])
+@jwt_required()
+@role_required(roles=['admin'])
+def get_hard_delete_items():
+    try:
+        # Fetch a list of temporarily deleted items from the database
+        temp_deleted_products = Product.query.filter_by(
+            product_status=0).all()
+        temp_deleted_products_data = [{'id': product.product_id,
+                                       'category_id': product.category_id,
+                                       'name': product.product_name,
+                                       'manufacturing_date': product.manufacturing_date,
+                                       'stock': product.stock,
+                                       'unit': product.unit,
+                                       'price': product.price,
+                                       'image': product.product_image,
+                                       'product_status': product.product_status,
+                                       } for product in temp_deleted_products]
+
+        return jsonify({'tempDeletedProducts': temp_deleted_products_data}), 200
+    except Exception as e:
+        return jsonify({'message': 'Error fetching temporarily deleted products', 'error': str(e)}), 500
+    
+
+# Delete Products and Their Connections from Favourites and OrderItems
+@app.route('/admin/delete_products_and_connections', methods=['POST'])
+@jwt_required()
+@role_required(roles=['admin'])
+def delete_products_and_connections():
+    try:
+        # Get the list of product IDs from the request data
+        product_ids = request.json.get('product_ids')
+
+        if not product_ids:
+            return jsonify({'message': 'Product IDs are required'}), 400
+
+        # Iterate over the product IDs
+        for product_id in product_ids:
+            # Check if the product exists in Favourites
+            favourite_exists = Favourite.query.filter_by(product_id=product_id).first()
+            if favourite_exists:
+                # Delete connections from Favourites
+                Favourite.query.filter_by(product_id=product_id).delete()
+
+            # Check if there are connections in OrderItems
+            order_items_to_update = OrderItem.query.filter_by(product_id=product_id).all()
+            if order_items_to_update:
+                # Update connections in OrderItems
+                for order_item in order_items_to_update:
+                    order_item.product_id = 0
+                    order_item.category_id = 0
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        return jsonify({'message': 'Products and their connections deleted successfully'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Error deleting products and their connections', 'error': str(e)}), 500
+
 
 
 # Fetch pending categories for deletion request

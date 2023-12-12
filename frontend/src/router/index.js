@@ -14,6 +14,7 @@ import PendingRequests from '../components/PendingRequests.vue'
 import ManagerPending from '../components/ManagerPending.vue'
 import ManagerAccepted from '../components/ManagerAccepted.vue'
 import ManagerRejected from '../components/ManagerRejected.vue'
+import HardDelete from '../components/HardDelete.vue'
 import SummaryDashboard from '../components/SummaryDashboard.vue'
 
 const routes = [
@@ -60,6 +61,9 @@ const routes = [
   }, },
   { path: '/fav_items', name: 'fav_items', component: FavouriteItems, meta: {
     allowedRoles: ['user'],
+  }, },
+  { path: '/hard_delete', name: 'hard_delete', component: HardDelete, meta: {
+    allowedRoles: ['admin'],
   }, },
 ]
   }]

@@ -50,10 +50,10 @@
             v-if="this.role === 'admin'"
             class="text-white mt-2 mx-3 position-relative"
           >
-            <i class="bi bi-bell-fill" style="font-size: 22px">
+            <i class="bi bi-bell-fill" style="font-size: 28px">
               <span
                 v-if="$store.state.notificationCount > 0"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                class="position-absolute mt-1 top-0 start-100 translate-middle badge rounded-pill bg-danger"
                 style="font-size: 12px; transform: scale(0.8)"
               >
                 {{ $store.state.notificationCount }}
@@ -66,11 +66,11 @@
             href="/summary_dashboard"
             v-if="this.role === 'manager' || this.role === 'admin'"
             class="text-white mt-1 mx-5"
-            ><i class="bi bi-clipboard-data-fill" style="font-size: 30px"></i
+            ><i class="bi bi-clipboard-data-fill" style="font-size: 28px"></i
           ></a>
 
           <a href="/fav_items" v-if="this.role === 'user'" class="text-white mt-1 mx-2"
-            ><i class="bi bi-bag-heart-fill" style="font-size: 30px"></i
+            ><i class="bi bi-bag-heart-fill" style="font-size: 29px"></i
           ></a>
 
           <a
@@ -78,7 +78,7 @@
             v-if="this.role === 'user'"
             class="text-white mt-2 mx-5 position-relative"
           >
-            <i class="bi bi-cart4" style="font-size: 30px">
+            <i class="bi bi-cart4" style="font-size: 29px">
               <span
                 v-if="$store.state.cart.length > 0"
                 class="position-absolute top-0 start-80 mt-2 translate-middle badge rounded-pill bg-warning text-black"
@@ -103,7 +103,7 @@
                   <img
                     src="https://creazilla-store.fra1.digitaloceanspaces.com/icons/7914927/man-icon-md.png"
                     alt="avatar"
-                    style="height: 2.5rem; width: 2.5rem; border-radius: 50%"
+                    style="height: 2.7rem; width: 2.7rem; border-radius: 50%"
                   />
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
@@ -121,6 +121,11 @@
                   <li>
                     <a v-if="this.role === 'admin'" class="dropdown-item" href="/manager_rejected"
                       >Rejected</a
+                    >
+                  </li>
+                  <li>
+                    <a v-if="this.role === 'admin'" class="dropdown-item" href="/hard_delete"
+                      >Dustbin</a
                     >
                   </li>
                   <li>

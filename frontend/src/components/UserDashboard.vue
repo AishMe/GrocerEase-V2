@@ -419,11 +419,12 @@ export default {
           },
           body: JSON.stringify({ product_id: productId })
         })
+        const resJSON = await response.json()
 
         if (response.ok) {
-          toast.success('Product added to favourite!')
+          toast.success(resJSON.message)
         } else {
-          toast.error('Could not add this product to favourite. Sorry')
+          toast.error(resJSON.message)
         }
       } catch (error) {
         console.error('Error adding to favourite:', error)
@@ -500,15 +501,15 @@ export default {
       }
     },
     getStockMessageStyle(stock, manufacturingDate) {
-      if (this.isNewProduct(manufacturingDate)) {
-        return 'color: #4CAF50;' // Bright green -> fresh
-      } else if (stock === 0) {
+      if (stock === 0) {
         return 'color: red;'
       } else if (stock <= 10) {
         return 'color: #FF9800;' // orange -> urgency
+      } else if (this.isNewProduct(manufacturingDate)) {
+        return 'color: #4CAF50;' // Bright green -> fresh
       } else {
         return 'color: darkblue;'
-      }
+      } 
     },
     isNewProduct(manufacturingDate) {
       // Compare the manufacturing date with the current date and check if it's within a week
