@@ -76,7 +76,12 @@ def add_details():
     password = request.json['password']
     role = request.json['role']
 
-    user_add = User(email=email, name=name, password=password, role=role)
+    if (role == 'user' or role == 'admin'): 
+        request_approval = 1
+    elif role == 'manager':
+        request_approval = 0
+
+    user_add = User(email=email, name=name, password=password, role=role, request_approval=request_approval)
     db.session.add(user_add)
     db.session.commit()
 
@@ -725,7 +730,7 @@ def manager_admin_dashboard():
 
         for category in categories:
             products = db.session.query(Product).filter_by(
-                category_id=category.category_id).all()
+                category_id=category.category_id).filter(Product.product_status!=0).all()
 
             products_data = []
             for product in products:
@@ -775,7 +780,7 @@ def get_pending_managers():
 def get_approved_managers():
     try:
 
-        pending_managers = db.session.query(User).filter_by(request_approval=1).all()
+        pending_managers = db.session.query(User).filter_by(request_approval=1).filter_by(role='manager').all()
         pending_managers_data = [{'user_id': manager.user_id,
                                   'name': manager.name,
                                   'role': manager.role,
@@ -785,6 +790,7 @@ def get_approved_managers():
 
         return jsonify({'approvedManagers': pending_managers_data}), 200
     except Exception as e:
+        print(e)
         return jsonify({'message': 'Error fetching pending managers', 'error': str(e)}), 500
 
 
@@ -856,6 +862,7 @@ def revert_request(user_id):
         user = db.session.get(User, user_id)
         if user:
             user.request_approval = 0
+            user.role = 'pending'
             db.session.commit()
             return jsonify({'message': 'Action Performed Successfully'}), 200
         else:

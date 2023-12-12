@@ -45,7 +45,7 @@
                     type="number"
                     class="form-control"
                     name="quantity"
-                    placeholder="Qtn(kg)"
+                    :placeholder="product.unit"
                     v-model="qty"
                     min="1"
                   />

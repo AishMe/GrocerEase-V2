@@ -143,13 +143,13 @@
                 <form>
                   <div class="input-group">
                     <input type="hidden" name="product_id" value="{{ product.product_id }}" />
-                    <input type="hidden" name="section_id" value="{{ product.section_id }}" />
+                    <input type="hidden" name="category_id" value="{{ product.category_id }}" />
                     <input
                       :disabled="product.stock === 0"
                       type="number"
                       class="form-control"
                       name="quantity"
-                      placeholder="Qtn(kg)"
+                      :placeholder="product.unit"
                       v-model="qty"
                       min="1"
                     />
@@ -160,7 +160,7 @@
                       name="action"
                       value="cart"
                       data-product-id="{{ product.product_id }}"
-                      data-section-id="{{ product.section_id }}"
+                      data-category-id="{{ product.category_id }}"
                     >
                       <i class="bi bi-cart-fill"></i>
                     </button>
@@ -171,7 +171,7 @@
                       name="action"
                       value="purchase"
                       data-product-id="{{ product.product_id }}"
-                      data-section-id="{{ product.section_id }}"
+                      data-category-id="{{ product.category_id }}"
                     >
                       <i class="bi bi-basket2-fill"></i>
                     </button>
@@ -179,9 +179,9 @@
                       @click.prevent="addToFavorites(product.id)"
                       class="btn btn-outline-danger"
                       name="action"
-                      value="purchase"
+                      value="favourite"
                       data-product-id="{{ product.product_id }}"
-                      data-section-id="{{ product.section_id }}"
+                      data-category-id="{{ product.category_id }}"
                     >
                       <i class="bi bi-heart-fill"></i>
                     </button>
@@ -374,11 +374,11 @@ export default {
 
       // Implement your logic for adding to cart
       if (this.qty > product.stock) {
-        toast.danger(`Sorry, we have only ${product.stock} in stock.`)
+        toast.error(`Sorry, we have only ${product.stock} in stock.`)
       } else if (this.qty === undefined) {
-        toast.danger('Please specify the quantity.')
+        toast.error('Please specify the quantity.')
       } else if (this.qty < 0) {
-        toast.danger('Please specify a valid quantity.')
+        toast.error('Please specify a valid quantity.')
       } else if (this.qty > 0) {
         try {
           const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
@@ -389,7 +389,7 @@ export default {
             },
             body: JSON.stringify({
               product_id: product.id,
-              quantity: 1 // You can modify this based on user input
+              quantity: this.qty
             })
           })
 
@@ -529,11 +529,11 @@ export default {
     },
     showCheckoutForm(product) {
       if (this.qty === undefined) {
-        toast.danger('Please specify the quantity.')
+        toast.error('Please specify the quantity.')
       } else if (this.qty < 0) {
-        toast.danger('Please specify a valid quantity.')
+        toast.error('Please specify a valid quantity.')
       } else if (this.qty > product.stock) {
-        toast.danger(`Sorry, we have only ${product.stock} in stock.`)
+        toast.error(`Sorry, we have only ${product.stock} in stock.`)
       } else if (this.qty > 0) {
         this.selectedProduct = product
         this.showCheckoutFormBool = true

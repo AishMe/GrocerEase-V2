@@ -17,7 +17,7 @@
           </div>
           <div class="card-body">
             <h5 class="card-title text-center">{{ user.name }}</h5>
-            <p class="card-title text-center">{{ user.role }}</p>
+            <!-- <p class="card-title text-center">{{ user.role }}</p> -->
             <hr />
             <p class="card-text">Email: {{ user.email }}</p>
             <p class="card-text">Phone No: +91-9172554355</p>
