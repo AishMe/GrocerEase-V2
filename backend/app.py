@@ -4,9 +4,9 @@ from flask import Flask, jsonify, request, send_file
 from monthly_report import generate_pdf_report
 from tasks import export_product_data_to_csv
 from flask_caching import Cache
-from sqlalchemy import or_
 from functools import wraps
 from flask_cors import CORS
+from sqlalchemy import or_
 from datetime import date
 import time
 import os
@@ -62,15 +62,6 @@ def role_required(roles):
     return decorator
 
 
-# Example of using the decorator to protect an endpoint
-@app.route('/api/manager', methods=['GET'])
-@jwt_required()
-@role_required(roles=['manager', 'admin'])
-def admin_endpoint():
-    # This endpoint can only be accessed by users with the 'admin' role
-    return jsonify({'message': 'You have access to the admin endpoint.'})
-
-
 # -------------------- ROUTES -------------------
 
 @app.route('/', methods=['GET'])
@@ -78,7 +69,7 @@ def get_details():
     return jsonify({'msg': 'hello world'})
 
 
-@app.route('/add', methods=['POST'])
+@app.route('/api/user/add', methods=['POST'])
 def add_details():
     email = request.json['email']
     name = request.json['name']
@@ -92,12 +83,12 @@ def add_details():
     return jsonify({'msg': 'Added Successfully!'})
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/api/user/login', methods=['POST'])
 def login():
     email = request.json.get('email')
     password = request.json.get('password')
 
-    user = User.query.filter_by(email=email).first()
+    user = db.session.query(User).filter_by(email=email).first()
 
     if not user or not bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Wrong Username or Password'}), 401
@@ -115,61 +106,42 @@ def login():
 @jwt_required()
 def profile():
     this_user = get_jwt_identity()
-    user = User.query.get(this_user['userId'])
+    user = db.session.get(User, this_user['userId'])
     return jsonify({'name': user.name, 'email': user.email, 'avatar': user.avatar, 'msg': 'You are Authorised!'})
 
 
-@app.route('/delete_acc', methods=['DELETE'])
+@app.route('/api/user/delete_account', methods=['DELETE'])
 @jwt_required()
 def delete_user():
     this_user = get_jwt_identity()
-    # user = User.query.get(this_user['userId'])
 
-    # if user.role != 'admin' and user.user_id != user_id:
-    #     return jsonify({'message': 'Unauthorized to delete this user'}), 403
-
-    user_to_delete = User.query.get(this_user['userId'])
+    user_to_delete = db.session.get(User, this_user['userId'])
     if not user_to_delete:
         return jsonify({'message': 'User not found'}), 404
 
-    user_to_delete = User.query.get(this_user['userId'])
-    if not user_to_delete:
-        return jsonify({'message': 'User not found'}), 404
-
-    # Get a list of order IDs associated with the user
-    order_ids_to_delete = [order.order_id for order in Order.query.filter_by(
+    order_ids_to_delete = [order.order_id for order in db.session.query(Order).filter_by(
         user_id=user_to_delete.user_id)]
 
-    # Delete entries from the OrderItem table corresponding to the order IDs
-    OrderItem.query.filter(OrderItem.order_id.in_(
+    db.session.query(OrderItem).filter(OrderItem.order_id.in_(
         order_ids_to_delete)).delete(synchronize_session=False)
 
-    # Delete entries from the Cart table associated with the user
-    Cart.query.filter_by(user_id=user_to_delete.user_id).delete()
+    db.session.query(Cart).filter_by(user_id=user_to_delete.user_id).delete()
+    db.session.query(Order).filter_by(user_id=user_to_delete.user_id).delete()
 
-    # Delete entries from the Order table associated with the user
-    Order.query.filter_by(user_id=user_to_delete.user_id).delete()
-
-    # Commit the changes to the database
     db.session.commit()
 
-    # Finally, delete the user
     db.session.delete(user_to_delete)
     db.session.commit()
 
     return jsonify({'message': 'User deleted successfully'}), 200
 
 
-@app.route('/edit_profile', methods=['PUT'])
+@app.route('/api/user/edit_profile', methods=['PUT'])
 @jwt_required()
 def edit_user():
     this_user = get_jwt_identity()
-    # user = User.query.get(this_user['userId'])
 
-    # if user.role != 'admin' and user.user_id != user_id:
-    #     return jsonify({'message': 'Unauthorized to edit this user'}), 403
-
-    user_to_edit = User.query.get(this_user['userId'])
+    user_to_edit = db.session.get(User, this_user['userId'])
     if not user_to_edit:
         return jsonify({'message': 'User not found'}), 404
 
@@ -203,13 +175,12 @@ def add_to_cart():
         quantity = data.get('quantity')
         user_id = get_jwt_identity().get('userId')
 
-        # Check if the product exists
-        product = Product.query.get(product_id)
+        product = db.session.get(Product, product_id)
         if not product:
             return jsonify({'message': 'Product not found'}), 404
 
         # Check if the user has an active cart or create a new one
-        cart = Cart.query.filter_by(
+        cart = db.session.query(Cart).filter_by(
             user_id=user_id, product_id=product_id).first()
         if not cart:
             cart = Cart(
@@ -238,29 +209,25 @@ def add_to_cart():
 @jwt_required()
 def get_cart():
     try:
-        # Get the user ID from the JWT token
+
         user_id = get_jwt_identity().get('userId')
+        cart_items = db.session.query(Cart).filter_by(user_id=user_id).all()
 
-        # Query the database to retrieve the user's cart data
-        cart_items = Cart.query.filter_by(user_id=user_id).all()
-
-        # Convert the cart items to a list of dictionaries
         cart_data = []
         for cart_item in cart_items:
-            product = Product.query.get(cart_item.product_id)
+            product = db.session.get(Product, cart_item.product_id)
             if product:
                 cart_data.append({
                     'id': product.product_id,
                     'name': product.product_name,
                     'qty': cart_item.quantity,
                     'total_price': cart_item.total_price,
-                    'image': product.product_image,  # Include the product image URL
-                    'price': product.price,  # Include the product price
-                    'unit': product.unit,  # Include the product unit
+                    'image': product.product_image,
+                    'price': product.price,
+                    'unit': product.unit,
                     'stock': product.stock,
                 })
 
-        # Return the cart data as JSON
         return jsonify({'cart': cart_data}), 200
 
     except Exception as e:
@@ -278,10 +245,10 @@ def update_cart_item():
         product_id = data.get('product_id')
         new_quantity = data.get('new_quantity')
 
-        # Update the cart item in the database
-        cart_item = Cart.query.filter_by(
+        cart_item = db.session.query(Cart).filter_by(
             user_id=user_id, product_id=product_id).first()
-        product = Product.query.filter_by(product_id=product_id).first()
+        
+        product = db.session.query(Product).filter_by(product_id=product_id).first()
         if cart_item:
             cart_item.quantity = new_quantity
             cart_item.total_price = product.price * new_quantity
@@ -305,8 +272,7 @@ def remove_cart_item():
         user_id = get_jwt_identity().get('userId')
         product_id = data.get('product_id')
 
-        # Remove the cart item from the database
-        cart_item = Cart.query.filter_by(
+        cart_item = db.session.query(Cart).filter_by(
             user_id=user_id, product_id=product_id).first()
         if cart_item:
             db.session.delete(cart_item)
@@ -330,21 +296,17 @@ def checkout():
         user_id = get_jwt_identity()['userId']
         cart_items = request.json.get('cart')
 
-        # Create a new order
         order = Order(user_id=user_id)
         db.session.add(order)
         db.session.commit()
 
-        # Save items in the order and update product quantities
         for item in cart_items:
-            product = Product.query.get(item['id'])
+            product = db.session.get(Product, item['id'])
 
             if product:
-                # Check if the product has enough quantity in stock
                 if product.stock < item['qty']:
                     return jsonify({'message': f'Not enough quantity in stock for product {product.product_name}'}), 400
 
-                # Create order item
                 order_item = OrderItem(
                     order_id=order.order_id,
                     product_id=product.product_id,
@@ -354,11 +316,9 @@ def checkout():
                 )
                 db.session.add(order_item)
 
-                # Update product quantity in the database
                 product.stock -= item['qty']
 
-                # Update cart to remove items after checkout
-                cart = Cart.query.filter_by(
+                cart = db.session.query(Cart).filter_by(
                     user_id=user_id, product_id=product.product_id).first()
                 if cart:
                     db.session.delete(cart)
@@ -380,19 +340,13 @@ def get_favourites():
     try:
         user_id = get_jwt_identity()['userId']
 
-        # Fetch favourite items from the Cart table for the specified user
-        favourites = Favourite.query.filter_by(user_id=user_id).all()
-
-        # Create a list to store the favourite items' information
+        favourites = db.session.query(Favourite).filter_by(user_id=user_id).all()
         favourite_list = []
 
-        # Iterate through each favourite item
         for favourite in favourites:
-            # Fetch product information from the Products table
-            product = Product.query.get(favourite.product_id)
+            product = db.session.get(Product, favourite.product_id)
 
             if product:
-                # Create a dictionary with the required product information
                 product_data = {
                     'id': product.product_id,
                     'category_id': product.category_id,
@@ -405,12 +359,9 @@ def get_favourites():
                     'product_status': product.product_status
                 }
 
-                # Append the product information to the list
                 favourite_list.append(product_data)
 
-        # Create the final response structure
         response_data = {'fav_products': favourite_list}
-
         return jsonify(response_data), 200
 
     except Exception as e:
@@ -428,12 +379,12 @@ def add_to_favourite():
         user_id = get_jwt_identity()['userId']
 
         # Check if the product exists
-        product = Product.query.get(product_id)
+        product = db.session.get(Product, product_id)
         if not product:
             return jsonify({'message': 'Product not found'}), 404
 
         # Check if the user has already added the product to favourites
-        existing_favourite = Favourite.query.filter_by(
+        existing_favourite = db.session.query(Favourite).filter_by(
             user_id=user_id, product_id=product_id).first()
 
         if existing_favourite:
@@ -462,7 +413,7 @@ def remove_fav():
         product_id = data.get('product_id')
         user_id = get_jwt_identity()['userId']
 
-        fav_item_to_remove = Favourite.query.filter_by(
+        fav_item_to_remove = db.session.query(Favourite).filter_by(
             user_id=user_id, product_id=product_id).first()
         if not fav_item_to_remove:
             return jsonify({'message': 'Product not found in favourites.'}), 404
@@ -483,13 +434,13 @@ def remove_fav():
 def get_orders():
     try:
         user_id = get_jwt_identity()['userId']
-        orders = Order.query.filter_by(user_id=user_id).order_by(
+        orders = db.session.query(Order).filter_by(user_id=user_id).order_by(
             Order.order_date.desc()).all()
 
         formatted_orders = []
 
         for order in orders:
-            order_items = OrderItem.query.filter_by(
+            order_items = db.session.query(OrderItem).filter_by(
                 order_id=order.order_id).all()
             order_data = {
                 'order_id': order.order_id,
@@ -499,7 +450,7 @@ def get_orders():
 
             category_dict = {}
             for item in order_items:
-                product = Product.query.get(item.product_id)
+                product = db.session.get(Product, item.product_id)
                 category_name = product.category.category_name
 
                 if category_name not in category_dict:
@@ -529,8 +480,9 @@ def get_orders():
 # @cache.cached(timeout=50)
 def get_categories():
     try:
-        categories = Category.query.filter(
-            or_(Category.category_approval == 1, Category.category_approval == -2, Category.category_approval == 0)
+        categories = db.session.query(Category).filter(
+            or_(Category.category_approval == 1,
+                Category.category_approval == -2, Category.category_approval == 0)
         ).filter(Category.category_id != 0).all()
         category_list = []
 
@@ -563,7 +515,7 @@ def add_category():
         image = request.json['image']
 
     user_id = get_jwt_identity()['userId']
-    user = User.query.filter_by(user_id=user_id).first()
+    user = db.session.query(User).filter_by(user_id=user_id).first()
 
     if user.role == 'admin':
         category_approval = 1
@@ -588,7 +540,7 @@ def add_category():
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def update_category(category_id):
-    category_to_update = Category.query.get_or_404(category_id)
+    category_to_update = db.session.query(Category).get_or_404(category_id)
     data = request.json
 
     try:
@@ -614,28 +566,24 @@ def update_category(category_id):
 @role_required(roles=['admin'])
 def delete_category(category_id):
     try:
-        # Check if the category exists
-        category_to_delete = db.session.query(Category).get(category_id)
+
+        category_to_delete = db.session.get(Category, category_id)
         if not category_to_delete:
             return jsonify({'message': 'Category not found'}), 404
 
-        # Get all products in the category
         products_in_category = db.session.query(
             Product).filter_by(category_id=category_id).all()
 
-        # Delete each product in the category
         for product in products_in_category:
             delete_product(product.product_id)
 
         # Check if there are no products or if all products are successfully deleted
         if not products_in_category or not any(product.product_status == 0 for product in products_in_category):
-            # Delete the category
             db.session.delete(category_to_delete)
         else:
             # If products have connections and cannot be directly deleted, update category_approval to -3
             category_to_delete.category_approval = -3
 
-        # Commit the changes to the database
         db.session.commit()
 
         return jsonify({'message': 'Category and its products deleted or marked for approval'}), 200
@@ -649,8 +597,8 @@ def delete_category(category_id):
 def get_products():
     start_time = time.time()
     try:
-        # Fetch all products
-        products = Product.query.filter(Product.product_id != 0).all()
+
+        products = db.session.query(Product).filter(Product.product_id != 0).all()
 
         product_list = []
 
@@ -684,7 +632,6 @@ def get_products():
 def add_product(category_id):
 
     name = request.json['name']
-    # image = request.json['image']
     price = request.json['price']
     unit = request.json['unit']
     stock = request.json['stock']
@@ -713,12 +660,11 @@ def add_product(category_id):
 @role_required(roles=['admin', 'manager'])
 def update_product(product_id):
 
-    product_to_update = Product.query.get_or_404(product_id)
+    product_to_update = db.session.query(Product).get_or_404(product_id)
     data = request.json
 
     try:
         product_to_update.product_name = data['name']
-        # product_to_update.product_image = data['image']
         product_to_update.price = data['price']
         product_to_update.unit = data['unit']
         product_to_update.stock = data['stock']
@@ -735,39 +681,31 @@ def update_product(product_id):
         return jsonify({'message': 'Error Updating the Product', 'error': str(e)}), 500
 
 
-
 # Delete a Product from the Database Record
 @app.route('/delete_product/<int:product_id>', methods=['DELETE'])
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def delete_product(product_id):
 
-    # Check if the product exists
-    product_to_delete = Product.query.get(product_id)
+    product_to_delete = db.session.get(Product, product_id)
     if not product_to_delete:
         return jsonify({'message': 'Product not found'}), 404
 
-    # Check if the product is in the cart
-    product_in_cart = Cart.query.filter_by(product_id=product_id).first()
-
-    # If the product is in the cart, delete the cart item
+    product_in_cart = db.session.query(Cart).filter_by(product_id=product_id).first()
     if product_in_cart:
         db.session.delete(product_in_cart)
 
     # Check if the product is in the favorite or order
-    product_in_favorite = Favourite.query.filter_by(
+    product_in_favorite = db.session.query(Favourite).filter_by(
         product_id=product_id).first()
-    product_in_order = OrderItem.query.filter_by(product_id=product_id).first()
+    product_in_order = db.session.query(OrderItem).filter_by(product_id=product_id).first()
 
     try:
         if product_in_favorite or product_in_order:
-            # If the product is in the cart, favorite, or order, update the status
             product_to_delete.product_status = 0
         else:
-            # If the product is not in the cart, favorite, or order, delete it
             db.session.delete(product_to_delete)
 
-        # Commit the changes to the database
         db.session.commit()
         return jsonify({'message': 'Product deleted successfully'}), 200
 
@@ -782,17 +720,13 @@ def delete_product(product_id):
 # @cache.cached(timeout=50)
 def manager_admin_dashboard():
     try:
-        categories = Category.query.order_by(Category.category_id).all()
-
-        # Create a dictionary to store products per category
+        categories = db.session.query(Category).order_by(Category.category_id).all()
         products_by_category = {}
 
-        # Fetch products for each category and store them in the dictionary
         for category in categories:
-            products = Product.query.filter_by(
+            products = db.session.query(Product).filter_by(
                 category_id=category.category_id).all()
 
-            # Convert Product objects to dictionaries
             products_data = []
             for product in products:
                 products_data.append({
@@ -820,8 +754,8 @@ def manager_admin_dashboard():
 @role_required(roles=['admin'])
 def get_pending_managers():
     try:
-        # Fetch a list of pending manager requests from the database
-        pending_managers = User.query.filter_by(request_approval=0).all()
+
+        pending_managers = db.session.query(User).filter_by(request_approval=0).all()
         pending_managers_data = [{'user_id': manager.user_id,
                                   'name': manager.name,
                                   'role': manager.role,
@@ -840,8 +774,8 @@ def get_pending_managers():
 @role_required(roles=['admin'])
 def get_approved_managers():
     try:
-        # Fetch a list of pending manager requests from the database
-        pending_managers = User.query.filter_by(request_approval=1).all()
+
+        pending_managers = db.session.query(User).filter_by(request_approval=1).all()
         pending_managers_data = [{'user_id': manager.user_id,
                                   'name': manager.name,
                                   'role': manager.role,
@@ -860,8 +794,8 @@ def get_approved_managers():
 @role_required(roles=['admin'])
 def get_rejected_managers():
     try:
-        # Fetch a list of pending manager requests from the database
-        pending_managers = User.query.filter_by(request_approval=-1).all()
+
+        pending_managers = db.session.query(User).filter_by(request_approval=-1).all()
         pending_managers_data = [{'user_id': manager.user_id,
                                   'name': manager.name,
                                   'role': manager.role,
@@ -880,8 +814,8 @@ def get_rejected_managers():
 @role_required(roles=['admin'])
 def approve_request(user_id):
     try:
-        # Update the request_approval status to 1 for the specified user
-        user = User.query.get(user_id)
+
+        user = db.session.get(User, user_id)
         if user:
             user.request_approval = 1
             user.role = 'manager'
@@ -899,8 +833,8 @@ def approve_request(user_id):
 @role_required(roles=['admin'])
 def decline_request(user_id):
     try:
-        # Update the request_approval status to -1 for the specified user
-        user = User.query.get(user_id)
+
+        user = db.session.get(User, user_id)
         if user:
             user.request_approval = -1
             user.role = 'Pending'
@@ -918,8 +852,8 @@ def decline_request(user_id):
 @role_required(roles=['admin'])
 def revert_request(user_id):
     try:
-        # Update the request_approval status to -1 for the specified user
-        user = User.query.get(user_id)
+
+        user = db.session.get(User, user_id)
         if user:
             user.request_approval = 0
             db.session.commit()
@@ -936,8 +870,8 @@ def revert_request(user_id):
 @role_required(roles=['admin'])
 def get_pending_categories():
     try:
-        # Fetch a list of pending category requests from the database
-        pending_categories = Category.query.filter_by(
+
+        pending_categories = db.session.query(Category).filter_by(
             category_approval=0).all()
         pending_categories_data = [{'category_id': category.category_id,
                                     'name': category.category_name,
@@ -955,8 +889,8 @@ def get_pending_categories():
 @role_required(roles=['admin'])
 def approve_category_request(category_id):
     try:
-        # Update the request_approval status to 1 for the specified category
-        category = Category.query.get(category_id)
+
+        category = db.session.get(Category, category_id)
         if category:
             category.category_approval = 1
             db.session.commit()
@@ -973,8 +907,8 @@ def approve_category_request(category_id):
 @role_required(roles=['admin'])
 def decline_category_request(category_id):
     try:
-        # Update the request_approval status to -1 for the specified category
-        category = Category.query.get(category_id)
+
+        category = db.session.get(Category, category_id)
         if category:
             category.category_approval = -1
             db.session.commit()
@@ -991,8 +925,8 @@ def decline_category_request(category_id):
 @role_required(roles=['admin'])
 def get_hard_delete_items():
     try:
-        # Fetch a list of temporarily deleted items from the database
-        temp_deleted_products = Product.query.filter_by(
+
+        temp_deleted_products = db.session.query(Product).filter_by(
             product_status=0).all()
         temp_deleted_products_data = [{'id': product.product_id,
                                        'category_id': product.category_id,
@@ -1008,7 +942,7 @@ def get_hard_delete_items():
         return jsonify({'tempDeletedProducts': temp_deleted_products_data}), 200
     except Exception as e:
         return jsonify({'message': 'Error fetching temporarily deleted products', 'error': str(e)}), 500
-    
+
 
 # Delete Products and Their Connections from Favourites and OrderItems
 @app.route('/admin/delete_products_and_connections', methods=['POST'])
@@ -1016,33 +950,28 @@ def get_hard_delete_items():
 @role_required(roles=['admin'])
 def delete_products_and_connections():
     try:
-        # Get the list of product IDs from the request data
+
         product_ids = request.json.get('product_ids')
 
         if not product_ids:
             return jsonify({'message': 'Product IDs are required'}), 400
 
-        # Iterate over the product IDs
         for product_id in product_ids:
-            # Check if the product exists in Favourites
-            favourite_exists = Favourite.query.filter_by(product_id=product_id).first()
-            if favourite_exists:
-                # Delete connections from Favourites
-                Favourite.query.filter_by(product_id=product_id).delete()
 
-            # Update connections in OrderItems
-            order_items_to_update = OrderItem.query.filter_by(product_id=product_id).all()
+            favourite_exists = db.session.query(Favourite).filter_by(
+                product_id=product_id).first()
+            if favourite_exists:
+                db.session.query(Favourite).filter_by(product_id=product_id).delete()
+
+            order_items_to_update = db.session.query(OrderItem).filter_by(
+                product_id=product_id).all()
             for order_item in order_items_to_update:
                 order_item.product_id = 0
                 order_item.category_id = 0
 
-        # Commit the changes to the database
         db.session.commit()
 
-        # Delete the products
-        Product.query.filter(Product.product_id.in_(product_ids)).delete()
-
-        # Commit the changes to the database
+        db.session.query(Product).filter(Product.product_id.in_(product_ids)).delete()
         db.session.commit()
 
         return jsonify({'message': 'Products and their connections deleted successfully'}), 200
@@ -1052,15 +981,14 @@ def delete_products_and_connections():
         return jsonify({'message': 'Error deleting products and their connections', 'error': str(e)}), 500
 
 
-
 # Fetch pending categories for deletion request
 @app.route('/admin/category_deletion_request', methods=['GET'])
 @jwt_required()
 @role_required(roles=['admin'])
 def get_category_deletion_requests():
     try:
-        # Fetch a list of pending category requests from the database
-        pending_categories = Category.query.filter_by(
+
+        pending_categories = db.session.query(Category).filter_by(
             category_approval=-2).all()
         pending_categories_data = [{'category_id': category.category_id,
                                     'name': category.category_name,
@@ -1076,7 +1004,7 @@ def get_category_deletion_requests():
 @jwt_required()
 @role_required(roles=['manager'])
 def update_category_request(category_id):
-    category_to_update = Category.query.get_or_404(category_id)
+    category_to_update = db.session.query(Category).get_or_404(category_id)
     data = request.json
 
     try:
@@ -1107,8 +1035,8 @@ def update_category_request(category_id):
 @role_required(roles=['admin'])
 def decline_category_deletion_request(category_id):
     try:
-        # Update the request_approval status to 1 for the specified category
-        category = Category.query.get(category_id)
+
+        category = db.session.get(Category, category_id)
         if category:
             category.category_approval = 1
             db.session.commit()
@@ -1123,12 +1051,12 @@ def decline_category_deletion_request(category_id):
 @jwt_required()
 def get_notification_count():
     try:
-        # Fetch the notification count from your data source
-        pending_categories = Category.query.filter_by(
+
+        pending_categories = db.session.query(Category).filter_by(
             category_approval=0).all()
-        pending_category_deletion_requests = Category.query.filter_by(
+        pending_category_deletion_requests = db.session.query(Category).filter_by(
             category_approval=-2).all()
-        pending_managers = User.query.filter_by(request_approval=0).all()
+        pending_managers = db.session.query(User).filter_by(request_approval=0).all()
 
         notification_count = len(
             pending_categories) + len(pending_managers) + len(pending_category_deletion_requests)
@@ -1144,12 +1072,12 @@ def get_notification_count():
 @role_required(roles=['manager', 'admin'])
 def get_product_sales_data():
     try:
-        products = Product.query.all()
+        products = db.session.query(Product).all()
 
         product_sales_data = {}
 
         for product in products:
-            order_items = OrderItem.query.filter_by(
+            order_items = db.session.query(OrderItem).filter_by(
                 product_id=product.product_id).all()
             total_sales = sum(
                 order_item.total_price for order_item in order_items)
@@ -1169,11 +1097,11 @@ def get_product_sales_data():
 @role_required(roles=['manager', 'admin'])
 def get_card_data():
     try:
-        total_users = User.query.filter_by(role='user').count()
-        out_of_stock_count = Product.query.filter_by(stock=0).count()
-        limited_stock_count = Product.query.filter(
+        total_users = db.session.query(User).filter_by(role='user').count()
+        out_of_stock_count = db.session.query(Product).filter_by(stock=0).count()
+        limited_stock_count = db.session.query(Product).filter(
             Product.stock > 0, Product.stock <= 10).count()
-        total_products = Product.query.count()
+        total_products = db.session.query(Product).count()
         total_sales = db.session.query(
             db.func.sum(OrderItem.total_price)).scalar()
 
@@ -1195,21 +1123,18 @@ def get_card_data():
 def user_visited_status():
     try:
 
-        # Get today's date
         today_date = date.today()
         print(date.today())
         print(Order.order_date.cast(db.Date))
 
-        # Query orders with order_date on today's date
-        orders_today = Order.query.filter(Order.order_date == today_date).all()
-        print(orders_today)
+        orders_today = db.session.query(Order).filter(Order.order_date == today_date).all()
+        # print(orders_today)
         user_ids_today = set(order.user_id for order in orders_today)
 
         # Query users who are not in the list of user_ids with orders today
-        users = User.query.filter(User.user_id.notin_(
+        users = db.session.query(User).filter(User.user_id.notin_(
             user_ids_today), User.role == 'user').all()
 
-        # Extract user names from user objects
         user_names = [user.name for user in users]
 
         return jsonify(user_names), 200
@@ -1246,7 +1171,6 @@ def download_csv():
 def generate_monthly_report():
     file_path = generate_pdf_report()
 
-    # Check if the file exists
     if os.path.exists(file_path):
         return send_file(
             file_path,

@@ -1,5 +1,6 @@
 flask
 flask-marshmallow
+marshmallow-sqlalchemy
 Flask-Bcrypt
 flask-cors
 Flask-SQLAlchemy

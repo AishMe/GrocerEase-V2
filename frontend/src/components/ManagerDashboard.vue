@@ -36,7 +36,6 @@
               <h6
                 class="card-text fw-bold text-danger"
                 v-if="category.category_approval == -2 || category.category_approval == 0"
-                style="color: yellow"
               >
                 Waiting for Admin's Approval…
               </h6>
@@ -89,7 +88,9 @@
                 <br />
                 <div class="d-flex justify-content-between">
                   <button
-                    :disabled="category.category_approval === -2 || category.category_approval === 0"
+                    :disabled="
+                      category.category_approval === -2 || category.category_approval === 0
+                    "
                     @click="showAddProductForm(category.category_id)"
                     class="btn btn-outline-primary"
                   >
@@ -97,7 +98,9 @@
                   </button>
                   <span style="flex-grow: 1"></span>
                   <button
-                    :disabled="category.category_approval === -2 || category.category_approval === 0"
+                    :disabled="
+                      category.category_approval === -2 || category.category_approval === 0
+                    "
                     @click="showEditCategoryForm(category)"
                     class="btn btn-outline-warning"
                   >
@@ -105,7 +108,9 @@
                   </button>
                   <span style="flex-grow: 0.3"></span>
                   <button
-                    :disabled="category.category_approval === -2 || category.category_approval === 0"
+                    :disabled="
+                      category.category_approval === -2 || category.category_approval === 0
+                    "
                     @click="deleteCategory(category)"
                     class="btn btn-outline-danger"
                   >
@@ -261,7 +266,9 @@ export default {
           )
 
           if (response.ok) {
-            this.categories = this.categories.filter((category) => category.category_id !== categoryId)
+            this.categories = this.categories.filter(
+              (category) => category.category_id !== categoryId
+            )
             toast.info('Category Deletion Request Sent to the Admin.')
           } else {
             toast.danger('Oops! Something Went Wrong. Could Not Send Deletion Request to the Admin')
@@ -288,21 +295,18 @@ export default {
         if (productNameConfirmation === product.name) {
           try {
             // Fetch products from the API
-            const response = await fetch(
-              `http://127.0.0.1:5000/delete_product/${productId}`,
-              {
-                method: 'DELETE',
-                headers: {
-                  'Content-type': 'application/json',
-                  Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-                }
+            const response = await fetch(`http://127.0.0.1:5000/delete_product/${productId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-type': 'application/json',
+                Authorization: 'Bearer ' + localStorage.getItem('accessToken')
               }
-            )
+            })
 
             if (response.ok) {
-              this.productsByCategory[product.category_id] = this.productsByCategory[product.category_id].filter(
-                (p) => p.product_id !== productId
-              );
+              this.productsByCategory[product.category_id] = this.productsByCategory[
+                product.category_id
+              ].filter((p) => p.product_id !== productId)
               toast.info('Product Deleted Successfully!')
             } else {
               toast.danger('Oops! Something Went Wrong. Cannot Delete the Product.')
@@ -444,8 +448,8 @@ export default {
   width: 100%;
   height: 100%;
   background: inherit;
-  backdrop-filter: blur(80px); 
-  z-index: 2; 
+  backdrop-filter: blur(80px);
+  z-index: 2;
 }
 
 .center-form {
@@ -454,5 +458,4 @@ export default {
   justify-content: center;
   height: 100%;
 }
-
 </style>

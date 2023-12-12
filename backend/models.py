@@ -14,11 +14,9 @@ class User(db.Model):
     name = db.Column(db.Text, nullable=False)
     password = db.Column(db.Text, nullable=False)
     role = db.Column(db.Text, nullable=False)
-    avatar = db.Column(db.Text, nullable=True, default='https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg')
+    avatar = db.Column(db.Text, nullable=True,
+                       default='https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg')
     request_approval = db.Column(db.Integer, nullable=False, default=0)
-    # carts = db.relationship('Cart', backref='user', cascade='all, delete-orphan')
-    # orders = db.relationship('Order', backref='user', cascade='all, delete-orphan')
-    # order_items = db.relationship('OrderItem', backref='user', cascade='all, delete-orphan')
 
     def __init__(self, email, name, password, role):
         self.email = email
@@ -42,7 +40,8 @@ class Product(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey(
         Category.category_id), nullable=False)
     product_name = db.Column(db.String(255), nullable=False)
-    manufacturing_date = db.Column(db.Text, default=datetime.now().date(), nullable=False)
+    manufacturing_date = db.Column(
+        db.Text, default=datetime.now().date(), nullable=False)
     stock = db.Column(db.Integer, nullable=False)
     unit = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
@@ -55,14 +54,18 @@ class Product(db.Model):
 
 class Favourite(db.Model):
     favourite_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey(Product.product_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        User.user_id), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey(
+        Product.product_id), nullable=False)
 
 
 class Cart(db.Model):
     cart_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey(Product.product_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        User.user_id), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey(
+        Product.product_id), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
 

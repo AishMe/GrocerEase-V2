@@ -96,7 +96,7 @@ export default {
       }
 
       // Make a PUT request to update user information
-      const req = await fetch(`http://127.0.0.1:5000/edit_profile`, {
+      const req = await fetch(`http://127.0.0.1:5000/api/user/edit_profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ export default {
 
         if (userEmail === this.email) {
           // Perform the account deletion (you can make a DELETE request here)
-          const req = await fetch(`http://127.0.0.1:5000/delete_acc`, {
+          const req = await fetch(`http://127.0.0.1:5000/api/user/delete_account`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
