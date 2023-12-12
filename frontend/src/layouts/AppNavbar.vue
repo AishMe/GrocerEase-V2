@@ -109,7 +109,7 @@
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                   <li><a v-if="this.role" class="dropdown-item" href="/profile">Profile</a></li>
                   <li>
-                    <a v-if="this.role === 'admin'" class="dropdown-item" href="/manager_pending"
+                    <a v-if="this.role === 'admin'" class="dropdown-item" href="/pending_requests"
                       >Pending</a
                     >
                   </li>
@@ -191,11 +191,6 @@ export default {
   created() {
     // Fetch initial notification count
     this.fetchNotificationCount()
-
-    // Example: Periodically fetch notification count (adjust as needed)
-    setInterval(() => {
-      this.fetchNotificationCount()
-    }, 60000) // Every 1 minute
   }
 }
 </script>

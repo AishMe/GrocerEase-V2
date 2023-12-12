@@ -530,7 +530,8 @@ def get_orders():
 def get_categories():
     try:
         categories = Category.query.filter(
-            or_(Category.category_approval == 1, Category.category_approval == -2)).filter(Category.category_id != 0).all()
+            or_(Category.category_approval == 1, Category.category_approval == -2, Category.category_approval == 0)
+        ).filter(Category.category_id != 0).all()
         category_list = []
 
         for category in categories:
@@ -605,22 +606,6 @@ def update_category(category_id):
     except Exception as e:
         print(e)
         return jsonify({'message': 'Error Updating the Category', 'error': str(e)}), 500
-
-
-# Delete a Category from the Database Record
-# @app.route('/api/category/delete/<int:category_id>', methods=['DELETE'])
-# @jwt_required()
-# @role_required(roles=['admin'])
-# def delete_category(category_id):
-#     category_to_delete = Category.query.get_or_404(category_id)
-
-#     try:
-#         db.session.delete(category_to_delete)
-#         db.session.commit()
-#         return jsonify({'message': "Category Deleted Successfully!"}), 200
-
-#     except Exception as e:
-#         return jsonify({'message': 'Error deleting the category', 'error': str(e)}), 500
 
 
 # Delete a Category and it's Products from the Database
@@ -749,23 +734,6 @@ def update_product(product_id):
     except Exception as e:
         return jsonify({'message': 'Error Updating the Product', 'error': str(e)}), 500
 
-
-# Delete a Product from the Database Record
-# @app.route('/delete_product/<int:product_id>', methods=['DELETE'])
-# @jwt_required()
-# @role_required(roles=['admin', 'manager'])
-# def delete_product(product_id):
-#     product_to_delete = Product.query.get(product_id)
-#     if not product_to_delete:
-#         return jsonify({'message': 'Product not found'}), 404
-
-#     try:
-#         db.session.delete(product_to_delete)
-#         db.session.commit()
-#         return jsonify({'message': "Product Deleted Successfully!"}), 200
-
-#     except Exception as e:
-#         return jsonify({'message': 'Error deleting the product', 'error': str(e)}), 500
 
 
 # Delete a Product from the Database Record
@@ -1062,13 +1030,17 @@ def delete_products_and_connections():
                 # Delete connections from Favourites
                 Favourite.query.filter_by(product_id=product_id).delete()
 
-            # Check if there are connections in OrderItems
+            # Update connections in OrderItems
             order_items_to_update = OrderItem.query.filter_by(product_id=product_id).all()
-            if order_items_to_update:
-                # Update connections in OrderItems
-                for order_item in order_items_to_update:
-                    order_item.product_id = 0
-                    order_item.category_id = 0
+            for order_item in order_items_to_update:
+                order_item.product_id = 0
+                order_item.category_id = 0
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        # Delete the products
+        Product.query.filter(Product.product_id.in_(product_ids)).delete()
 
         # Commit the changes to the database
         db.session.commit()

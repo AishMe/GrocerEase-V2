@@ -355,9 +355,7 @@ export default {
 
           if (response.ok) {
             toast.success('Product removed from favourites!')
-            setTimeout(() => {
-              window.location.reload()
-            }, 2500)
+            this.products = this.products.filter((product) => product.id !== productId)
           } else {
             toast.error('Couldn not remove this product from favourites. Sorry')
           }

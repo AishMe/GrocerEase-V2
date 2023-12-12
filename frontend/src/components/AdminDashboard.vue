@@ -35,7 +35,7 @@
 
               <h6
                 class="card-text fw-bold text-danger"
-                v-if="category.category_approval == -2"
+                v-if="category.category_approval == -2 || category.category_approval == 0"
                 style="color: yellow"
               >
                 Waiting for Admin's Approval…
@@ -89,7 +89,7 @@
                 <br />
                 <div class="d-flex justify-content-between">
                   <button
-                    :disabled="category.category_approval === -2"
+                    :disabled="category.category_approval === -2 || category.category_approval === 0"
                     @click="showAddProductForm(category.category_id)"
                     class="btn btn-outline-primary"
                   >
@@ -97,7 +97,7 @@
                   </button>
                   <span style="flex-grow: 1"></span>
                   <button
-                    :disabled="category.category_approval === -2"
+                    :disabled="category.category_approval === -2 || category.category_approval === 0"
                     @click="showEditCategoryForm(category)"
                     class="btn btn-outline-warning"
                   >
@@ -105,7 +105,7 @@
                   </button>
                   <span style="flex-grow: 0.3"></span>
                   <button
-                    :disabled="category.category_approval === -2"
+                    :disabled="category.category_approval === -2 || category.category_approval === 0"
                     @click="deleteCategory(category)"
                     class="btn btn-outline-danger"
                   >
@@ -171,6 +171,9 @@
 </template>
 
 <script>
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
+
 export default {
   data() {
     return {
@@ -234,6 +237,7 @@ export default {
       }
     },
     async deleteCategory(category) {
+      const categoryId = category.category_id
       // Initial confirmation
       const confirmDelete = window.confirm('Are you sure you want to delete this category?')
 
@@ -247,7 +251,7 @@ export default {
           try {
             // Fetch categories from the API
             const response = await fetch(
-              `http://127.0.0.1:5000/api/category/delete/${category.category_id}`,
+              `http://127.0.0.1:5000/api/category/delete/${categoryId}`,
               {
                 method: 'DELETE',
                 headers: {
@@ -258,27 +262,28 @@ export default {
             )
 
             if (response.ok) {
-              alert('Category Deleted Successfully!')
-              window.location.reload()
+              this.categories = this.categories.filter((category) => category.category_id !== categoryId)
+              toast.info('Category Deleted Successfully!')
             } else {
-              alert('Oops! Something Went Wrong. Cannot Delete the Category.')
+              toast.danger('Oops! Something Went Wrong. Cannot Delete the Category.')
             }
           } catch (error) {
             console.error('Error deleting the category ', error)
           }
         } else if (categoryNameConfirmation === null) {
           // User clicked Cancel on the category name prompt
-          alert('Deletion Canceled. Category Name is not Provided.')
+          toast.warning('Deletion Canceled. Category Name is not Provided.')
         } else {
           // User typed-in the wrong category name
-          alert('Deletion Canceled. Category Name is Wrong.')
+          toast.warning('Deletion Canceled. Category Name is Wrong.')
         }
       } else {
         // User clicked Cancel on the initial confirmation
-        alert('Deletion Canceled.')
+        toast.warning('Deletion Canceled.')
       }
     },
     async deleteProduct(product) {
+      const productId = product.product_id
       // Initial confirmation
       const confirmDelete = window.confirm('Are you sure you want to delete this product?')
 
@@ -292,7 +297,7 @@ export default {
           try {
             // Fetch products from the API
             const response = await fetch(
-              `http://127.0.0.1:5000/delete_product/${product.product_id}`,
+              `http://127.0.0.1:5000/delete_product/${productId}`,
               {
                 method: 'DELETE',
                 headers: {
@@ -303,24 +308,26 @@ export default {
             )
 
             if (response.ok) {
-              alert('Product Deleted Successfully!')
-              window.location.reload()
+              this.productsByCategory[product.category_id] = this.productsByCategory[product.category_id].filter(
+                (p) => p.product_id !== productId
+              );
+              toast.info('Product Deleted Successfully!')
             } else {
-              alert('Oops! Something Went Wrong. Cannot Delete the Product.')
+              toast.danger('Oops! Something Went Wrong. Cannot Delete the Product.')
             }
           } catch (error) {
             console.error('Error deleting the product ', error)
           }
         } else if (productNameConfirmation === null) {
           // User clicked Cancel on the product name prompt
-          alert('Deletion Canceled. Product Name is not Provided.')
+          toast.warning('Deletion Canceled. Product Name is not Provided.')
         } else {
           // User typed-in the wrong product name
-          alert('Deletion Canceled. Product Name is Wrong.')
+          toast.warning('Deletion Canceled. Product Name is Wrong.')
         }
       } else {
         // User clicked Cancel on the initial confirmation
-        alert('Deletion Canceled.')
+        toast.warning('Deletion Canceled.')
       }
     },
     showAddCategoryForm() {
@@ -394,10 +401,9 @@ export default {
           })
 
           if (response.ok) {
-            alert('Update Form Submitted Successfully!')
-            window.location.reload()
+            toast.success('Update Form Submitted Successfully!')
           } else {
-            alert('Update Form Submission Failed')
+            toast.danger('Update Form Submission Failed')
           }
         } else {
           if (this.formType === 'Product') {
@@ -420,10 +426,9 @@ export default {
 
           console.log('THIS FORM: ', this.form)
           if (response.ok) {
-            alert('Add Form Submitted Successfully!')
-            window.location.reload()
+            toast.success('Add Form Submitted Successfully!')
           } else {
-            alert('Add Form Submission Failed')
+            toast.danger('Add Form Submission Failed')
           }
         }
       } catch (error) {
@@ -445,8 +450,8 @@ export default {
   width: 100%;
   height: 100%;
   background: inherit;
-  backdrop-filter: blur(50px); /* Adjust the blur intensity as needed */
-  z-index: 2; /* Ensure it's above other elements */
+  backdrop-filter: blur(80px); 
+  z-index: 2; 
 }
 
 .center-form {
@@ -456,5 +461,4 @@ export default {
   height: 100%;
 }
 
-/* ... other existing styles ... */
 </style>

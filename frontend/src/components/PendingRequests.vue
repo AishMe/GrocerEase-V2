@@ -95,7 +95,10 @@
 </template>
     
   
-  <script>
+<script>
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
+
 export default {
   data() {
     return {
@@ -176,9 +179,8 @@ export default {
 
         if (response.ok) {
           // Update the list by filtering out the user that was approved
-          this.pendingManagers = this.pendingManagers.filter((user) => user.userId !== userId)
-          window.location.reload()
-          alert('Manager Accepted!!')
+          this.pendingManagers = this.pendingManagers.filter((user) => user.user_id !== userId)
+          toast.success('Manager Accepted!')
         }
       } catch (error) {
         console.error('Error approving manager request:', error)
@@ -197,9 +199,8 @@ export default {
 
         if (response.ok) {
           // Update the list by filtering out the user that was declined
-          this.pendingManagers = this.pendingManagers.filter((user) => user.userId !== userId)
-          window.location.reload()
-          alert('Manager Rejected.')
+          this.pendingManagers = this.pendingManagers.filter((user) => user.user_id !== userId)
+          toast.warning('Manager Rejected.')
         }
       } catch (error) {
         console.error('Error declining manager request:', error)
@@ -219,10 +220,9 @@ export default {
         if (response.ok) {
           // Update the list by filtering out the category that was approved
           this.pendingCategories = this.pendingCategories.filter(
-            (category) => category.categoryId !== categoryId
+            (category) => category.category_id !== categoryId
           )
-          window.location.reload()
-          alert('Category Accepted!!')
+          toast.success('Category Accepted!')
         }
       } catch (error) {
         console.error('Error approving category request:', error)
@@ -242,10 +242,9 @@ export default {
         if (response.ok) {
           // Update the list by filtering out the category that was declined
           this.pendingCategories = this.pendingCategories.filter(
-            (category) => category.categoryId !== categoryId
+            (category) => category.category_id !== categoryId
           )
-          window.location.reload()
-          alert('Category Rejected.')
+          toast.warning('Category Rejected.')
         }
       } catch (error) {
         console.error('Error declining category request:', error)
@@ -263,12 +262,11 @@ export default {
         })
 
         if (response.ok) {
-          // Update the list by filtering out the user that was approved
+          // Update the list by filtering out the category that was not deleted
           this.deleteCategories = this.deleteCategories.filter(
-            (category) => category.categoryId !== categoryId
+            (category) => category.category_id !== categoryId
           )
-          window.location.reload()
-          alert('Category Not Deleted!!')
+          toast.info('Category Not Deleted!')
         }
       } catch (error) {
         console.error('Error keeping the category:', error)
@@ -299,24 +297,27 @@ export default {
             )
 
             if (response.ok) {
-              alert('Category Deleted Successfully!')
-              window.location.reload()
+              // Update the list by filtering out the user that was approved
+              this.deleteCategories = this.deleteCategories.filter(
+                (category) => category.category_id !== category.category_id
+              )
+              toast.success('Category Deleted Successfully!')
             } else {
-              alert('Oops! Something Went Wrong. Cannot Delete the Category.')
+              toast.danger('Oops! Something Went Wrong. Cannot Delete the Category.')
             }
           } catch (error) {
             console.error('Error deleting the category ', error)
           }
         } else if (categoryNameConfirmation === null) {
           // User clicked Cancel on the category name prompt
-          alert('Deletion Canceled. Category Name is not Provided.')
+          toast.danger('Deletion Canceled. Category Name is not Provided.')
         } else {
           // User typed-in the wrong category name
-          alert('Deletion Canceled. Category Name is Wrong.')
+          toast.danger('Deletion Canceled. Category Name is Wrong.')
         }
       } else {
         // User clicked Cancel on the initial confirmation
-        alert('Deletion Canceled.')
+        toast.danger('Deletion Canceled.')
       }
     }
   }

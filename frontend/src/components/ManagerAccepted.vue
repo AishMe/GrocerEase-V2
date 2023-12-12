@@ -35,6 +35,9 @@
 </template>
 
 <script>
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
+
 export default {
   data() {
     return {
@@ -75,8 +78,7 @@ export default {
         if (response.ok) {
           // Update the list by filtering out the user that was approved
           this.approvedManagers = this.approvedManagers.filter((user) => user.user_id !== userId)
-          window.location.reload()
-          alert('Manager Status Reverted Back to Pending!!')
+          toast.info('Manager Status Reverted Back to Pending.')
         }
       } catch (error) {
         console.error('Error approving request:', error)

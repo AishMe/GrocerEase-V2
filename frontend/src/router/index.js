@@ -11,7 +11,6 @@ import OrdersView from '../views/OrdersView.vue'
 import AccessDenied from '../views/AccessDenied.vue'
 import AdminDashboard from '../components/AdminDashboard.vue'
 import PendingRequests from '../components/PendingRequests.vue'
-import ManagerPending from '../components/ManagerPending.vue'
 import ManagerAccepted from '../components/ManagerAccepted.vue'
 import ManagerRejected from '../components/ManagerRejected.vue'
 import HardDelete from '../components/HardDelete.vue'
@@ -45,9 +44,6 @@ const routes = [
     allowedRoles: ['admin'],
   }, },
   { path: '/pending_requests', name: 'pending_requests', component: PendingRequests, meta: {
-    allowedRoles: ['admin'],
-  }, },
-  { path: '/manager_pending', name: 'manager_pending', component: ManagerPending, meta: {
     allowedRoles: ['admin'],
   }, },
   { path: '/manager_accepted', name: 'manager_accepted', component: ManagerAccepted, meta: {

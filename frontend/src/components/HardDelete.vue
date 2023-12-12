@@ -1,7 +1,7 @@
 <template>
   <div class="min-vh-100" style="padding-top: 100px">
     <!-- Button for deleting all temporarily deleted products -->
-    <div class="fab bg-danger">
+    <div class="fab bg-danger" style="width: 90px; height: 90px;">
       <a
         @click="hardDeleteAll(products)"
         data-bs-toggle="tooltip"
@@ -162,7 +162,7 @@ export default {
             }
           )
           const resJSON = await response.json()
-          
+
           if (response.ok) {
             // Clear the products array after successful hard delete
             this.products = []
@@ -180,10 +180,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.fab {
-  width: 90px;
-  height: 90px;
-}
-</style>
