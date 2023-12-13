@@ -200,6 +200,8 @@
           <h5 class="mb-0">Payment Options</h5>
         </div>
         <form @submit.prevent="checkout(selectedProduct)">
+          <h3 class="mt-3 fw-bold text-center">Total Cost: {{ selectedProduct.price * this.qty }}</h3>
+          <hr/>
           <div class="card-body">
             <!-- Payment options radio buttons -->
             <div class="form-check">
@@ -374,11 +376,17 @@ export default {
 
       // Implement your logic for adding to cart
       if (this.qty > product.stock) {
-        toast.error(`Sorry, we have only ${product.stock} in stock.`)
+        toast.error(`Sorry, we have only ${product.stock} in stock.`, {
+          autoClose: 2000
+        })
       } else if (this.qty === undefined) {
-        toast.error('Please specify the quantity.')
-      } else if (this.qty < 0) {
-        toast.error('Please specify a valid quantity.')
+        toast.error('Please specify the quantity.', {
+          autoClose: 2000
+        })
+      } else if (this.qty <= 0) {
+        toast.error('Please specify a valid quantity.', {
+          autoClose: 2000
+        })
       } else if (this.qty > 0) {
         try {
           const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
@@ -396,11 +404,15 @@ export default {
           if (response.ok) {
             const responseData = await response.json()
             // Show a success message to the user
-            toast.success(responseData.message)
+            toast.success(responseData.message, {
+              autoClose: 1000
+            })
           } else {
             const errorData = await response.json()
             // Show an error message to the user
-            toast.error(errorData.message)
+            toast.error(errorData.message, {
+              autoClose: 2000
+            })
           }
         } catch (error) {
           console.error('Error adding to cart:', error)
@@ -422,9 +434,13 @@ export default {
         const resJSON = await response.json()
 
         if (response.ok) {
-          toast.success(resJSON.message)
+          toast.success(resJSON.message, {
+            autoClose: 1000
+          })
         } else {
-          toast.error(resJSON.message)
+          toast.error(resJSON.message, {
+            autoClose: 2000
+          })
         }
       } catch (error) {
         console.error('Error adding to favourite:', error)
@@ -462,7 +478,10 @@ export default {
             console.log('Checkout successful:', data.message)
             window.location.reload()
             toast.success(
-              `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`
+              `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`,
+              {
+                autoClose: 2000
+              }
             )
             console.log('Selected Payment Option:', this.selectedPaymentOption)
           })
@@ -509,7 +528,7 @@ export default {
         return 'color: #4CAF50;' // Bright green -> fresh
       } else {
         return 'color: darkblue;'
-      } 
+      }
     },
     isNewProduct(manufacturingDate) {
       // Compare the manufacturing date with the current date and check if it's within a week
@@ -529,11 +548,17 @@ export default {
     },
     showCheckoutForm(product) {
       if (this.qty === undefined) {
-        toast.error('Please specify the quantity.')
-      } else if (this.qty < 0) {
-        toast.error('Please specify a valid quantity.')
+        toast.error('Please specify the quantity.', {
+          autoClose: 2000
+        })
+      } else if (this.qty <= 0) {
+        toast.error('Please specify a valid quantity.', {
+          autoClose: 2000
+        })
       } else if (this.qty > product.stock) {
-        toast.error(`Sorry, we have only ${product.stock} in stock.`)
+        toast.error(`Sorry, we have only ${product.stock} in stock.`, {
+          autoClose: 2000
+        })
       } else if (this.qty > 0) {
         this.selectedProduct = product
         this.showCheckoutFormBool = true
@@ -549,7 +574,12 @@ export default {
         const meetsMaxRateCriteria = !this.maxRate || product.price <= this.maxRate
         const meetsStatusCriteria = product.product_status !== 0 // Exclude products with status 0
 
-        return meetsCategoryCriteria && meetsMinRateCriteria && meetsMaxRateCriteria && meetsStatusCriteria
+        return (
+          meetsCategoryCriteria &&
+          meetsMinRateCriteria &&
+          meetsMaxRateCriteria &&
+          meetsStatusCriteria
+        )
       })
 
       // Filter by search text

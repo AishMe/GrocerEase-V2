@@ -1,7 +1,7 @@
 <template>
   <div class="min-vh-100" style="padding-top: 100px">
     <!-- Button for deleting all temporarily deleted products -->
-    <div class="fab bg-danger" style="width: 90px; height: 90px;">
+    <div class="fab bg-danger" style="width: 90px; height: 90px">
       <a
         @click="hardDeleteAll(products)"
         data-bs-toggle="tooltip"
@@ -128,11 +128,14 @@ export default {
             // Update the products array after successful hard delete
             this.products = this.products.filter((product) => product.id !== productId)
             console.log(`Product with ID ${productId} successfully hard deleted.`)
-            toast.success(resJSON.message)
+            toast.success(resJSON.message, {
+              autoClose: 2000
+            })
           } else {
-            toast.error(resJSON.message)
+            toast.error(resJSON.message, {
+              autoClose: 2000
+            })
           }
-
         } catch (error) {
           console.error('Error hard deleting product:', error)
         }
@@ -166,12 +169,15 @@ export default {
           if (response.ok) {
             // Clear the products array after successful hard delete
             this.products = []
-            console.log('All products successfully hard deleted.')
+            console.log('All products successfully hard deleted.', {
+              autoClose: 2000
+            })
             toast.success(resJSON.message)
           } else {
-            toast.error(resJSON.message)
+            toast.error(resJSON.message, {
+              autoClose: 2000
+            })
           }
-
         } catch (error) {
           console.error('Error hard deleting all products:', error)
         }

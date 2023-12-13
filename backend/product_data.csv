@@ -1,4 +1,5 @@
 Product ID,Category Name,Product Name,Price
+0,Unavailable,Unavailable,
 1,Fruits,Apple,23.0
 2,Fruits,Banana,12.0
 3,Fruits,Orange,45.0
@@ -12,4 +13,30 @@ Product ID,Category Name,Product Name,Price
 11,Vegetables,Cauliflower,20.0
 12,Stationary,Color Pencils,83.0
 13,Stationary,Highlighters,50.0
-16,dummy,dummy,34.0
+17,Vegetables,Tomatoes,50.0
+19,Vegetables,Cucumbers,25.0
+20,Vegetables,Bell Peppers,70.0
+21,Vegetables,Potatoes,30.0
+22,Vegetables,Onions,40.0
+23,Vegetables,Lettuce,35.0
+24,Fruits,Strawberries,100.0
+25,Fruits,Grapes,90.0
+26,Fruits,Watermelon,20.0
+27,Dairy Products,Butter,120.0
+28,Dairy Products,Cottage Cheese,60.0
+29,Dairy Products,Cream,45.0
+30,Dairy Products,Sour Cream,50.0
+31,Dairy Products,Milk Powder,90.0
+32,Dairy Products,Ghee,150.0
+33,Dairy Products,Almond Milk,70.0
+34,Dairy Products,Coconut Milk,55.0
+35,Dairy Products,Whipped Cream,80.0
+36,Dairy Products,Flavored Yogurt,55.0
+37,Dairy Products,Feta Cheese,100.0
+38,Bakery & Snacks,Bread,30.0
+39,Bakery & Snacks,Bagels,40.0
+40,Bakery & Snacks,Croissants,25.0
+41,Bakery & Snacks,Muffins,20.0
+42,Bakery & Snacks,Crackers,35.0
+43,Bakery & Snacks,Potato Chips,20.0
+44,Canned & Packaged Goods,Canned Tomatoes,25.0

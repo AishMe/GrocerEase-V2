@@ -65,12 +65,18 @@ export default {
 
           if (response.ok) {
             await this.$store.commit('updateCart', { product: this.product })
-            toast.success('Cart Updated')
+            toast.success('Cart Updated', {
+              autoClose: 2000
+            })
           } else {
-            toast.error('Failed to update cart item')
+            toast.error('Failed to update cart item', {
+              autoClose: 2000
+            })
           }
         } else {
-          toast.warning('You reached the limit')
+          toast.warning('You reached the limit', {
+            autoClose: 2000
+          })
         }
       }
       if (number == -1) {
@@ -94,12 +100,18 @@ export default {
 
           if (response.ok) {
             await this.$store.commit('updateCart', { product: this.product })
-            toast.success('Cart Updated')
+            toast.success('Cart Updated', {
+              autoClose: 2000
+            })
           } else {
-            toast.error('Failed to update cart item')
+            toast.error('Failed to update cart item', {
+              autoClose: 2000
+            })
           }
         } else {
-          toast.warning('You reached the limit')
+          toast.warning('You reached the limit', {
+            autoClose: 2000
+          })
         }
       }
 

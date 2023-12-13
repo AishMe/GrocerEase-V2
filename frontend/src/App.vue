@@ -25,12 +25,12 @@ export default {
         {
           name: `description`,
           content: computed(() => siteData.description)
-        }
-      ]
+        },
+      ],
     })
   },
   async mounted() {
     await this.$store.commit('initialiseStore')
-  }
+  },
 }
 </script>

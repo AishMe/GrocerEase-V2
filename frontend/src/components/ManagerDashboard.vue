@@ -292,7 +292,7 @@ export default {
           'Please type the name of the product to confirm deletion:'
         )
 
-        if (productNameConfirmation === product.name) {
+        if (productNameConfirmation && productNameConfirmation.toLowerCase() === product.name.toLowerCase()) {
           try {
             // Fetch products from the API
             const response = await fetch(`http://127.0.0.1:5000/delete_product/${productId}`, {

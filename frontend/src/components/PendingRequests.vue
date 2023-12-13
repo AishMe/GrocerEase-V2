@@ -282,7 +282,7 @@ export default {
           'Please type the name of the category to confirm deletion:'
         )
 
-        if (categoryNameConfirmation === category.name) {
+        if (categoryNameConfirmation && categoryNameConfirmation.toLowerCase() === category.name.toLowerCase()) {
           try {
             // Fetch categories from the API
             const response = await fetch(

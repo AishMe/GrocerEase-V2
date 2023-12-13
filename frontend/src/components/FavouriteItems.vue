@@ -25,10 +25,7 @@
             <div class="card-body">
               <h4 class="card-title text-capitalize fw-bold text-black">{{ product.name }}</h4>
               <hr style="margin-top: 1rem; border: 1px solid black" />
-              <h6
-                class="card-text fw-bold"
-                :style="getStockMessageStyle(product)"
-              >
+              <h6 class="card-text fw-bold" :style="getStockMessageStyle(product)">
                 {{ getStockMessage(product) }}
               </h6>
               <p class="card-text">
@@ -70,11 +67,10 @@
                   </button>
                 </div>
 
-
                 <!-- Buy Now and Add to Cart buttons with the same width as Quantity + Heart -->
                 <div class="d-grid gap-2" v-if="product.product_status">
                   <button
-                    :disabled="product.stock === 0" 
+                    :disabled="product.stock === 0"
                     @click.prevent="showCheckoutForm(product)"
                     class="btn btn-success"
                     style="padding: 8px 100px"
@@ -87,7 +83,7 @@
                   </button>
 
                   <button
-                    :disabled="product.stock === 0" 
+                    :disabled="product.stock === 0"
                     @click.prevent="addToCart(product)"
                     class="btn btn-primary w-100"
                     style="padding: 8px"
@@ -284,13 +280,20 @@ export default {
 
       // Implement your logic for adding to cart
       if (this.qty > product.stock) {
-        toast.danger(`Sorry, we have only ${product.stock} in stock.`)
+        toast.danger(`Sorry, we have only ${product.stock} in stock.`, {
+          autoClose: 2000
+        })
       } else if (this.qty === undefined) {
-        toast.danger('Please specify the quantity.')
+        toast.danger('Please specify the quantity.', {
+          autoClose: 2000
+        })
       } else if (this.qty < 0) {
-        toast.danger('Please specify a valid quantity.')
+        toast.danger('Please specify a valid quantity.', {
+          autoClose: 2000
+        })
       } else if (this.qty > 0) {
         try {
+          const productId = product.id
           const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
             method: 'POST',
             headers: {
@@ -298,7 +301,7 @@ export default {
               Authorization: 'Bearer ' + localStorage.getItem('accessToken')
             },
             body: JSON.stringify({
-              product_id: product.id,
+              product_id: productId,
               quantity: 1 // You can modify this based on user input
             })
           })
@@ -310,7 +313,7 @@ export default {
                 'Content-Type': 'application/json',
                 Authorization: 'Bearer ' + localStorage.getItem('accessToken')
               },
-              body: JSON.stringify({ product_id: product.id })
+              body: JSON.stringify({ product_id: productId })
             })
               .then((response) => {
                 if (!response.ok) {
@@ -321,15 +324,17 @@ export default {
               .then((data) => {
                 // Handle successful checkout
                 console.log('Add to cart successful:', data.message)
-                toast.success(`${product.name} added to cart!`)
-                setTimeout(() => {
-                  window.location.reload()
-                }, 5000)
+                toast.success(`${product.name} added to cart!`, {
+                  autoClose: 2000
+                })
+                this.products = this.products.filter((product) => product.id !== productId)
               })
           } else {
             const errorData = await response.json()
             // Show an error message to the user
-            toast.error(errorData.message)
+            toast.error(errorData.message, {
+              autoClose: 2000
+            })
           }
         } catch (error) {
           console.error('Error adding to cart:', error)
@@ -354,10 +359,14 @@ export default {
           })
 
           if (response.ok) {
-            toast.success('Product removed from favourites!')
+            toast.success('Product removed from favourites!', {
+              autoClose: 2000
+            })
             this.products = this.products.filter((product) => product.id !== productId)
           } else {
-            toast.error('Couldn not remove this product from favourites. Sorry')
+            toast.error('Couldn not remove this product from favourites. Sorry', {
+              autoClose: 2000
+            })
           }
         }
       } catch (error) {
@@ -386,13 +395,14 @@ export default {
         })
 
         if (res.ok) {
+          const productId = product.id
           await fetch('http://127.0.0.1:5000/api/remove_from_fav', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
               Authorization: 'Bearer ' + localStorage.getItem('accessToken')
             },
-            body: JSON.stringify({ product_id: product.id })
+            body: JSON.stringify({ product_id: productId })
           })
             .then((response) => {
               if (!response.ok) {
@@ -403,14 +413,17 @@ export default {
             .then(() => {
               // Handle successful checkout
               toast.success(
-                `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`
+                `Checkout Successful! You bought ${this.qty} ${product.unit}s of ${product.name}.`,
+                {
+                  autoClose: 2000
+                }
               )
-              setTimeout(() => {
-                window.location.reload()
-              }, 2500)
+              this.products = this.products.filter((product) => product.id !== productId)
             })
         } else {
-          toast.error('Checkout unsuccessful. Please try again...')
+          toast.error('Checkout unsuccessful. Please try again...', {
+            autoClose: 2000
+          })
         }
       }
     },

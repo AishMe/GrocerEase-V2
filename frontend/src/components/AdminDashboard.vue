@@ -252,7 +252,7 @@ export default {
           'Please type the name of the category to confirm deletion:'
         )
 
-        if (categoryNameConfirmation === category.name) {
+        if (categoryNameConfirmation && categoryNameConfirmation.toLowerCase() === category.name.toLowerCase()) {
           try {
             // Fetch categories from the API
             const response = await fetch(
@@ -270,23 +270,33 @@ export default {
               this.categories = this.categories.filter(
                 (category) => category.category_id !== categoryId
               )
-              toast.info('Category Deleted Successfully!')
+              toast.info('Category Deleted Successfully!', {
+                autoClose: 2000
+              })
             } else {
-              toast.danger('Oops! Something Went Wrong. Cannot Delete the Category.')
+              toast.danger('Oops! Something Went Wrong. Cannot Delete the Category.', {
+                autoClose: 2000
+              })
             }
           } catch (error) {
             console.error('Error deleting the category ', error)
           }
         } else if (categoryNameConfirmation === null) {
           // User clicked Cancel on the category name prompt
-          toast.warning('Deletion Canceled. Category Name is not Provided.')
+          toast.warning('Deletion Canceled. Category Name is not Provided.', {
+            autoClose: 2000
+          })
         } else {
           // User typed-in the wrong category name
-          toast.warning('Deletion Canceled. Category Name is Wrong.')
+          toast.warning('Deletion Canceled. Category Name is Wrong.', {
+            autoClose: 2000
+          })
         }
       } else {
         // User clicked Cancel on the initial confirmation
-        toast.warning('Deletion Canceled.')
+        toast.warning('Deletion Canceled.', {
+          autoClose: 2000
+        })
       }
     },
     async deleteProduct(product) {
@@ -300,7 +310,7 @@ export default {
           'Please type the name of the product to confirm deletion:'
         )
 
-        if (productNameConfirmation === product.name) {
+        if (productNameConfirmation && productNameConfirmation.toLowerCase() === product.name.toLowerCase()) {
           try {
             // Fetch products from the API
             const response = await fetch(`http://127.0.0.1:5000/delete_product/${productId}`, {
@@ -315,23 +325,33 @@ export default {
               this.productsByCategory[product.category_id] = this.productsByCategory[
                 product.category_id
               ].filter((p) => p.product_id !== productId)
-              toast.info('Product Deleted Successfully!')
+              toast.info('Product Deleted Successfully!', {
+                autoClose: 2000
+              })
             } else {
-              toast.danger('Oops! Something Went Wrong. Cannot Delete the Product.')
+              toast.danger('Oops! Something Went Wrong. Cannot Delete the Product.', {
+                autoClose: 2000
+              })
             }
           } catch (error) {
             console.error('Error deleting the product ', error)
           }
         } else if (productNameConfirmation === null) {
           // User clicked Cancel on the product name prompt
-          toast.warning('Deletion Canceled. Product Name is not Provided.')
+          toast.warning('Deletion Canceled. Product Name is not Provided.', {
+            autoClose: 2000
+          })
         } else {
           // User typed-in the wrong product name
-          toast.warning('Deletion Canceled. Product Name is Wrong.')
+          toast.warning('Deletion Canceled. Product Name is Wrong.', {
+            autoClose: 2000
+          })
         }
       } else {
         // User clicked Cancel on the initial confirmation
-        toast.warning('Deletion Canceled.')
+        toast.warning('Deletion Canceled.', {
+          autoClose: 2000
+        })
       }
     },
     showAddCategoryForm() {
@@ -405,9 +425,13 @@ export default {
           })
 
           if (response.ok) {
-            toast.success('Update Form Submitted Successfully!')
+            toast.success('Update Form Submitted Successfully!', {
+              autoClose: 2000
+            })
           } else {
-            toast.danger('Update Form Submission Failed')
+            toast.danger('Update Form Submission Failed', {
+              autoClose: 2000
+            })
           }
         } else {
           if (this.formType === 'Product') {
@@ -430,9 +454,13 @@ export default {
 
           console.log('THIS FORM: ', this.form)
           if (response.ok) {
-            toast.success('Add Form Submitted Successfully!')
+            toast.success('Add Form Submitted Successfully!', {
+              autoClose: 2000
+            })
           } else {
-            toast.danger('Add Form Submission Failed')
+            toast.danger('Add Form Submission Failed', {
+              autoClose: 2000
+            })
           }
         }
       } catch (error) {

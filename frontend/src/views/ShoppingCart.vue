@@ -50,12 +50,12 @@
                         <div class="d-flex flex-row align-items-center">
                           <div>
                             <h5 class="mb-0" v-if="item.price">
-                              <i class="bi bi-currency-dollar"></i>{{ calculateItemPrice(item) }}
+                              <i class="bi bi-currency-rupee"></i>{{ calculateItemPrice(item) }}
                             </h5>
                             <small
                               v-if="item.hasDiscount && item.price"
                               class="text-muted text-decoration-line-through"
-                              ><i class="bi bi-currency-dollar"></i>{{ item.price }}</small
+                              ><i class="bi bi-currency-rupee"></i>{{ item.price }}</small
                             >
                           </div>
                           <a
@@ -81,13 +81,13 @@
                       <div class="d-flex justify-content-between">
                         <p class="mb-2">Subtotal</p>
                         <p class="mb-2">
-                          <i class="bi bi-currency-dollar"></i>{{ $store.state.cartTotal }}
+                          <i class="bi bi-currency-rupee"></i>{{ $store.state.cartTotal }}
                         </p>
                       </div>
                       <div class="d-flex justify-content-between mb-4">
                         <p class="mb-2">Total</p>
                         <p class="mb-2">
-                          <i class="bi bi-currency-dollar"></i>{{ $store.state.cartTotal }}
+                          <i class="bi bi-currency-rupee"></i>{{ $store.state.cartTotal }}
                         </p>
                       </div>
 
@@ -249,9 +249,13 @@ export default {
           // Update the cart state in the Vuex store with the fetched data
           this.$store.dispatch('fetchCart')
           this.$store.commit('addRemoveCart', { product: item, toAdd: false })
-          toast.success('Cart item removed')
+          toast.success('Cart item removed', {
+            autoClose: 2000
+          })
         } else {
-          toast.error('Failed to remove cart item')
+          toast.error('Failed to remove cart item', {
+            autoClose: 2000
+          })
         }
       } catch (error) {
         console.error('Error removing cart item:', error)
