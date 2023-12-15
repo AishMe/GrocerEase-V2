@@ -69,7 +69,7 @@ def get_details():
     return jsonify({'msg': 'hello world'})
 
 
-@app.route('/api/user/add', methods=['POST'])
+@app.route('/api/user/register', methods=['POST'])
 def add_details():
     email = request.json['email']
     name = request.json['name']
@@ -107,7 +107,7 @@ def login():
     return jsonify({'access_token': access_token, 'role': user.role, 'msg': f"Successfully Logged In as {user.role.capitalize()}"}), 200
 
 
-@app.route('/profile', methods=['GET'])
+@app.route('api/user/profile', methods=['GET'])
 @jwt_required()
 def profile():
     this_user = get_jwt_identity()
@@ -170,7 +170,7 @@ def edit_user():
     return jsonify({'message': 'User information updated successfully'}), 200
 
 
-@app.route('/api/add_to_cart', methods=['POST'])
+@app.route('/api/cart/add', methods=['POST'])
 @jwt_required()
 def add_to_cart():
     try:
@@ -210,7 +210,7 @@ def add_to_cart():
 
 
 # Get Cart Info
-@app.route('/api/get_cart', methods=['GET'])
+@app.route('/api/cart', methods=['GET'])
 @jwt_required()
 def get_cart():
     try:
@@ -241,7 +241,7 @@ def get_cart():
 
 
 # Update cart items
-@app.route('/api/update_cart_item', methods=['POST'])
+@app.route('/api/cart/update', methods=['POST'])
 @jwt_required()
 def update_cart_item():
     try:
@@ -269,7 +269,7 @@ def update_cart_item():
 
 
 # Remove cart items
-@app.route('/api/remove_cart_item', methods=['POST'])
+@app.route('/api/cart/remove', methods=['POST'])
 @jwt_required()
 def remove_cart_item():
     try:
@@ -373,7 +373,7 @@ def get_favourites():
         return jsonify({'message': 'Error fetching favourite items', 'error': str(e)}), 500
 
 
-@app.route('/api/add_to_favourite', methods=['POST'])
+@app.route('/api/favourite/add', methods=['POST'])
 @jwt_required()
 @role_required(roles=['user'])
 def add_to_favourite():
@@ -407,7 +407,7 @@ def add_to_favourite():
         return jsonify({'message': 'Failed to add to favourites'}), 500
 
 
-@app.route('/api/remove_from_fav', methods=['DELETE'])
+@app.route('/api/favourite/remove', methods=['DELETE'])
 @jwt_required()
 @role_required(roles=['user'])
 def remove_fav():
@@ -631,7 +631,7 @@ def get_products():
 
 
 # Add a Product to the Database
-@app.route('/api/<int:category_id>/add_product', methods=['POST'])
+@app.route('/api/<int:category_id>/product/add', methods=['POST'])
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def add_product(category_id):
@@ -660,7 +660,7 @@ def add_product(category_id):
 
 
 # Update Database Record in Product
-@app.route('/api/edit_product/<int:product_id>', methods=['PUT'])
+@app.route('/api/product/edit/<int:product_id>', methods=['PUT'])
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def update_product(product_id):
@@ -687,7 +687,7 @@ def update_product(product_id):
 
 
 # Delete a Product from the Database Record
-@app.route('/delete_product/<int:product_id>', methods=['DELETE'])
+@app.route('/api/product/delete/<int:product_id>', methods=['DELETE'])
 @jwt_required()
 @role_required(roles=['admin', 'manager'])
 def delete_product(product_id):

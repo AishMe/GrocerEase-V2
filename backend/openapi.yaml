@@ -1,0 +1,831 @@
+openapi: 3.0.3
+info:
+  title: GrocerEase APIs
+  description: |-
+    The _GrocerEase_ project involves the development of a user-friendly grocery store application by using VueJS for frontend and Flask for backend and SQLite3 database for storign the data.
+    
+    The aim is to provide a seamless shopping experience for users, allowing them to browse and purchase groceries conveniently from their devices. 
+    
+    __*Shop with Ease, Groceries at Your Fingertips.*__
+    
+  version: 1.0.11
+
+servers:
+  - url: http://127.0.0.1:5000/api
+tags:
+  - name: User
+    description: Operations about user
+  - name: Category
+    description: Operations about category
+  - name: Product
+    description: Operation about products
+  - name: Favourite
+    description: Operations about favourites
+  - name: Cart
+    description: Operations about cart
+  - name: Order
+    description: Operations about order
+
+paths:
+
+  /user/profile:
+    get:
+      tags:
+        - User
+      summary: Get user by user ID
+      description: Get a user by their ID
+      operationId: getUserById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+      security:
+        - flaskJWT: ['admin', 'manager']
+
+  /user/register:
+    post:
+      tags:
+        - User
+      summary: Create user
+      description: This can only be done by the logged-in user.
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+                
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: User login
+      description: Log in to the application and receive a JWT token
+      operationId: loginUser
+      requestBody:
+        description: Log in to the application and receive a JWT token
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: 'password'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 'your_jwt_token_here'
+        '401':
+          description: Unauthorized - Invalid credentials
+          
+  /user/edit_profile:
+    put:
+      tags:
+        - User
+      summary: Update user
+      description: Update user details
+      operationId: updateUser
+      requestBody:
+        description: Update user details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid user ID
+      security:
+        - flaskJWT: ['user']
+
+  /user/delete_account:
+    delete:
+      tags:
+        - User
+      summary: Delete user
+      description: Delete a user from the system
+      operationId: deleteUser
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid user ID
+      security:
+        - flaskJWT: ['user']
+
+  /categories:
+    get:
+      tags:
+        - Category
+      summary: Get all categories
+      description: Get all the categories present in the store.
+      operationId: getCategory
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+        '500':
+          description: Internal server error
+
+  /category/add:
+    post:
+      tags:
+        - Category
+      summary: Add a new category to the store
+      description: Add a new category to the store
+      operationId: addCategory
+      requestBody:
+        description: Create a new category in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '405':
+          description: Invalid input
+      security:
+        - flaskJWT: ['admin']
+
+  /category/edit/{category_id}:
+    put:
+      tags:
+        - Category
+      summary: Update category
+      description: Multiple status values can be provided with comma-separated strings
+      operationId: updateCategory
+      parameters:
+        - name: category_id
+          in: path
+          description: ID of the category to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '400':
+          description: Invalid status value
+      security:
+        - flaskJWT: ['manager', 'admin']
+
+  /category/delete/{category_id}:
+    delete:
+      tags:
+        - Category
+      summary: Delete category
+      description: Delete a category from the store
+      operationId: deleteCategory
+      parameters:
+        - name: category_id
+          in: path
+          description: ID of the category to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid category ID
+      security:
+        - flaskJWT: ['admin']
+
+  /products:
+    get:
+      tags:
+        - Product
+      summary: Get all products
+      description: Get all the products present in the store.
+      operationId: getProducts
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '404':
+          description: Products not found
+        '500':
+          description: Internal server error
+
+  /{category_id}/product/add:
+    post:
+      tags:
+        - Product
+      summary: Add a new product to the store
+      description: Add a new product to the store
+      operationId: addProduct
+      parameters:
+        - name: category_id
+          in: path
+          description: Category ID where the product will be added.
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Create a new product in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '405':
+          description: Invalid input
+      security:
+        - flaskJWT: ['manager', 'admin']
+
+  /product/edit/{product_id}:
+    put:
+      tags:
+        - Product
+      summary: Update product
+      description: Update product details
+      operationId: updateProduct
+      parameters:
+        - name: product_id
+          in: path
+          description: ID of the product to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Update an existent product in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid product ID
+      security:
+        - flaskJWT: ['manager', 'admin']
+
+  /product/delete/{product_id}:
+    delete:
+      tags:
+        - Product
+      summary: Delete product
+      description: Delete a product from the store
+      operationId: deleteProduct
+      parameters:
+        - name: product_id
+          in: path
+          description: ID of the product to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid product ID
+      security:
+        - flaskJWT: ['manager', 'admin']
+
+  /favourites:
+    get:
+      tags:
+        - Favourite
+      summary: Get all favourites
+      description: Get all the favourite products of the user.
+      operationId: getFavourites
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favourite'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favourite'
+        '404':
+          description: Favourites not found
+        '500':
+          description: Internal server error
+      security:
+        - flaskJWT: ['user']
+
+  /favourite/add:
+    post:
+      tags:
+        - Favourite
+      summary: Add a product to favourites
+      description: Add a product to the user's favourites
+      operationId: addFavourite
+      requestBody:
+        description: Add a product to the user's favourites
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Favourite'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Favourite'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favourite'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Favourite'
+        '405':
+          description: Invalid input
+      security:
+        - flaskJWT: ['user']
+
+  /favourite/remove:
+    delete:
+      tags:
+        - Favourite
+      summary: Remove product from favourites
+      description: Remove a product from the user's favourites
+      operationId: deleteFavourite
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid favourite ID
+      security:
+        - flaskJWT: ['user']
+
+  /cart:
+    get:
+      tags:
+        - Cart
+      summary: Get user's cart
+      description: Get all the products in the user's cart.
+      operationId: getCart
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+        '404':
+          description: Cart not found
+        '500':
+          description: Internal server error
+      security:
+        - flaskJWT: ['user']
+
+  /cart/add:
+    post:
+      tags:
+        - Cart
+      summary: Add a product to cart
+      description: Add a product to the user's cart
+      operationId: addCartItem
+      requestBody:
+        description: Add a product to the user's cart
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Cart'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '405':
+          description: Invalid input
+      security:
+        - flaskJWT: ['user']
+
+  /cart/update:
+    put:
+      tags:
+        - Cart
+      summary: Update cart item
+      description: Update the quantity of a product in the user's cart
+      operationId: updateCartItem
+      requestBody:
+        description: Update the quantity of a product in the user's cart
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Cart'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: Cart not found
+      security:
+        - flaskJWT: ['user']
+
+  /cart/remove:
+    delete:
+      tags:
+        - Cart
+      summary: Remove product from cart
+      description: Remove a product from the user's cart
+      operationId: deleteCartItem
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid cart item ID
+      security:
+        - flaskJWT: ['user']
+
+  /orders:
+    get:
+      tags:
+        - Order
+      summary: Get all orders
+      description: Get all the orders placed by the user.
+      operationId: getOrders
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '404':
+          description: Orders not found
+        '500':
+          description: Internal server error
+      security:
+        - flaskJWT: ['user']
+
+  /checkout:
+    post:
+      tags:
+        - Order
+      summary: Place a new order
+      description: Place a new order for the user
+      operationId: placeOrder
+      requestBody:
+        description: Place a new order for the user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '405':
+          description: Invalid input
+      security:
+        - flaskJWT: ['user']
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+          example: 10
+        email:
+          type: string
+          example: user@example.com
+        name:
+          type: string
+          example: John Doe
+        password:
+          type: string
+          example: 'password'
+        role:
+          type: string
+          example: admin
+        avatar:
+          type: string
+          example: 'https://www.example.com/avatar.jpg'
+        request_approval:
+          type: integer
+          example: 0
+      xml:
+        name: user
+
+    Category:
+      type: object
+      properties:
+        category_id:
+          type: integer
+          format: int64
+          example: 1
+        category_name:
+          type: string
+          example: Stationery
+        category_approval:
+          type: integer
+          example: 0
+        category_image:
+          type: string
+          example: '/default_img.png'
+      xml:
+        name: category
+
+    Product:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          format: int64
+          example: 1
+        category_id:
+          type: integer
+          format: int64
+          example: 1
+        product_name:
+          type: string
+          example: Notebook
+        manufacturing_date:
+          type: string
+          format: date
+          example: '2023-12-10'
+        stock:
+          type: integer
+          example: 100
+        unit:
+          type: string
+          example: 'pcs'
+        price:
+          type: number
+          format: float
+          example: 5.99
+        hasDiscount:
+          type: string
+          example: 'yes'
+        product_status:
+          type: integer
+          example: 1
+        product_image:
+          type: string
+          example: '/product_img.png'
+      xml:
+        name: product
+
+    Favourite:
+      type: object
+      properties:
+        favourite_id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 10
+        product_id:
+          type: integer
+          format: int64
+          example: 1
+      xml:
+        name: favourite
+
+    Cart:
+      type: object
+      properties:
+        cart_id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 10
+        product_id:
+          type: integer
+          format: int64
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        total_price:
+          type: number
+          format: float
+          example: 11.98
+      xml:
+        name: cart
+
+    Order:
+      type: object
+      properties:
+        order_id:
+          type: integer
+          format: int64
+          example: 1
+        user_id:
+          type: integer
+          format: int64
+          example: 10
+        order_date:
+          type: string
+          format: date
+          example: '2023-12-10'
+      xml:
+        name: order
+
+    OrderItem:
+      type: object
+      properties:
+        order_item_id:
+          type: integer
+          format: int64
+          example: 1
+        order_id:
+          type: integer
+          format: int64
+          example: 1
+        product_id:
+          type: integer
+          format: int64
+          example: 1
+        category_id:
+          type: integer
+          example: 1
+        quantity:
+          type: integer
+          example: 2
+        total_price:
+          type: number
+          format: float
+          example: 11.98
+      xml:
+        name: orderItem
+
+  securitySchemes:
+    flaskJWT:
+      type: http
+      description: Use this field to enter your JWT token
+      scheme: bearer
+  

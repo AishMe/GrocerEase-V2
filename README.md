@@ -11,7 +11,7 @@ The Features of the Application are as Follows:
 * Signup and Login for Users, Managers and Admins.
 * Ability to View Categories and Products.
 * Navigate to View your own Cart and Previous Orders.
-* Generate API JWT Tokens to Use for User sSpecific Requests.
+* Generate API JWT Tokens to Use for User Specific Requests.
 * See Dashboard showing the total Sales by Users (available for managers and admins only).
 * Ability to Search for any Category or Product.
 * User Specific Feed According to the Filter Chosen.

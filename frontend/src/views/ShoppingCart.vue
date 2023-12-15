@@ -234,7 +234,7 @@ export default {
   methods: {
     async removeItem(item) {
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/remove_cart_item', {
+        const response = await fetch('http://127.0.0.1:5000/api/cart/remove', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -305,7 +305,7 @@ export default {
     },
     async fetchCart() {
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/get_cart', {
+        const response = await fetch('http://127.0.0.1:5000/api/cart', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

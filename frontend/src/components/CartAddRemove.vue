@@ -51,7 +51,7 @@ export default {
           this.product.qty = this.qty
 
           // Make a request to the update_cart_item API endpoint
-          const response = await fetch('http://127.0.0.1:5000/api/update_cart_item', {
+          const response = await fetch('http://127.0.0.1:5000/api/cart/update', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export default {
           this.product.qty = this.qty
 
           // Make a request to the update_cart_item API endpoint
-          const response = await fetch('http://127.0.0.1:5000/api/update_cart_item', {
+          const response = await fetch('http://127.0.0.1:5000/api/cart/update', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

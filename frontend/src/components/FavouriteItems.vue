@@ -294,7 +294,7 @@ export default {
       } else if (this.qty > 0) {
         try {
           const productId = product.id
-          const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
+          const response = await fetch('http://127.0.0.1:5000/api/cart/add', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -307,7 +307,7 @@ export default {
           })
 
           if (response.ok) {
-            await fetch('http://127.0.0.1:5000/api/remove_from_fav', {
+            await fetch('http://127.0.0.1:5000/api/favourite/remove', {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
@@ -349,7 +349,7 @@ export default {
 
         if (confirmDelete) {
           // Make a POST request to the backend API for removing from favourites
-          const response = await fetch('http://127.0.0.1:5000/api/remove_from_fav', {
+          const response = await fetch('http://127.0.0.1:5000/api/favourite/remove', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -396,7 +396,7 @@ export default {
 
         if (res.ok) {
           const productId = product.id
-          await fetch('http://127.0.0.1:5000/api/remove_from_fav', {
+          await fetch('http://127.0.0.1:5000/api/favourite/remove', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',

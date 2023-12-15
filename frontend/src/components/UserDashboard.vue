@@ -389,7 +389,7 @@ export default {
         })
       } else if (this.qty > 0) {
         try {
-          const response = await fetch('http://127.0.0.1:5000/api/add_to_cart', {
+          const response = await fetch('http://127.0.0.1:5000/api/cart/add', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -423,7 +423,7 @@ export default {
     async addToFavorites(productId) {
       try {
         // Make a POST request to the backend API for adding to favourites
-        const response = await fetch('http://127.0.0.1:5000/api/add_to_favourite', {
+        const response = await fetch('http://127.0.0.1:5000/api/favourite/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

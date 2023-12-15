@@ -52,7 +52,10 @@ brew services start redis
 ```
 
 > [!TIP]
-> To confirm if Redis server is working, type: redis-cli ping. If it replies with PONG, the server is running.
+> To confirm if Redis server is working, type:\
+```redis-cli ping. ```\
+\
+> If it replies with ```PONG```, the server is running.
 
 <br/>
 

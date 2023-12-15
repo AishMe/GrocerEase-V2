@@ -295,7 +295,7 @@ export default {
         if (productNameConfirmation && productNameConfirmation.toLowerCase() === product.name.toLowerCase()) {
           try {
             // Fetch products from the API
-            const response = await fetch(`http://127.0.0.1:5000/delete_product/${productId}`, {
+            const response = await fetch(`http://127.0.0.1:5000/api/product/delete/${productId}`, {
               method: 'DELETE',
               headers: {
                 'Content-type': 'application/json',
@@ -380,7 +380,7 @@ export default {
         if (this.editMode) {
           if (this.formType === 'Product') {
             // Edit product API with category_id as a parameter
-            apiUrl = `http://127.0.0.1:5000/api/edit_product/${this.form.product_id}`
+            apiUrl = `http://127.0.0.1:5000/api/product/edit/${this.form.product_id}`
           } else {
             // Edit category API
             apiUrl = `http://127.0.0.1:5000/api/category/edit/${this.form.category_id}`
@@ -405,7 +405,7 @@ export default {
         } else {
           if (this.formType === 'Product') {
             // Add product API with category_id as a parameter
-            apiUrl = `http://127.0.0.1:5000/api/${this.form.category_id}/add_product`
+            apiUrl = `http://127.0.0.1:5000/api/${this.form.category_id}/product/add`
           } else {
             // Add category API
             apiUrl = 'http://127.0.0.1:5000/api/category/add'
