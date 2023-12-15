@@ -1,15 +1,24 @@
 # BACKEND
 
-## Setup and Run Guide
+
+<!-- ## Setup and Run Guide -->
 
 This guide will walk you through the steps to set up and run the GrocerEase web app on your local machine.
+
+> [!IMPORTANT]  
+> Open a web browser and go to ```http://127.0.0.1:5000``` to access the APIs.
+
+<br/>
 
 ## Prerequisites
 
 Make sure you have the following software installed:
 
-```Python 3.x```
-```venv```(virtual environment) package (usually included with Python)
+- ```Python 3.x```
+- ```venv```(virtual environment) package (usually included with Python)
+- Redis server (install with ```brew install redis```)
+
+<br/>
 
 ## Installation and Setup
 
@@ -31,10 +40,21 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-4. Deactivate the virtual environment:
+4. In the .env folder, go to the activate file, and set the following variables:
 ```console
-deactivate
+export GOOGLE_CHAT_ID="Enter_the_id_here"
+export SMTP_PASSWORD='enter_the_password_here'
 ```
+
+5. Start the Redis server in the background (in a new terminal):
+```console
+brew services start redis
+```
+
+> [!TIP]
+> To confirm if Redis server is working, type: redis-cli ping. If it replies with PONG, the server is running.
+
+<br/>
 
 ## Running the App
 
@@ -58,17 +78,27 @@ export ENV=development
 python3 app.py
 ```
 
-5. Open a web browser and go to ```http://localhost:5000``` to access the app.
+5. Start Celery for batch jobs (in separate terminals):
+```console
+celery -A tasks beat --loglevel=info
+celery -A tasks worker --loglevel=info -P eventlet
+```
+
+   
 6. When you're done using the app, deactivate the virtual environment:
 ```console
 deactivate
 ```
 
-## Important Notes
+<br/>
 
-If you encounter any issues, make sure you have followed all the steps correctly and have the necessary prerequisites installed.
-Remember to activate the virtual environment every time you run the app.
-You can customize the environment variable and other settings as needed.
+> [!NOTE]
+> If you encounter any issues, make sure you have followed all the steps correctly and have the necessary prerequisites installed.
+> Remember to activate the virtual environment every time you run the app.
+> You can customize the environment variable and other settings as needed.
 
+<br/>
 
-**Video Demo**: [here](https://drive.google.com/file/d/13PUZ6_JXlm96J3UgIaJF8srtpjQHuTUW/view?usp=sharing)
+## Demo (Video):
+
+[![GrocerEase Demo](./LogoPlay.png)](https://drive.google.com/file/d/1yrhvZo5FB9l6-yUVlrwpFkLLTofX75mN/view?usp=share_link)
