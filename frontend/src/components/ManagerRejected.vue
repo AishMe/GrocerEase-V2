@@ -46,6 +46,14 @@ export default {
     }
   },
   methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
     async fetchRejectedManagers() {
       try {
         const response = await fetch('http://127.0.0.1:5000/admin/rejected/managers', {
@@ -59,6 +67,8 @@ export default {
           console.log('REJECTED MANAGERS: ', data)
           this.rejectedManagers = data.rejectedManagers
           this.isLoading = true
+        } else if (response.status === 401) {
+          this.logout()
         }
       } catch (error) {
         console.error('Error fetching rejected managers:', error)

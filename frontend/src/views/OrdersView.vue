@@ -9,15 +9,17 @@
       <div
         v-for="(order, index) in orders"
         :key="order.order_id"
-        class="card mb-4 shadow-lg rounded"
+        class="card mb-5 mx-auto w-auto shadow-lg rounded bg-transparent"
+        style="border-width:0 6vh 1vh 6vh; border-color: #c1e1c1;"
       >
-        <div class="card-header">
+        <div class="card-header" style="background-color: #c1e1c1;">
           <h4>Order Number: {{ index + 1 }}</h4>
         </div>
-        <div class="card-body">
-          <table class="table table-bordered">
-            <thead>
+        <div class="card-body table-responsive">
+          <table class="table table-bordered table-hover text-center my-1">
+            <thead class="table-secondary">
               <tr>
+                <!-- <th>Sr. No.</th> -->
                 <th>Product</th>
                 <th>Category</th>
                 <th>Quantity</th>
@@ -28,12 +30,14 @@
               <template v-for="category in order.categories" :key="category.category_name">
                 <tr v-for="item in category.items" :key="item.order_item_id">
                   <template v-if="category.items.length > 1">
+                    <!-- <td>{{ index + 1 }}</td> -->
                     <td>{{ item.product_name }}</td>
-                    <td>{{ category.name }}</td>
+                    <td>{{ category.category_name }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.total_price }}</td>
                   </template>
                   <template v-else>
+                    <!-- <td>{{ index + 1 }}</td> -->
                     <td>{{ item.product_name }}</td>
                     <td>{{ category.category_name }}</td>
                     <td>{{ category.items[0].quantity }}</td>
@@ -44,7 +48,7 @@
             </tbody>
           </table>
         </div>
-        <div class="card-footer">
+        <div class="card-footer" style="background-color: #c1e1c1;">
           <strong
             >Total Cost:
             {{

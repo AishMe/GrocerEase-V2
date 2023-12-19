@@ -78,11 +78,21 @@ export default {
       this.avatar = d.avatar
       this.editedName = d.name // Initialize edited values with the current values
       this.editedEmail = d.email
+    } else if (res.status === 401) {
+      this.logout()
     } else {
       this.$router.push({ path: '/login' })
     }
   },
   methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
     startEditing() {
       this.isEditing = true
     },

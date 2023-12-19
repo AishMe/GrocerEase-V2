@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav
-      class="navbar navbar-expand-lg bg-dark fixed-top"
+      class="navbar navbar-expand-lg mb-0 bg-dark fixed-top"
       data-bs-theme="dark"
       style="min-height: 5rem"
     >
@@ -131,6 +131,11 @@
                   <li>
                     <a v-if="this.role === 'user'" class="dropdown-item" href="/fav_items"
                       >Favourites</a
+                    >
+                  </li>
+                  <li>
+                    <a v-if="this.role === 'user'" class="dropdown-item" href="/ordered_items"
+                      >Ordered Items</a
                     >
                   </li>
                   <li>

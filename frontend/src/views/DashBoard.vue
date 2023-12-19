@@ -19,6 +19,16 @@ export default {
       role: localStorage.getItem('role')
     }
   },
+  methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
+  },
   async mounted() {
     const res = await fetch('http://127.0.0.1:5000/api/user/profile', {
       method: 'GET',
@@ -32,9 +42,7 @@ export default {
     if (res.ok) {
       console.log(d)
     } else {
-      this.$router.push({ path: '/' }).then(() => {
-        this.$router.go()
-      })
+      this.logout()
       console.log(d.msg)
     }
   }

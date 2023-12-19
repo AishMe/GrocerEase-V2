@@ -233,6 +233,14 @@ export default {
   },
 
   methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
     async fetchProducts() {
       try {
         // Fetch products from the API
@@ -251,6 +259,8 @@ export default {
             qty: this.qty || 1 // Set the initial quantity to 1
           }))
           this.isLoading = true
+        } else if (response.status === 401) {
+          this.logout()
         } else {
           alert('Oops! Something went wrong. Cannot fetch the products.')
         }

@@ -11,7 +11,7 @@
     </Transition>
     <div class="button-container">
       <Transition name="bounce" appear>
-        <button v-if="showButton" @click="redirectToLogin" class="shop-button">SHOP NOW</button>
+        <button v-if="showButton" @click="redirectToLogin" class="btn shop-button fw-bold py-3 px-4">SHOP NOW</button>
       </Transition>
     </div>
   </div>
@@ -24,20 +24,16 @@ export default {
     return {
       image: entryPage,
       showImage: false,
-      showText: false,
       showButton: false
     }
   },
   mounted() {
     setTimeout(() => {
       this.showImage = true
-      setTimeout(() => {
-        this.showText = true
         setTimeout(() => {
           this.showButton = true
         }, 1000)
-      }, 1000)
-    }, 200)
+    }, 100)
   },
   methods: {
     redirectToLogin() {
@@ -51,7 +47,7 @@ export default {
 /* Add your existing CSS styles here */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.8s ease;
+  transition: opacity 0.9s ease;
 }
 
 .fade-enter-from,
@@ -89,12 +85,8 @@ export default {
 .shop-button {
   background-color: #c1e1c1;
   color: #1f1f1f;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-size: 30px;
-  font-weight: bolder;
+  border-radius: 100vh;
+  font-size: 4vh;
 }
 
 .shop-button:hover {

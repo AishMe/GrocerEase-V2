@@ -722,9 +722,9 @@ components:
           type: number
           format: float
           example: 5.99
-        hasDiscount:
-          type: string
-          example: 'yes'
+        avg_review:
+          type: number
+          example: '3'
         product_status:
           type: integer
           example: 1

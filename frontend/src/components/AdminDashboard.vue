@@ -213,7 +213,7 @@ export default {
           const responseData = await response.json()
           this.categories = responseData.categories
         } else {
-          alert('Oops! Something went wrong. Cannot fetch the categories.')
+          toast.error('Oops! Something went wrong. Cannot fetch the categories.')
         }
       } catch (error) {
         console.error('Error fetching categories:', error)
@@ -235,7 +235,7 @@ export default {
           this.productsByCategory = responseData.productsByCategory
           this.isLoading = true
         } else {
-          alert('Oops! Something went wrong. Cannot fetch the products by categories.')
+          toast.error('Oops! Something went wrong. Cannot fetch the products by categories.')
         }
       } catch (error) {
         console.error('Error fetching products by categories:', error)

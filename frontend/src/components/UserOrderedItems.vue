@@ -15,7 +15,7 @@
 
     <div v-if="isLoading" class="container min-h-content py-5 text-center">
       <h1 class="mb-3" style="font-size: 5rem; color: #c1e1c1">
-        <strong>Products</strong>
+        <strong>Previously Ordered Products</strong>
       </h1>
 
       <!-- Filter box (hidden by default) -->
@@ -138,55 +138,66 @@
                 Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
                 Stock: {{ product.stock }}
               </p>
-
-              <div class="row align-items-center justify-content-center">
-                <form>
-                  <div class="input-group">
-                    <input type="hidden" name="product_id" value="{{ product.product_id }}" />
-                    <input type="hidden" name="category_id" value="{{ product.category_id }}" />
-                    <input
-                      :disabled="product.stock === 0"
-                      type="number"
-                      class="form-control"
-                      name="quantity"
-                      :placeholder="product.unit"
-                      v-model="qty"
-                      min="1"
-                    />
-                    <button
-                      :disabled="product.stock === 0"
-                      @click.prevent="addToCart(product)"
-                      class="btn btn-outline-primary"
-                      name="action"
-                      value="cart"
-                      data-product-id="{{ product.product_id }}"
-                      data-category-id="{{ product.category_id }}"
-                    >
-                      <i class="bi bi-cart-fill"></i>
-                    </button>
-                    <button
-                      :disabled="product.stock === 0"
-                      @click.prevent="showCheckoutForm(product)"
-                      class="btn btn-outline-success"
-                      name="action"
-                      value="purchase"
-                      data-product-id="{{ product.product_id }}"
-                      data-category-id="{{ product.category_id }}"
-                    >
-                      <i class="bi bi-basket2-fill"></i>
-                    </button>
-                    <button
-                      @click.prevent="addToFavorites(product.id)"
-                      class="btn btn-outline-danger"
-                      name="action"
-                      value="favourite"
-                      data-product-id="{{ product.product_id }}"
-                      data-category-id="{{ product.category_id }}"
-                    >
-                      <i class="bi bi-heart-fill"></i>
-                    </button>
-                  </div>
-                </form>
+              <div class="d-grid gap-2">
+                <div class="d-flex flex-column row align-items-center justify-content-center">
+                  <form>
+                    <div class="input-group">
+                      <input type="hidden" name="product_id" value="{{ product.product_id }}" />
+                      <input type="hidden" name="category_id" value="{{ product.category_id }}" />
+                      <input
+                        :disabled="product.stock === 0"
+                        type="number"
+                        class="form-control"
+                        name="quantity"
+                        :placeholder="product.unit"
+                        v-model="qty"
+                        min="1"
+                      />
+                      <button
+                        :disabled="product.stock === 0"
+                        @click.prevent="addToCart(product)"
+                        class="btn btn-outline-primary"
+                        name="action"
+                        value="cart"
+                        data-product-id="{{ product.product_id }}"
+                        data-category-id="{{ product.category_id }}"
+                      >
+                        <i class="bi bi-cart-fill"></i>
+                      </button>
+                      <button
+                        :disabled="product.stock === 0"
+                        @click.prevent="showCheckoutForm(product)"
+                        class="btn btn-outline-success"
+                        name="action"
+                        value="purchase"
+                        data-product-id="{{ product.product_id }}"
+                        data-category-id="{{ product.category_id }}"
+                      >
+                        <i class="bi bi-basket2-fill"></i>
+                      </button>
+                      <button
+                        @click.prevent="addToFavorites(product.id)"
+                        class="btn btn-outline-danger"
+                        name="action"
+                        value="favourite"
+                        data-product-id="{{ product.product_id }}"
+                        data-category-id="{{ product.category_id }}"
+                      >
+                        <i class="bi bi-heart-fill"></i>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                <button
+                  @click.prevent="showReviewForm(product)"
+                  class="btn btn-warning"
+                  name="action"
+                  value="favourite"
+                  data-product-id="{{ product.product_id }}"
+                  data-category-id="{{ product.category_id }}"
+                >
+                  <span class="fw-bold">RATE THIS PRODUCT</span>
+                </button>
               </div>
             </div>
           </div>
@@ -200,8 +211,10 @@
           <h5 class="mb-0">Payment Options</h5>
         </div>
         <form @submit.prevent="checkout(selectedProduct)">
-          <h3 class="mt-3 fw-bold text-center">Total Cost: {{ selectedProduct.price * this.qty }}</h3>
-          <hr/>
+          <h3 class="mt-3 fw-bold text-center">
+            Total Cost: {{ selectedProduct.price * this.qty }}
+          </h3>
+          <hr />
           <div class="card-body">
             <!-- Payment options radio buttons -->
             <div class="form-check">
@@ -297,10 +310,44 @@
         </form>
       </div>
     </div>
+
+    <!-- Review form -->
+    <div v-if="showReviewFormBool" class="form-container">
+      <div class="form card">
+        <div class="card-header">
+          <h5 class="mb-0">Feedback Form</h5>
+        </div>
+        <form @submit.prevent="reviewRating(selectedProduct)">
+          <h3 class="mt-3 fw-bold text-center">Product: {{ selectedProduct.name }}</h3>
+          <hr />
+          <div class="card-body">
+            <div>
+              <div class="mb-3">
+                <label for="rating" class="form-label">Rate (1-5)</label>
+                <input type="number" step="any" min="0" max="5" class="form-control" id="rating" v-model="rating" required />
+              </div>
+            </div>
+            <div>
+              <div class="mb-3">
+                <label for="review" class="form-label">Review</label>
+                <textarea class="form-control" id="review" rows="3" v-model="review" placeholder="Write your experience with this product here..." required></textarea>
+              </div>
+            </div>
+            <br />
+
+            <!-- Submit and Cancel Buttons -->
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-success">Submit</button>
+              <button @click.prevent="cancelReview" class="btn btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
-
-<script>
+  
+  <script>
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
@@ -319,13 +366,17 @@ export default {
       nameSortOrder: 'asc',
 
       showCheckoutFormBool: false,
+      showReviewFormBool: false,
       selectedProduct: null,
       selectedPaymentOption: null,
       cardName: '',
       cardNumber: '',
       cardExpiration: '',
       cVV: '',
-      upiId: ''
+      upiId: '', 
+
+      rating: null,
+      review: ''
     }
   },
   mounted() {
@@ -334,21 +385,36 @@ export default {
   },
 
   methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
     async fetchProducts() {
       try {
         // Fetch products from the API
-        const response = await fetch('http://127.0.0.1:5000/api/products')
+        const response = await fetch('http://127.0.0.1:5000/api/user/ordered_products', {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          }
+        })
 
         if (response.ok) {
           const responseData = await response.json()
-          this.products = responseData.products.map((product) => ({
+          this.products = responseData.map((product) => ({
             ...product,
             manufacturing_date: product.manufacturing_date || null,
             qty: this.qty || 1 // Set the initial quantity to 1
           }))
           this.isLoading = true
+        } else if (response.status === 401) {
+          this.logout()
         } else {
-          toast.error('Oops! Something went wrong. Cannot fetch the products.')
+          alert('Oops! Something went wrong. Cannot fetch the products.')
         }
       } catch (error) {
         console.error('Error fetching products:', error)
@@ -363,7 +429,7 @@ export default {
           const responseData = await response.json()
           this.categories = responseData.categories
         } else {
-          toast.error('Oops! Something went wrong. Cannot fetch the categories.')
+          alert('Oops! Something went wrong. Cannot fetch the categories.')
         }
       } catch (error) {
         console.error('Error fetching categories:', error)
@@ -491,6 +557,37 @@ export default {
           })
       }
     },
+    async reviewRating(product) {
+
+        await fetch(`http://127.0.0.1:5000/api/${product.id}/rating/add`, {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+          },
+          body: JSON.stringify({ rating: this.rating, review: this.review })
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Review submission failed')
+            }
+            return response.json()
+          })
+          .then((data) => {
+            console.log('review submission successful:', data.message)
+            this.cancelReview()
+            toast.success(
+              `Review for ${product.name} sent successfully!`,
+              {
+                autoClose: 2000
+              }
+            )
+          })
+          .catch((error) => {
+            // Handle checkout failure
+            console.error('Error submitting the review:', error)
+          })
+    },
     resetFilters() {
       this.selectedCategory = ''
       this.minRate = null
@@ -523,9 +620,9 @@ export default {
       if (stock === 0) {
         return 'color: red;'
       } else if (stock <= 10) {
-        return 'color: #FF9800;' // orange -> urgency
+        return 'color: #FF9800;' 
       } else if (this.isNewProduct(manufacturingDate)) {
-        return 'color: #4CAF50;' // Bright green -> fresh
+        return 'color: #4CAF50;' 
       } else {
         return 'color: darkblue;'
       }
@@ -563,6 +660,17 @@ export default {
         this.selectedProduct = product
         this.showCheckoutFormBool = true
       }
+    },
+    // Cancel review form
+    cancelReview() {
+      this.showReviewFormBool = false
+      // Reset form fields or take other necessary actions
+      this.rating = null
+      this.review = ''
+    },
+    showReviewForm(product) {
+      this.selectedProduct = product
+      this.showReviewFormBool = true
     }
   },
   computed: {
@@ -607,8 +715,8 @@ export default {
   }
 }
 </script>
-
-<style scoped>
+  
+  <style scoped>
 .fab {
   width: 90px;
   height: 90px;
@@ -635,3 +743,4 @@ export default {
   overflow: hidden;
 }
 </style>
+  

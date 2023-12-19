@@ -5,6 +5,7 @@ import HomeView from '../components/HomeView.vue'
 import ProfilePage from '../components/ProfilePage.vue'
 import DashBoard from '../views/DashBoard.vue'
 import FavouriteItems from '../components/FavouriteItems.vue'
+import UserOrderedItems from '../components/UserOrderedItems.vue'
 import RegisterView from '../components/RegisterView.vue'
 import ShoppingCart from '../views/ShoppingCart.vue'
 import OrdersView from '../views/OrdersView.vue'
@@ -56,6 +57,9 @@ const routes = [
     allowedRoles: ['admin', 'manager'],
   }, },
   { path: '/fav_items', name: 'fav_items', component: FavouriteItems, meta: {
+    allowedRoles: ['user'],
+  }, },
+  { path: '/ordered_items', name: 'ordered_items', component: UserOrderedItems, meta: {
     allowedRoles: ['user'],
   }, },
   { path: '/hard_delete', name: 'hard_delete', component: HardDelete, meta: {

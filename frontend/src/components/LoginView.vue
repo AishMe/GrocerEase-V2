@@ -1,7 +1,7 @@
 <template>
   <div>
     <section>
-      <div class="container h-100" style="padding-top: 125px">
+      <div class="container h-100 mb-5" style="padding-top: 125px">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div class="col col-xl-10">
             <div class="card" style="border-radius: 2rem; background-color: #f4f7f3">

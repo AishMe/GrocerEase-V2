@@ -3,14 +3,46 @@
     <div class="access-denied-content">
       <h1>Access Denied</h1>
       <p>Sorry, you don't have permission to access this page.</p>
-      <router-link to="/dashboard" class="back-button">Back to My Dashboard</router-link>
+      <router-link v-if="role" to="/dashboard" class="back-button">Back to My Dashboard</router-link>
     </div>
   </div>
 </template>
   
   <script>
 export default {
-  name: 'AccessDenied'
+  name: 'AccessDenied', 
+  data() {
+    return {
+      role: localStorage.getItem('role')
+    }
+  },
+  methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
+  },
+  async mounted() {
+    const res = await fetch('http://127.0.0.1:5000/api/user/profile', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+      }
+    })
+
+    const d = await res.json()
+    if (res.ok) {
+      console.log(d)
+    } else {
+      this.logout()
+      console.log(d.msg)
+    }
+  }
 }
 </script>
   

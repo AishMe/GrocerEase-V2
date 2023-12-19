@@ -38,6 +38,14 @@ export default {
     this.fetchCategories()
   },
   methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
     async fetchCardData() {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/card_data', {
@@ -50,6 +58,8 @@ export default {
         if (response.ok) {
           const responseData = await response.json()
           this.cardData = responseData.cardData
+        } else if (response.status === 401) {
+          this.logout()
         } else {
           console.log('ERROR!!!')
         }
@@ -70,6 +80,8 @@ export default {
           const responseData = await response.json()
           this.productSalesData = responseData.productSalesData
           this.renderChart()
+        } else if (response.status === 401) {
+          this.logout()
         } else {
           console.log('ERROR!!!')
         }

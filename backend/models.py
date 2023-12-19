@@ -45,7 +45,7 @@ class Product(db.Model):
     stock = db.Column(db.Integer, nullable=False)
     unit = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    hasDiscount = db.Column(db.String(10), nullable=True)
+    avg_review = db.Column(db.Integer, nullable=True)
     product_status = db.Column(db.Integer, nullable=True, default=1)
     product_image = db.Column(
         db.String(255), nullable=True, default='/default_img.png')
@@ -88,6 +88,14 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     order = db.relationship('Order', backref='items', lazy=True)
+
+
+class Rating(db.Model):
+    rating_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey(Product.product_id), nullable=False)
+    rating = db.Column(db.Integer, nullable=True)
+    review = db.Column(db.String(255), nullable=True)
 
 
 class UserSchema(ma.Schema):

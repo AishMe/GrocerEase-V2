@@ -1,4 +1,4 @@
-from models import User, Cart, Favourite, Order, OrderItem, Product, Category, db, bcrypt, ma
+from models import User, Cart, Favourite, Order, OrderItem, Product, Category, Rating, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask import Flask, jsonify, request, send_file
 from monthly_report import generate_pdf_report
@@ -483,6 +483,68 @@ def get_orders():
         return jsonify({'message': 'Error fetching orders', 'error': str(e)}), 500
 
 
+
+@app.route('/api/user/ordered_products', methods=['GET'])
+@jwt_required()
+@role_required(roles=['user'])
+def user_orders():
+    current_user_id = get_jwt_identity()['userId']
+    
+    # Querying for orders made by the user
+    orders = Order.query.filter_by(user_id=current_user_id).all()
+
+    # Getting unique product_ids from these orders
+    product_ids = set()
+    for order in orders:
+        order_items = OrderItem.query.filter_by(order_id=order.order_id).all()
+        for item in order_items:
+            product_ids.add(item.product_id)
+
+    # Fetching product details
+    products = []
+    for pid in product_ids:
+        product = Product.query.get(pid)
+        if product:
+            products.append({
+                'id': product.product_id,
+                'category_id': product.category_id,
+                'name': product.product_name,
+                'manufacturing_date': product.manufacturing_date,
+                'stock': product.stock,
+                'unit': product.unit,
+                'price': product.price,
+                'image': product.product_image,
+                'avg_review': product.avg_review,
+                'product_status': product.product_status,
+            })
+
+    return jsonify(products)
+
+
+# Add a Product to the Database
+@app.route('/api/<int:product_id>/rating/add', methods=['POST'])
+@jwt_required()
+@role_required(roles=['user'])
+def add_rating(product_id):
+
+    current_user_id = get_jwt_identity()['userId']
+
+    rating = request.json['rating']
+    review = request.json['review']
+
+    rating = Rating(user_id=current_user_id, product_id=product_id, rating=rating, review=review)
+
+    try:
+        db.session.add(rating)
+        db.session.commit()
+
+        return jsonify({'message': 'Product Added Successfully!'}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Error Adding the Product.', 'error': str(e)}), 500
+
+
 @app.route('/api/categories', methods=['GET'])
 # @cache.cached(timeout=50)
 def get_categories():
@@ -619,7 +681,7 @@ def get_products():
                 'unit': product.unit,
                 'price': product.price,
                 'image': product.product_image,
-                'hasDiscount': product.hasDiscount,
+                'avg_review': product.avg_review,
                 'product_status': product.product_status,
             }
             product_list.append(product_data)

@@ -50,13 +50,8 @@
                         <div class="d-flex flex-row align-items-center">
                           <div>
                             <h5 class="mb-0" v-if="item.price">
-                              <i class="bi bi-currency-rupee"></i>{{ calculateItemPrice(item) }}
+                              <i class="bi bi-currency-rupee"></i>{{ item.price * (item.qty || 0) }}
                             </h5>
-                            <small
-                              v-if="item.hasDiscount && item.price"
-                              class="text-muted text-decoration-line-through"
-                              ><i class="bi bi-currency-rupee"></i>{{ item.price }}</small
-                            >
                           </div>
                           <a
                             role="button"
@@ -232,6 +227,14 @@ export default {
   },
   components: { CartAddRemove },
   methods: {
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
     async removeItem(item) {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/cart/remove', {
@@ -317,6 +320,8 @@ export default {
           const responseData = await response.json()
           // Update the cart state in the Vuex store with the fetched data
           this.$store.commit('setCart', responseData.cart)
+        } else if (response.status === 401) {
+          this.logout()
         } else {
           // Handle the case where fetching the cart data fails
           console.error('Failed to fetch cart data')
@@ -325,16 +330,6 @@ export default {
         console.error('Error fetching cart data:', error)
       }
     },
-    // Add this method to calculate the discounted price
-    calculateItemPrice(item) {
-      if (item.hasDiscount && item.price) {
-        // Apply a 20% discount
-        const discountedPrice = item.price * 0.8
-        return discountedPrice * (item.qty || 0)
-      } else {
-        return item.price * (item.qty || 0)
-      }
-    }
   },
   mounted() {
     this.fetchCart()

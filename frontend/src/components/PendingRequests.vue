@@ -127,6 +127,8 @@ export default {
           console.log('PENDING MANAGERS: ', data)
           this.pendingManagers = data.pendingManagers
           this.isLoading = true
+        } else if (response.status === 401) {
+            this.logout()
         }
       } catch (error) {
         console.error('Error fetching pending managers:', error)
@@ -144,6 +146,8 @@ export default {
           const data = await response.json()
           console.log('PENDING CATEGORIES: ', data)
           this.pendingCategories = data.pendingCategories
+        } else if (response.status === 401) {
+            this.logout()
         }
       } catch (error) {
         console.error('Error fetching pending categories:', error)
@@ -161,6 +165,8 @@ export default {
           const data = await response.json()
           console.log('DELETE CATEGORIES: ', data)
           this.deleteCategories = data.deleteCategories
+        } else if (response.status === 401) {
+            this.logout()
         }
       } catch (error) {
         console.error('Error fetching delete category requests:', error)
@@ -319,6 +325,14 @@ export default {
         // User clicked Cancel on the initial confirmation
         toast.danger('Deletion Canceled.')
       }
+    },
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
     }
   }
 }

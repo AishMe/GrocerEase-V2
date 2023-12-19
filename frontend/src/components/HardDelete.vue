@@ -91,8 +91,10 @@ export default {
           const responseData = await response.json()
           this.products = responseData.tempDeletedProducts
           this.isLoading = true
+        } else if (response.status === 401) {
+          this.logout()
         } else {
-          alert('Oops! Something went wrong. Cannot fetch the products.')
+          toast.error('Oops! Something went wrong. Cannot fetch the products.')
         }
       } catch (error) {
         console.error('Error fetching products:', error)
@@ -182,7 +184,15 @@ export default {
           console.error('Error hard deleting all products:', error)
         }
       }
-    }
+    },
+    async logout() {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('role')
+      this.$router.push({ path: '/' }).then(() => {
+        this.$router.go()
+      })
+      alert('User Session Expired. Please Login Again.')
+    },
   }
 }
 </script>

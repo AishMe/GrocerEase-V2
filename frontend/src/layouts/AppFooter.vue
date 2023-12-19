@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer text-muted py-5 bg-dark">
+  <footer class="footer text-muted py-5 bg-dark mt-0">
     <div class="container text-white-50">
       <p class="float-end mb-1">
         <a href="#">Back to top</a>
