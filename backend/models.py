@@ -18,12 +18,12 @@ class User(db.Model):
                        default='https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg')
     request_approval = db.Column(db.Integer, nullable=False, default=0)
 
-    def __init__(self, email, name, password, role):
+    def __init__(self, email, name, password, role, request_approval):
         self.email = email
         self.name = name
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
         self.role = role
-        self.request_approval = 0
+        self.request_approval = request_approval
 
 
 class Category(db.Model):

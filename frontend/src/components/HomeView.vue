@@ -1,63 +1,103 @@
-<template>
-  <div
-    style="
-      background-color: #3a915d;
-      height: 100vh;
-      margin-top: -60px;
-      margin-bottom: -60px;
-      padding-top: 100px;
-    "
-  >
-    <div class="flex justify-content-center align-items-center">
-      <div class="text-center pt-2">
-        <transition name="fade" mode="out-in">
-          <div :key="currentImage">
-            <img class="mx-auto" :src="currentImage" style="height: 70%; width: 70%" />
-          </div>
-        </transition>
-      </div>
-
-      <transition name="fade" mode="out-in" v-if="showButton">
-        <div key="button" class="text-center mb-4 font">
-          <a class="btn btn-dark btn-lg px-4 py-2" type="button" href="/login">Shop Now</a>
-        </div>
-      </transition>
+ <template>
+  <div class="position-relative" style="height: 100vh">
+    <Transition name="fade" appear>
+      <img
+        class="mx-auto"
+        v-if="showImage"
+        :src="image"
+        alt="Your Image"
+        style="height: 100%; width: 100%"
+      />
+    </Transition>
+    <div class="button-container">
+      <Transition name="bounce" appear>
+        <button v-if="showButton" @click="redirectToLogin" class="shop-button">SHOP NOW</button>
+      </Transition>
     </div>
   </div>
 </template>
 
 <script>
-import FrontPageDesign from '../assets/FrontPageDesign.png'
-import FrontPageDesign2 from '../assets/FrontPageDesign2.png'
-
+import entryPage from '../assets/entryPage.png'
 export default {
   data() {
     return {
-      currentImage: FrontPageDesign,
+      image: entryPage,
+      showImage: false,
+      showText: false,
       showButton: false
     }
   },
   mounted() {
-    // Timer to change the image after 3 seconds
     setTimeout(() => {
-      this.currentImage = FrontPageDesign2
-
-      // Timer to show the button after image replacement
+      this.showImage = true
       setTimeout(() => {
-        this.showButton = true
-      }, 1000) // Adjust the delay as needed
-    }, 1500) // Adjust the delay as needed
+        this.showText = true
+        setTimeout(() => {
+          this.showButton = true
+        }, 1000)
+      }, 1000)
+    }, 200)
+  },
+  methods: {
+    redirectToLogin() {
+      this.$router.push('/login')
+    }
   }
 }
 </script>
 
 <style>
+/* Add your existing CSS styles here */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 1s;
+  transition: opacity 0.8s ease;
 }
-.fade-enter,
+
+.fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.8s;
+}
+
+.bounce-leave-active {
+  animation: bounce-in 0.8s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.button-container {
+  position: absolute;
+  top: 35%;
+  left: 51%;
+  transform: translate(-50%, -50%);
+}
+
+.shop-button {
+  background-color: #c1e1c1;
+  color: #1f1f1f;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 30px;
+  font-weight: bolder;
+}
+
+.shop-button:hover {
+  background-color: #9ecf9e;
 }
 </style>

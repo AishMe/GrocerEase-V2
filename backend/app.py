@@ -76,6 +76,8 @@ def add_details():
     password = request.json['password']
     role = request.json['role']
 
+    request_approval = 0
+
     if (role == 'user' or role == 'admin'): 
         request_approval = 1
     elif role == 'manager':
@@ -107,7 +109,7 @@ def login():
     return jsonify({'access_token': access_token, 'role': user.role, 'msg': f"Successfully Logged In as {user.role.capitalize()}"}), 200
 
 
-@app.route('api/user/profile', methods=['GET'])
+@app.route('/api/user/profile', methods=['GET'])
 @jwt_required()
 def profile():
     this_user = get_jwt_identity()
