@@ -31,6 +31,12 @@ def setup_periodic_tasks(sender, **kwargs):
         name="Scheduled Monthly Report Email"
     )
 
+    sender.add_periodic_task(
+        crontab(minute='*/1'),
+        update_scores_periodically.s(),
+        name="Daily Product Rating Updates"
+    )
+
 
 @app.task
 def send_daily_reminder():
@@ -126,3 +132,15 @@ def send_message_to_google_chat(message):
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"Failed to send message to Google Chat: {e}")
+
+
+
+@app.task
+def update_scores_periodically():
+    # Code to trigger the score update process
+    response = requests.get("http://127.0.0.1:5000/api/update_product_scores")
+
+    if response.ok: 
+        return "Product Rating Updated!"
+    else:
+        return "Something went wrong. Call not sent."

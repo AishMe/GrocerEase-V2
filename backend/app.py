@@ -1,5 +1,6 @@
 from models import User, Cart, Favourite, Order, OrderItem, Product, Category, Rating, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from textblob import TextBlob
 from flask import Flask, jsonify, request, send_file
 from monthly_report import generate_pdf_report
 from tasks import export_product_data_to_csv
@@ -8,9 +9,9 @@ from functools import wraps
 from flask_cors import CORS
 from sqlalchemy import or_
 from datetime import date
+import numpy as np
 import time
 import os
-
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -805,6 +806,7 @@ def manager_admin_dashboard():
                     'price': product.price,
                     'unit': product.unit,
                     'stock': product.stock,
+                    'avg_review': product.avg_review,
                     'product_id': product.product_id,
                     'category_id': product.category_id
                 })
@@ -1251,6 +1253,31 @@ def generate_monthly_report():
         )
     else:
         return "Error: Report not generated.", 500
+    
+
+
+def calculate_product_score(reviews, ratings):
+    sentiment_score = sum(TextBlob(review).sentiment.polarity for review in reviews) / len(reviews)
+    rating_score = sum(ratings) / len(ratings)
+    return round(((0.25 * sentiment_score) + (0.75 * rating_score)), 2) 
+
+
+@app.route('/api/update_product_scores')
+def update_product_scores():
+    products = Product.query.all()
+    for product in products:
+        ratings = Rating.query.filter_by(product_id=product.product_id).all()
+        if ratings:
+            reviews = [rating.review for rating in ratings if rating.review]
+            rating_scores = [rating.rating for rating in ratings if rating.rating]
+            if reviews and rating_scores:
+                product.avg_review = calculate_product_score(reviews, rating_scores)
+            else:
+                product.avg_review = np.nan 
+        else:
+            product.avg_review = np.nan 
+    db.session.commit()
+    return jsonify({'message': 'Product scores updated successfully'}), 200
 
 
 if __name__ == "__main__":

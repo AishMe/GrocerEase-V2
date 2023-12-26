@@ -133,6 +133,12 @@
               >
                 {{ getStockMessage(product) }}
               </h6>
+              <h6 class="card-text fw-semibold">
+                <span style="color: #fa7500" v-if="product.avg_review"
+                  >Ratings: {{ product.avg_review }}</span
+                >
+                <span style="color: #757676" v-else>No Ratings</span>
+              </h6>
               <p class="card-text">
                 Manufacturing Date: {{ product.manufacturing_date }}<br />
                 Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
@@ -324,13 +330,29 @@
             <div>
               <div class="mb-3">
                 <label for="rating" class="form-label">Rate (1-5)</label>
-                <input type="number" step="any" min="0" max="5" class="form-control" id="rating" v-model="rating" required />
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  max="5"
+                  class="form-control"
+                  id="rating"
+                  v-model="rating"
+                  required
+                />
               </div>
             </div>
             <div>
               <div class="mb-3">
                 <label for="review" class="form-label">Review</label>
-                <textarea class="form-control" id="review" rows="3" v-model="review" placeholder="Write your experience with this product here..." required></textarea>
+                <textarea
+                  class="form-control"
+                  id="review"
+                  rows="3"
+                  v-model="review"
+                  placeholder="Write your experience with this product here..."
+                  required
+                ></textarea>
               </div>
             </div>
             <br />
@@ -373,7 +395,7 @@ export default {
       cardNumber: '',
       cardExpiration: '',
       cVV: '',
-      upiId: '', 
+      upiId: '',
 
       rating: null,
       review: ''
@@ -558,35 +580,31 @@ export default {
       }
     },
     async reviewRating(product) {
-
-        await fetch(`http://127.0.0.1:5000/api/${product.id}/rating/add`, {
-          method: 'POST',
-          headers: {
-            'Content-type': 'application/json',
-            Authorization: 'Bearer ' + localStorage.getItem('accessToken')
-          },
-          body: JSON.stringify({ rating: this.rating, review: this.review })
+      await fetch(`http://127.0.0.1:5000/api/${product.id}/rating/add`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+        },
+        body: JSON.stringify({ rating: this.rating, review: this.review })
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Review submission failed')
+          }
+          return response.json()
         })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Review submission failed')
-            }
-            return response.json()
+        .then((data) => {
+          console.log('review submission successful:', data.message)
+          this.cancelReview()
+          toast.success(`Review for ${product.name} sent successfully!`, {
+            autoClose: 2000
           })
-          .then((data) => {
-            console.log('review submission successful:', data.message)
-            this.cancelReview()
-            toast.success(
-              `Review for ${product.name} sent successfully!`,
-              {
-                autoClose: 2000
-              }
-            )
-          })
-          .catch((error) => {
-            // Handle checkout failure
-            console.error('Error submitting the review:', error)
-          })
+        })
+        .catch((error) => {
+          // Handle checkout failure
+          console.error('Error submitting the review:', error)
+        })
     },
     resetFilters() {
       this.selectedCategory = ''
@@ -620,9 +638,9 @@ export default {
       if (stock === 0) {
         return 'color: red;'
       } else if (stock <= 10) {
-        return 'color: #FF9800;' 
+        return 'color: #FF9800;'
       } else if (this.isNewProduct(manufacturingDate)) {
-        return 'color: #4CAF50;' 
+        return 'color: #4CAF50;'
       } else {
         return 'color: darkblue;'
       }

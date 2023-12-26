@@ -11,3 +11,7 @@ redis
 eventlet
 requests
 reportlab
+nltk
+textblob
+pandas
+numpy

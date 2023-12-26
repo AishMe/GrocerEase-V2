@@ -28,6 +28,12 @@
               <h6 class="card-text fw-bold" :style="getStockMessageStyle(product)">
                 {{ getStockMessage(product) }}
               </h6>
+              <h6 class="card-text fw-semibold">
+                <span style="color: #fa7500" v-if="product.avg_review"
+                  >Ratings: {{ product.avg_review }}</span
+                >
+                <span style="color: #757676" v-else>No Ratings</span>
+              </h6>
               <p class="card-text">
                 Manufacturing Date: {{ product.manufacturing_date }}<br />
                 Rate per unit: Rs.{{ product.price }}/{{ product.unit }}<br />
