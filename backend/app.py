@@ -79,16 +79,22 @@ def add_details():
 
     request_approval = 0
 
-    if (role == 'user' or role == 'admin'): 
-        request_approval = 1
-    elif role == 'manager':
-        request_approval = 0
+    user = db.session.query(User).filter_by(email=email).first()
+    if user:
+        return jsonify({'msg': 'This email already exists. Please try to sign up with another email id.'})
 
-    user_add = User(email=email, name=name, password=password, role=role, request_approval=request_approval)
-    db.session.add(user_add)
-    db.session.commit()
+    else:
+        if (role == 'user' or role == 'admin'):
+            request_approval = 1
+        elif role == 'manager':
+            request_approval = 0
 
-    return jsonify({'msg': 'Added Successfully!'})
+        user_add = User(email=email, name=name, password=password,
+                        role=role, request_approval=request_approval)
+        db.session.add(user_add)
+        db.session.commit()
+
+        return jsonify({'msg': 'You have Registered Successfully!'})
 
 
 @app.route('/api/user/login', methods=['POST'])
@@ -255,8 +261,9 @@ def update_cart_item():
 
         cart_item = db.session.query(Cart).filter_by(
             user_id=user_id, product_id=product_id).first()
-        
-        product = db.session.query(Product).filter_by(product_id=product_id).first()
+
+        product = db.session.query(Product).filter_by(
+            product_id=product_id).first()
         if cart_item:
             cart_item.quantity = new_quantity
             cart_item.total_price = product.price * new_quantity
@@ -348,7 +355,8 @@ def get_favourites():
     try:
         user_id = get_jwt_identity()['userId']
 
-        favourites = db.session.query(Favourite).filter_by(user_id=user_id).all()
+        favourites = db.session.query(
+            Favourite).filter_by(user_id=user_id).all()
         favourite_list = []
 
         for favourite in favourites:
@@ -484,13 +492,12 @@ def get_orders():
         return jsonify({'message': 'Error fetching orders', 'error': str(e)}), 500
 
 
-
 @app.route('/api/user/ordered_products', methods=['GET'])
 @jwt_required()
 @role_required(roles=['user'])
 def user_orders():
     current_user_id = get_jwt_identity()['userId']
-    
+
     # Querying for orders made by the user
     orders = Order.query.filter_by(user_id=current_user_id).all()
 
@@ -533,7 +540,8 @@ def add_rating(product_id):
     rating = request.json['rating']
     review = request.json['review']
 
-    rating = Rating(user_id=current_user_id, product_id=product_id, rating=rating, review=review)
+    rating = Rating(user_id=current_user_id,
+                    product_id=product_id, rating=rating, review=review)
 
     try:
         db.session.add(rating)
@@ -668,7 +676,8 @@ def get_products():
     start_time = time.time()
     try:
 
-        products = db.session.query(Product).filter(Product.product_id != 0).all()
+        products = db.session.query(Product).filter(
+            Product.product_id != 0).all()
 
         product_list = []
 
@@ -761,14 +770,21 @@ def delete_product(product_id):
     if not product_to_delete:
         return jsonify({'message': 'Product not found'}), 404
 
-    product_in_cart = db.session.query(Cart).filter_by(product_id=product_id).first()
+    product_in_cart = db.session.query(
+        Cart).filter_by(product_id=product_id).first()
     if product_in_cart:
         db.session.delete(product_in_cart)
+
+    product_reviews = db.session.query(
+        Rating).filter_by(product_id=product_id).all()
+    if product_reviews:
+        db.session.delete(product_reviews)
 
     # Check if the product is in the favorite or order
     product_in_favorite = db.session.query(Favourite).filter_by(
         product_id=product_id).first()
-    product_in_order = db.session.query(OrderItem).filter_by(product_id=product_id).first()
+    product_in_order = db.session.query(
+        OrderItem).filter_by(product_id=product_id).first()
 
     try:
         if product_in_favorite or product_in_order:
@@ -790,12 +806,13 @@ def delete_product(product_id):
 # @cache.cached(timeout=50)
 def manager_admin_dashboard():
     try:
-        categories = db.session.query(Category).order_by(Category.category_id).all()
+        categories = db.session.query(Category).order_by(
+            Category.category_id).all()
         products_by_category = {}
 
         for category in categories:
             products = db.session.query(Product).filter_by(
-                category_id=category.category_id).filter(Product.product_status!=0).all()
+                category_id=category.category_id).filter(Product.product_status != 0).all()
 
             products_data = []
             for product in products:
@@ -826,7 +843,8 @@ def manager_admin_dashboard():
 def get_pending_managers():
     try:
 
-        pending_managers = db.session.query(User).filter_by(request_approval=0).all()
+        pending_managers = db.session.query(
+            User).filter_by(request_approval=0).all()
         pending_managers_data = [{'user_id': manager.user_id,
                                   'name': manager.name,
                                   'role': manager.role,
@@ -846,7 +864,8 @@ def get_pending_managers():
 def get_approved_managers():
     try:
 
-        pending_managers = db.session.query(User).filter_by(request_approval=1).filter_by(role='manager').all()
+        pending_managers = db.session.query(User).filter_by(
+            request_approval=1).filter_by(role='manager').all()
         pending_managers_data = [{'user_id': manager.user_id,
                                   'name': manager.name,
                                   'role': manager.role,
@@ -867,7 +886,8 @@ def get_approved_managers():
 def get_rejected_managers():
     try:
 
-        pending_managers = db.session.query(User).filter_by(request_approval=-1).all()
+        pending_managers = db.session.query(
+            User).filter_by(request_approval=-1).all()
         pending_managers_data = [{'user_id': manager.user_id,
                                   'name': manager.name,
                                   'role': manager.role,
@@ -1034,7 +1054,8 @@ def delete_products_and_connections():
             favourite_exists = db.session.query(Favourite).filter_by(
                 product_id=product_id).first()
             if favourite_exists:
-                db.session.query(Favourite).filter_by(product_id=product_id).delete()
+                db.session.query(Favourite).filter_by(
+                    product_id=product_id).delete()
 
             order_items_to_update = db.session.query(OrderItem).filter_by(
                 product_id=product_id).all()
@@ -1044,7 +1065,8 @@ def delete_products_and_connections():
 
         db.session.commit()
 
-        db.session.query(Product).filter(Product.product_id.in_(product_ids)).delete()
+        db.session.query(Product).filter(
+            Product.product_id.in_(product_ids)).delete()
         db.session.commit()
 
         return jsonify({'message': 'Products and their connections deleted successfully'}), 200
@@ -1129,7 +1151,8 @@ def get_notification_count():
             category_approval=0).all()
         pending_category_deletion_requests = db.session.query(Category).filter_by(
             category_approval=-2).all()
-        pending_managers = db.session.query(User).filter_by(request_approval=0).all()
+        pending_managers = db.session.query(
+            User).filter_by(request_approval=0).all()
 
         notification_count = len(
             pending_categories) + len(pending_managers) + len(pending_category_deletion_requests)
@@ -1171,7 +1194,8 @@ def get_product_sales_data():
 def get_card_data():
     try:
         total_users = db.session.query(User).filter_by(role='user').count()
-        out_of_stock_count = db.session.query(Product).filter_by(stock=0).count()
+        out_of_stock_count = db.session.query(
+            Product).filter_by(stock=0).count() - 1
         limited_stock_count = db.session.query(Product).filter(
             Product.stock > 0, Product.stock <= 10).count()
         total_products = db.session.query(Product).count()
@@ -1200,7 +1224,8 @@ def user_visited_status():
         print(date.today())
         print(Order.order_date.cast(db.Date))
 
-        orders_today = db.session.query(Order).filter(Order.order_date == today_date).all()
+        orders_today = db.session.query(Order).filter(
+            Order.order_date == today_date).all()
         # print(orders_today)
         user_ids_today = set(order.user_id for order in orders_today)
 
@@ -1253,13 +1278,13 @@ def generate_monthly_report():
         )
     else:
         return "Error: Report not generated.", 500
-    
 
 
 def calculate_product_score(reviews, ratings):
-    sentiment_score = sum(TextBlob(review).sentiment.polarity for review in reviews) / len(reviews)
+    sentiment_score = sum(
+        TextBlob(review).sentiment.polarity for review in reviews) / len(reviews)
     rating_score = sum(ratings) / len(ratings)
-    return round(((0.25 * sentiment_score) + (0.75 * rating_score)), 2) 
+    return round(((0.25 * sentiment_score) + (0.75 * rating_score)), 2)
 
 
 @app.route('/api/update_product_scores')
@@ -1269,13 +1294,15 @@ def update_product_scores():
         ratings = Rating.query.filter_by(product_id=product.product_id).all()
         if ratings:
             reviews = [rating.review for rating in ratings if rating.review]
-            rating_scores = [rating.rating for rating in ratings if rating.rating]
+            rating_scores = [
+                rating.rating for rating in ratings if rating.rating]
             if reviews and rating_scores:
-                product.avg_review = calculate_product_score(reviews, rating_scores)
+                product.avg_review = calculate_product_score(
+                    reviews, rating_scores)
             else:
-                product.avg_review = np.nan 
+                product.avg_review = np.nan
         else:
-            product.avg_review = np.nan 
+            product.avg_review = np.nan
     db.session.commit()
     return jsonify({'message': 'Product scores updated successfully'}), 200
 

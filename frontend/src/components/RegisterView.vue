@@ -137,7 +137,7 @@ export default {
 
       const res = await req.json()
       if (req.ok) {
-        alert("You've Registered Successfully!")
+        alert(res.msg)
         this.$router.push({ path: '/login' })
       } else {
         alert(res.msg)

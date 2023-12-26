@@ -107,11 +107,11 @@ def export_product_data_to_csv(file_path):
 
     # Fetch data from the Product table
     cursor.execute(
-        "SELECT p.product_id, c.category_name, p.product_name, p.price FROM product p JOIN category c ON p.category_id = c.category_id")
+        "SELECT p.product_id, c.category_name, p.product_name, p.price, p.avg_review FROM product p JOIN category c ON p.category_id = c.category_id")
     product_data = cursor.fetchall()
 
     # Define CSV header
-    header = ['Product ID', 'Category Name', 'Product Name', 'Price']
+    header = ['Product ID', 'Category Name', 'Product Name', 'Price', 'Rating']
 
     # Write data to CSV file
     with open(file_path, 'w', newline='') as csv_file:
