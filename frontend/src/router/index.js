@@ -16,6 +16,7 @@ import ManagerAccepted from '../components/ManagerAccepted.vue'
 import ManagerRejected from '../components/ManagerRejected.vue'
 import HardDelete from '../components/HardDelete.vue'
 import SummaryDashboard from '../components/SummaryDashboard.vue'
+import EmailVerification from '../components/EmailVerification.vue'
 
 const routes = [
   {
@@ -65,6 +66,7 @@ const routes = [
   { path: '/hard_delete', name: 'hard_delete', component: HardDelete, meta: {
     allowedRoles: ['admin'],
   }, },
+  { path: '/verify_email', name: 'verify_email', component: EmailVerification },
 ]
   }]
 

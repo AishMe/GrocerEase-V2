@@ -1,8 +1,10 @@
 from email.mime.application import MIMEApplication
+from itsdangerous import URLSafeTimedSerializer
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from celery.schedules import crontab
 from celery import Celery
+from models import bcrypt
 import requests
 import smtplib
 import sqlite3
@@ -132,6 +134,41 @@ def send_message_to_google_chat(message):
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f"Failed to send message to Google Chat: {e}")
+
+
+
+@app.task
+def send_reset_email(user_email, user_password):
+    serializer = URLSafeTimedSerializer("secret-key")
+    token = serializer.dumps(user_email, salt='reset-password-salt')
+
+    # Store the token with the user's record in the database here
+    hashed_password = bcrypt.generate_password_hash(user_password).decode('utf-8')
+    reset_link = f'http://127.0.0.1:5000/api/user/reset_password/{hashed_password}/{token}'
+
+    sender = '21f1005945@ds.study.iitm.ac.in'
+    receiver = user_email
+    subject = 'GrocerEase - Reset Your Password'
+    message = f'New Password: {user_password}\nPlease click on the link to reset your password: {reset_link}'
+
+    msg = MIMEMultipart()
+    msg['From'] = sender
+    msg['To'] = receiver
+    msg['Subject'] = subject
+    msg.attach(MIMEText(message))
+
+    # Set up the SMTP Server and send the email
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = 587
+    smtp_username = sender
+    smtp_password = os.environ['SMTP_PASSWORD']
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.sendmail(sender, receiver, msg.as_string())
+
+    return "Reset Password Email Sent!"
 
 
 

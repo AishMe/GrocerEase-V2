@@ -1,9 +1,9 @@
 from models import User, Cart, Favourite, Order, OrderItem, Product, Category, Rating, db, bcrypt, ma
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from textblob import TextBlob
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, redirect
 from monthly_report import generate_pdf_report
-from tasks import export_product_data_to_csv
+from tasks import export_product_data_to_csv, send_reset_email
 from flask_caching import Cache
 from functools import wraps
 from flask_cors import CORS
@@ -12,6 +12,7 @@ from datetime import date
 import numpy as np
 import time
 import os
+from itsdangerous import URLSafeTimedSerializer
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -114,6 +115,53 @@ def login():
                                        })
 
     return jsonify({'access_token': access_token, 'role': user.role, 'msg': f"Successfully Logged In as {user.role.capitalize()}"}), 200
+
+
+@app.route('/api/user/reset_password_request', methods=['POST'])
+def reset_password_request():
+    email = request.json.get('email')
+    password = request.json.get('password')
+
+    user = db.session.query(User).filter_by(email=email).first()
+    if user: 
+        send_reset_email.delay(email, password)
+        return jsonify({'message': 'Email has been sent! Please verify your identity by clicking on the link that has been sent on your email address.'})
+
+
+@app.route('/api/user/reset_password/<string:new_password>/<string:token>', methods=['GET'])
+def reset_with_token(new_password, token):
+    serializer = URLSafeTimedSerializer("secret-key")
+    try:
+        email = serializer.loads(token, salt='reset-password-salt', max_age=3600)
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.password = new_password
+            db.session.commit()
+            message = "Hurray, you've been verified!\nPassword Updated Successfully!"
+        else:
+            message = "Oopsie, the link is invalid."
+    except:
+        message = "The reset link is invalid or has expired."
+
+    return redirect(f'http://localhost:8080/verify_email?message={message}')
+
+
+
+@app.route('/api/user/reset_password', methods=['PUT'])
+def reset_password():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = db.session.query(User).filter_by(email=email).first()
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    user.password = hashed_password
+    db.session.commit()
+
+    return jsonify({'message': 'Password reset successfully!'}), 200
 
 
 @app.route('/api/user/profile', methods=['GET'])
@@ -1308,4 +1356,6 @@ def update_product_scores():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+        app.run(debug=True)
