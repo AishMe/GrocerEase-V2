@@ -52,7 +52,7 @@ export default {
 
           // Make a request to the update_cart_item API endpoint
           const response = await fetch('http://127.0.0.1:5000/api/cart/update', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
               Authorization: 'Bearer ' + localStorage.getItem('accessToken')
@@ -87,7 +87,7 @@ export default {
 
           // Make a request to the update_cart_item API endpoint
           const response = await fetch('http://127.0.0.1:5000/api/cart/update', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
               Authorization: 'Bearer ' + localStorage.getItem('accessToken')

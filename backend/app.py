@@ -10,6 +10,7 @@ from flask_cors import CORS
 from sqlalchemy import or_
 from datetime import date
 import numpy as np
+import regex as re
 import time
 import os
 from itsdangerous import URLSafeTimedSerializer
@@ -123,7 +124,7 @@ def reset_password_request():
     password = request.json.get('password')
 
     user = db.session.query(User).filter_by(email=email).first()
-    if user: 
+    if user:
         send_reset_email.delay(email, password)
         return jsonify({'message': 'Email has been sent! Please verify your identity by clicking on the link that has been sent on your email address.'})
 
@@ -132,7 +133,8 @@ def reset_password_request():
 def reset_with_token(new_password, token):
     serializer = URLSafeTimedSerializer("secret-key")
     try:
-        email = serializer.loads(token, salt='reset-password-salt', max_age=3600)
+        email = serializer.loads(
+            token, salt='reset-password-salt', max_age=3600)
         user = User.query.filter_by(email=email).first()
         if user:
             user.password = new_password
@@ -144,7 +146,6 @@ def reset_with_token(new_password, token):
         message = "The reset link is invalid or has expired."
 
     return redirect(f'http://localhost:8080/verify_email?message={message}')
-
 
 
 @app.route('/api/user/reset_password', methods=['PUT'])
@@ -288,6 +289,7 @@ def get_cart():
                     'price': product.price,
                     'unit': product.unit,
                     'stock': product.stock,
+                    'discount': cart_item.discount,
                 })
 
         return jsonify({'cart': cart_data}), 200
@@ -298,7 +300,7 @@ def get_cart():
 
 
 # Update cart items
-@app.route('/api/cart/update', methods=['POST'])
+@app.route('/api/cart/update', methods=['PUT'])
 @jwt_required()
 def update_cart_item():
     try:
@@ -375,7 +377,8 @@ def checkout():
                     product_id=product.product_id,
                     category_id=product.category_id,
                     quantity=item['qty'],
-                    total_price=item['price'] * item['qty']
+                    total_price=(item['price'] * item['qty']) -
+                    (item['price'] * item['qty'])*(item['discount']/100)
                 )
                 db.session.add(order_item)
 
@@ -394,6 +397,53 @@ def checkout():
         print(f"Error during checkout: {str(e)}")
         db.session.rollback()  # Rollback changes in case of an error
         return jsonify({'message': 'Error during checkout', 'error': str(e)}), 500
+
+
+@app.route('/api/cart/update/discount', methods=['PUT'])
+@jwt_required()
+@role_required(roles=['user'])
+def update_discount():
+    try:
+        user_id = get_jwt_identity()['userId']
+
+        data = request.json
+        discount_code = data['discount']
+        item_name, discount_percent = parse_discount_code(discount_code)
+        item_name = item_name.lower().replace(' ', '')  # Normalize the item name
+
+        # Reset discount for all items in the user's cart
+        carts = Cart.query.filter_by(user_id=user_id).all()
+        for cart in carts:
+            cart.discount = 0  # Reset discount
+
+        if item_name == 'allproduct':
+            carts = Cart.query.filter_by(user_id=user_id).all()
+            for cart in carts:
+                product = db.session.get(Product, cart.product_id)
+
+                if product:
+                    cart.discount = discount_percent
+        else:
+            carts = Cart.query.filter_by(user_id=user_id).all()
+            for cart in carts:
+                product = db.session.get(Product, cart.product_id)
+                if product and product.product_name.lower().replace(' ', '') == item_name:
+                    cart.discount = discount_percent
+
+        db.session.commit()
+        return jsonify({'message': 'Discount updated successfully'}), 200
+
+    except Exception as e:
+        print(f"Error during checkout: {str(e)}")
+        return jsonify({'message': 'Error while applying the discount', 'error': str(e)}), 500
+
+
+def parse_discount_code(code):
+    pattern = r'([A-Za-z\s]+)(\d+)'
+    match = re.match(pattern, code)
+    item_name = match.group(1).replace('_', ' ').strip().lower()
+    discount_percent = int(match.group(2))
+    return item_name, discount_percent
 
 
 @app.route('/api/favourites', methods=['GET'])

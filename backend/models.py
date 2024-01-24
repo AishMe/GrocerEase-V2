@@ -68,6 +68,7 @@ class Cart(db.Model):
         Product.product_id), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
+    discount = db.Column(db.Integer, nullable=True, default=0)
 
 
 class Order(db.Model):
@@ -92,8 +93,10 @@ class OrderItem(db.Model):
 
 class Rating(db.Model):
     rating_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.user_id), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey(Product.product_id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        User.user_id), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey(
+        Product.product_id), nullable=False)
     rating = db.Column(db.Integer, nullable=True)
     review = db.Column(db.String(255), nullable=True)
     product = db.relationship('Product', backref='rating', lazy=True)
