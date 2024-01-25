@@ -22,14 +22,20 @@ npm install
 npm run dev
 ```
 
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
+
 ### Compile and Minify for Production
 
 ```sh
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### PWA demonstration
 
 ```sh
-npm run lint
+npx http-server dist
 ```
