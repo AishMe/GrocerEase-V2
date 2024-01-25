@@ -1359,6 +1359,13 @@ def download_csv():
 
     except Exception as e:
         return f"Error: {str(e)}", 500
+    
+
+@app.route('/api/managers', methods=['GET'])
+def fetch_manager_emails():
+    managers = User.query.filter(or_(User.role=='manager', User.role=='admin')).all()
+    manager_emails = [manager.email for manager in managers]
+    return manager_emails
 
 
 @app.route('/api/generate_monthly_report', methods=['GET'])

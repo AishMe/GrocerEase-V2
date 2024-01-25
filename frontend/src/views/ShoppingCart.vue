@@ -417,11 +417,10 @@ export default {
     this.fetchCart()
   },
   watch: {
-    '$store.state.cart': {
+    '$store.state.cartTotal': {
       handler() {
         this.applyDiscount()
-      },
-      deep: true // This ensures the watcher will detect nested changes in objects/arrays
+      }
     }
   }
 }
