@@ -21,9 +21,9 @@ export ENV=development
 # Run the GrocerEase app
 python3 app.py &
 
-# Start Celery for batch jobs in separate terminals
-gnome-terminal -- bash -c "source .env/bin/activate; celery -A tasks beat --loglevel=info" &
-gnome-terminal -- bash -c "source .env/bin/activate; celery -A tasks worker --loglevel=info -P eventlet" &
+# Start Celery for batch jobs in the background
+celery -A tasks beat --loglevel=info &
+celery -A tasks worker --loglevel=info -P eventlet &
 
 echo "The GrocerEase app is running."
 
